@@ -1,0 +1,79 @@
+name: Add mobile share and contact tools
+
+on:
+  push:
+    paths:
+      - '.github/workflows/add-mobile-share-and-contact.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  patch:
+    if: github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+          fetch-depth: 0
+
+      - name: Add native share, copyable factors, contact download, and README rules
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+
+          page = Path('best-interests-of-the-child-florida/index.html')
+          html = page.read_text(encoding='utf-8')
+
+          share_script = '<script async custom-element="amp-social-share" src="https://cdn.ampproject.org/v0/amp-social-share-0.1.js"></script>'
+          if share_script not in html:
+              html = html.replace('<script async src="https://cdn.ampproject.org/v0.js"></script>', '<script async src="https://cdn.ampproject.org/v0.js"></script>\n' + share_script)
+
+          css = '.mobile-tools{display:flex;flex-wrap:wrap;gap:10px;margin:16px 0 4px}.mobile-tools a,.mobile-tools amp-social-share{min-height:44px}.tool-link{display:inline-flex;align-items:center;justify-content:center;border:1px solid #8b6b2e;padding:10px 14px;color:#efd98c;background:#0b0b0b;text-decoration:none}.tool-link:hover,.tool-link:focus{text-decoration:underline}@media(max-width:600px){.mobile-tools{display:grid;grid-template-columns:1fr 1fr}.tool-link{width:100%;padding:11px 8px}.mobile-tools amp-social-share{width:100%}}'
+          if '.mobile-tools{' not in html:
+              html = html.replace('</style>\n</head>', css + '</style>\n</head>')
+
+          tools = '''<div class="mobile-tools" aria-label="Page tools">
+<amp-social-share type="system" data-mode="replace" aria-label="Share this page using your iPhone or device share menu"></amp-social-share>
+<a class="tool-link" href="/best-interests-of-the-child-florida/factors.txt" target="_self">Copy / Paste Factors</a>
+<a class="tool-link" href="/ken-turner.vcf" target="_self" download>Save Ken Turner Contact</a>
+</div>'''
+          marker = '<section class="card">\n<h2>Florida\'s Best Interests of the Child Factors</h2>'
+          if tools not in html and marker in html:
+              html = html.replace(marker, tools + '\n' + marker)
+
+          contact_old = '<p><a href="tel:+12394003733">Call (239) 400-FREE</a> · <a href="mailto:ken@kenturnerlaw.com">ken@kenturnerlaw.com</a></p>'
+          contact_new = '<p><a href="tel:+12394003733">Call (239) 400-FREE</a> · <a href="mailto:ken@kenturnerlaw.com">ken@kenturnerlaw.com</a> · <a href="/ken-turner.vcf" download>Save Contact</a></p>'
+          html = html.replace(contact_old, contact_new)
+
+          page.write_text(html, encoding='utf-8')
+
+          readme = Path('README.md')
+          text = readme.read_text(encoding='utf-8') if readme.exists() else '# Kenturnerlaw.com\n'
+          note = '''
+
+## Permanent mobile-first requirements
+
+- Every new page must be designed for iPhone-sized screens first, while preserving valid AMP HTML.
+- Do not use a row or stack of plain text navigation links that consumes the first mobile screen. Use a compact branded header, small logo, and an AMP-compatible expandable menu.
+- Put the useful introductory paragraph above the fold.
+- Include a native device share control on substantive articles when useful. On AMP pages use `amp-social-share type="system"` so supported iPhones and mobile browsers open the operating-system share menu.
+- Provide copyable or downloadable plain-text versions of statutory lists and similar reference material.
+- Make Ken Turner Law contact information downloadable as a vCard.
+- Place `~ destrier ~` in small lettering at the bottom of every page.
+- AI discoverability must be reflected in the actual page: clear direct answers, useful headings, original practical analysis, structured data, canonical URLs, internal links, and natural-language questions where appropriate.
+- Client resources must minimize cognitive load. Do not expand a simple task into a packet, journal, or corporate-style workflow.
+'''
+          if '## Permanent mobile-first requirements' not in text:
+              readme.write_text(text.rstrip() + note, encoding='utf-8')
+          PY
+
+      - name: Commit and remove temporary workflow
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git rm .github/workflows/add-mobile-share-and-contact.yml
+          git add best-interests-of-the-child-florida/index.html README.md
+          git commit -m "Add mobile share, copyable factors, and downloadable contact"
+          git push origin main
