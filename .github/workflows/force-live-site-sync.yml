@@ -1,0 +1,74 @@
+name: Force live site synchronization
+
+on:
+  push:
+    paths:
+      - '.github/force-live-site-sync-trigger'
+
+permissions:
+  contents: write
+
+jobs:
+  sync:
+    if: github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+          fetch-depth: 0
+      - name: Ensure new pages are linked and shared navigation is present
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          import re
+
+          best_url='/best-interests-of-the-child-florida/'
+          answers_url='/florida-criminal-defense-answers/'
+
+          for p in Path('.').rglob('*.html'):
+              if '.git' in p.parts:
+                  continue
+              s=p.read_text(encoding='utf-8')
+              original=s
+              # Ensure every page has discoverable links without replacing its existing menu.
+              if best_url not in s or answers_url not in s:
+                  links=('''<nav class="kt-resource-links" aria-label="Legal resources">'''
+                         '''<a href="/florida-criminal-defense-answers/">Criminal Defense Answers</a>'''
+                         '''<a href="/best-interests-of-the-child-florida/">Best Interests of the Child</a>'''
+                         '''</nav>''')
+                  if '</header>' in s:
+                      s=s.replace('</header>',links+'</header>',1)
+                  elif '<body>' in s:
+                      s=s.replace('<body>','<body>'+links,1)
+              if '.kt-resource-links{' not in s and '<style amp-custom>' in s:
+                  css='.kt-resource-links{display:flex;flex-wrap:wrap;gap:8px 14px;padding:8px 0}.kt-resource-links a{color:#e4c36a;text-decoration:none;font-size:.9rem}@media(max-width:600px){.kt-resource-links{font-size:.85rem;line-height:1.3}}'
+                  s=s.replace('<style amp-custom>','<style amp-custom>'+css,1)
+              if s!=original:
+                  p.write_text(s,encoding='utf-8')
+
+          # Ensure homepage visibly exposes both new resource areas.
+          home=Path('index.html')
+          if home.exists():
+              s=home.read_text(encoding='utf-8')
+              marker='<!-- KT-RESOURCE-LINKS-2026-08-03 -->'
+              if marker not in s:
+                  block=marker+'''<section id="legal-resources"><h2>Legal Resources</h2><p><a href="/florida-criminal-defense-answers/">Florida Criminal Defense Answers</a> | <a href="/best-interests-of-the-child-florida/">Best Interests of the Child in Florida</a></p></section>'''
+                  if '</main>' in s:
+                      s=s.replace('</main>',block+'</main>',1)
+                  else:
+                      s=s.replace('</body>',block+'</body>',1)
+                  home.write_text(s,encoding='utf-8')
+          PY
+      - name: Commit actual website files
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git rm .github/workflows/force-live-site-sync.yml .github/force-live-site-sync-trigger
+          git add -- '*.html'
+          if git diff --cached --quiet; then
+            echo 'No content changes required'
+            exit 0
+          fi
+          git commit -m "Expose new legal resources across live site"
+          git push origin main
