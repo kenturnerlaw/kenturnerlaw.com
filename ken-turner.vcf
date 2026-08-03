@@ -1,0 +1,12 @@
+BEGIN:VCARD
+VERSION:3.0
+N:Turner;Ken;;;
+FN:Ken Turner
+ORG:Ken Turner Law
+TITLE:Attorney
+TEL;TYPE=WORK,VOICE:+12394003733
+EMAIL;TYPE=WORK:ken@kenturnerlaw.com
+ADR;TYPE=WORK:;;3080 Tamiami Trail East\, Suite 301;Naples;FL;34112;USA
+URL:https://www.kenturnerlaw.com/
+NOTE:Free consultation: (239) 400-FREE
+END:VCARD
