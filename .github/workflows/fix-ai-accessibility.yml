@@ -1,0 +1,110 @@
+name: Fix AI and accessibility audits
+
+on:
+  push:
+    paths:
+      - '.github/fix-ai-accessibility-trigger'
+
+permissions:
+  contents: write
+
+jobs:
+  fix:
+    if: github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+          fetch-depth: 0
+
+      - name: Correct llms.txt and accordion heading semantics
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          import re
+
+          llms = Path('llms.txt')
+          llms.write_text('''# Ken Turner Law
+
+> Florida criminal-defense and family-law information from attorney Ken Turner in Naples, Florida.
+
+## Primary legal resources
+
+- [Home](https://www.kenturnerlaw.com/)
+- [Florida Criminal Defense Answers](https://www.kenturnerlaw.com/florida-criminal-defense-answers/)
+- [Best Interests of the Child in Florida](https://www.kenturnerlaw.com/best-interests-of-the-child-florida/)
+- [Criminal Defense](https://www.kenturnerlaw.com/criminal-defense/)
+- [Divorce](https://www.kenturnerlaw.com/divorce/)
+- [Time-Sharing and Parenting Plans](https://www.kenturnerlaw.com/child-custody/)
+
+## Criminal-defense topics
+
+- [Arrested in Florida](https://www.kenturnerlaw.com/arrested/)
+- [DUI](https://www.kenturnerlaw.com/dui/)
+- [Drug Charges](https://www.kenturnerlaw.com/drug-charges/)
+- [Domestic Violence](https://www.kenturnerlaw.com/domestic-violence/)
+- [Violation of Probation](https://www.kenturnerlaw.com/violation-of-probation/)
+- [Suspended License](https://www.kenturnerlaw.com/suspended-license/)
+- [Traffic Offenses](https://www.kenturnerlaw.com/traffic-offenses/)
+
+## Service areas
+
+- [Naples](https://www.kenturnerlaw.com/criminal-defense-naples/)
+- [Fort Myers](https://www.kenturnerlaw.com/criminal-defense-fort-myers/)
+- [LaBelle](https://www.kenturnerlaw.com/criminal-defense-labelle/)
+- [Miami](https://www.kenturnerlaw.com/criminal-defense-miami/)
+
+## Author and contact
+
+- **Attorney:** Ken Turner
+- **Firm:** Ken Turner Law
+- **Location:** Naples, Florida
+- **Telephone:** +1-239-400-3733
+- **Email:** ken@kenturnerlaw.com
+
+## Use and verification
+
+This site provides Florida-specific legal information in plain English. Verify legal summaries against current Florida statutes, court rules, and published opinions. The content is general legal information, not individualized legal advice, and no result is guaranteed.
+''', encoding='utf-8')
+
+          home = Path('index.html')
+          text = home.read_text(encoding='utf-8')
+
+          # AMP accordion applies role=button to its first child. A section-level
+          # header is semantically compatible; an h2 with role=button fails the
+          # PageSpeed/Lighthouse ARIA role audit.
+          pattern = re.compile(
+              r'<h2(?P<attrs>[^>]*)id=["\']Misson["\'](?P<rest>[^>]*)>(?P<body>.*?)</h2>',
+              re.I | re.S,
+          )
+          match = pattern.search(text)
+          if not match:
+              # Fallback for attribute order or corrected spelling.
+              pattern = re.compile(
+                  r'<h2(?P<attrs>[^>]*)id=["\']Mission["\'](?P<rest>[^>]*)>(?P<body>.*?)</h2>',
+                  re.I | re.S,
+              )
+              match = pattern.search(text)
+
+          if not match:
+              raise SystemExit('Mission accordion heading not found; no unverified edit made.')
+
+          attrs = (match.group('attrs') + match.group('rest'))
+          attrs = re.sub(r'\s+role=["\'][^"\']*["\']', '', attrs, flags=re.I)
+          attrs = re.sub(r'\s+aria-[a-z-]+=["\'][^"\']*["\']', '', attrs, flags=re.I)
+          attrs = re.sub(r'\s+tabindex=["\'][^"\']*["\']', '', attrs, flags=re.I)
+          replacement = f'<header{attrs} id="Mission">{match.group("body")}</header>'
+          text = text[:match.start()] + replacement + text[match.end():]
+          home.write_text(text, encoding='utf-8')
+          PY
+
+      - name: Commit verified source changes
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git rm .github/workflows/fix-ai-accessibility.yml .github/fix-ai-accessibility-trigger
+          git add index.html llms.txt
+          git diff --cached --check
+          git commit -m "Fix llms.txt and homepage accordion accessibility"
+          git push origin main
