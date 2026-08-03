@@ -20,7 +20,7 @@
 - [x] Apply the homepage top banner to every Criminal Defense Answers article.
 - [x] Apply the homepage top banner to Practice Areas.
 - [x] Apply the homepage top banner to Blog.
-- [ ] Apply the homepage top banner to Client Resources.
+- [x] Apply the homepage top banner to Client Resources.
 - [ ] Remove all page-specific banner variations.
 - [ ] Remove resource-link strips, page titles, breadcrumbs, and unrelated labels from banners.
 
@@ -71,7 +71,7 @@
 - [x] Best Interests of the Child
 - [ ] Reviews
 - [x] Blog
-- [ ] Client Resources
+- [x] Client Resources
 - [x] Florida Criminal Defense Answers index
 - [x] Every individual Criminal Defense Answers article
 - [ ] Every other public HTML page found in the repository
