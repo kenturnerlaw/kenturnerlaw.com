@@ -8,57 +8,30 @@ This website is **AMP-only**.
 - Do not convert pages to non-AMP HTML, React, or other frameworks.
 - New pages and edits must stay AMP-compatible unless Ken explicitly changes this rule.
 
-## Mobile-first design
+## Preserve the existing design
 
-- This is one mobile-first responsive website. Desktop must use the same design, content hierarchy, navigation, and visual identity as mobile, expanding naturally to the available width.
-- Do not create a separate desktop presentation or desktop-specific design concept.
-- Design and verify every page at phone width first.
-- Use a compact branded AMP header with a clearly visible Menu control and clear call access.
-- Do not use stacked bare text links as the primary menu.
-- Keep the page purpose and introduction visible immediately without unnecessary preliminary content.
+- Styling corrections do not authorize a redesign.
+- Do not invent new headers, menus, typography systems, cards, borders, backgrounds, spacing systems, or page layouts.
+- Reuse the homepage's existing shared components and visual design.
 
-## Sitewide typography and color hierarchy
+## Homepage banner — every public page
 
-- Main page headings and section headings must be larger than surrounding text and use the established gold site color.
-- Supporting text, summaries, labels, dates, and explanatory subtext must be smaller and white or near-white.
-- Body copy must remain white or near-white against the dark site background.
-- Navigation text must use the same gold-and-white hierarchy as the rest of the site.
-- Links and primary actions may use the established gold color, but body paragraphs must not be gold.
-- Do not introduce a separate type scale, font treatment, or color palette for new pages.
-- A page-specific CSS change is not a redesign. Prefer minimal CSS edits that preserve the existing site design.
+**Every public HTML page must use the same top banner as the homepage.**
 
-## Reduce client burden
+- Use the homepage banner markup, height, spacing, black background, hamburger icon, centered call link, and AMP behavior.
+- Do not place page titles, resource links, breadcrumbs, or unrelated labels inside the banner.
+- Do not create page-specific banner variations.
+- Exclude only nonpublic test, utility, error, and system files.
 
-- Every page and client resource must reduce cognitive load.
-- Do not turn a prompt, checklist, worksheet, or short reference into a packet, journal, or assignment.
-- Prefer the shortest useful form that accomplishes the stated purpose.
-- Do not add corporate marketing filler, unnecessary sections, decorative clutter, or redundant instructions.
-- Preserve Ken Turner's practical voice rather than generic law-firm or SEO copy.
+## Hamburger menu — every public page
 
-## Shared site components
+**Every public HTML page must use the same menu as the homepage.**
 
-The following are sitewide components:
-
-- Header and navigation
-- Footer and `~ destrier ~` mark
-- Logo and branding
-- Telephone number and contact information
-- Downloadable contact card
-- Internal resource links
-- Structured data, canonical URLs, sitemap references, and AI-discovery files
-
-When any shared component changes, update every page where it appears unless Ken expressly limits the scope.
-
-## Navigation requirements — every page
-
-**Every public HTML page must contain a visible, working site menu. This is mandatory. A page is not publishable or complete without it.**
-
-- The menu control must be visible at phone and desktop widths.
-- Opening and closing the menu must work in AMP.
-- Every new page, resource page, answer page, article page, landing page, and homepage must use the same navigation hierarchy and visual treatment.
-- A Home link by itself is not a site menu.
-- Never remove or replace a working menu while changing page content, colors, typography, logo treatment, downloads, or contact controls.
-- Before committing any page, verify that its AMP sidebar script, menu button target, sidebar `id`, close control, and navigation links are all present and consistent.
+- The control must be the homepage hamburger icon (`☰`), not a text button labeled `Menu`.
+- The hamburger must open the same AMP sidebar structure on every page.
+- Menu order, labels, links, indentation, typography, colors, spacing, close control, and call action must be identical.
+- A Home link, resource strip, inline navigation row, or page-specific menu is not an acceptable substitute.
+- Never remove or replace a working menu while editing page content.
 
 Every site menu must provide access to:
 
@@ -82,9 +55,36 @@ Every site menu must provide access to:
 - Blog
 - Call (239) 400-FREE
 
-New pages must be reachable from the homepage and the site menu when published.
+`Save Contact` belongs with the homepage contact information and must not be repeated as a primary menu item unless Ken expressly requests it.
 
-`Save Contact` belongs with the homepage contact information and should not be repeated as a primary menu item on every page unless Ken expressly requests it.
+## Mobile-first design
+
+- This is one mobile-first responsive website. Desktop must use the same design, content hierarchy, navigation, and visual identity as mobile, expanding naturally to the available width.
+- Do not create a separate desktop presentation or desktop-specific design concept.
+- Design and verify every page at phone width first.
+
+## Typography evaluation
+
+- Body copy remains white or near-white against the dark background.
+- Supporting text remains smaller than headings and white or near-white.
+- Gold headings are currently an evaluation item, not authorization to redesign the site.
+- Compare gold headings against the existing homepage design before applying them broadly.
+- Do not apply a new sitewide heading treatment until Ken approves it.
+
+## Shared site components
+
+The following are sitewide components:
+
+- Homepage top banner
+- Hamburger and AMP sidebar menu
+- Footer and `~ destrier ~` mark
+- Logo and branding
+- Telephone number and contact information
+- Downloadable contact card
+- Internal resource links
+- Structured data, canonical URLs, sitemap references, and AI-discovery files
+
+When any shared component changes, update every public page where it appears unless Ken expressly limits the scope.
 
 ## Verification before reporting completion
 
@@ -93,16 +93,16 @@ Never report a task as complete until the result has been verified.
 For every website update:
 
 1. Verify each intended source file actually changed.
-2. Verify every public HTML page has a visible, working full site menu.
-3. Verify shared components were updated everywhere they appear.
-4. Verify every changed page remains valid AMP.
-5. Verify internal links and downloadable files resolve.
-6. Verify the page is present in the sitemap when appropriate.
+2. Verify every public HTML page uses the homepage banner.
+3. Verify every public HTML page uses the same hamburger and AMP sidebar menu.
+4. Verify page-specific titles and headings remain outside the shared banner and identify the correct page.
+5. Verify every changed page remains valid AMP.
+6. Verify internal links and downloadable files resolve.
 7. Verify mobile presentation using the same responsive design served to desktop.
 8. Verify Cloudflare deployed the exact GitHub commit containing the source changes.
-9. Verify the live URL displays the change and the menu opens and closes.
+9. Verify the live URL displays the change and the hamburger opens and closes.
 
-Do not use `complete`, `finished`, `done`, `sitewide`, or similar language when any required verification remains outstanding. State exactly what remains unverified.
+Do not mark a checklist item complete merely because a file was edited. Mark it only after the specific item has been performed and verified.
 
 ## GitHub and Cloudflare
 
@@ -118,4 +118,3 @@ Do not use `complete`, `finished`, `done`, `sitewide`, or similar language when 
 - `llms.txt` must be valid Markdown beginning with an H1 and should remain concise, accurate, and limited to important current resources.
 - Use descriptive headings, visible summaries, canonical URLs, accurate structured data, and meaningful internal links.
 - Preserve a valid accessibility tree. Use appropriate elements and ARIA roles, and do not add ARIA attributes that conflict with AMP-generated behavior.
-- AI-discovery work supports useful content and navigation; it does not replace them.
