@@ -13,7 +13,7 @@ This website is **AMP-only**.
 - This is one mobile-first responsive website. Desktop must use the same design, content hierarchy, navigation, and visual identity as mobile, expanding naturally to the available width.
 - Do not create a separate desktop presentation or desktop-specific design concept.
 - Design and verify every page at phone width first.
-- Use a compact branded AMP header with the horse-and-shield mark, hamburger menu, and clear call access.
+- Use a compact branded AMP header with a clearly visible Menu control and clear call access.
 - Do not use stacked bare text links as the primary menu.
 - Keep the page purpose and introduction visible immediately without unnecessary preliminary content.
 
@@ -49,7 +49,16 @@ The following are sitewide components:
 
 When any shared component changes, update every page where it appears unless Ken expressly limits the scope.
 
-## Navigation requirements
+## Navigation requirements — every page
+
+**Every public HTML page must contain a visible, working site menu. This is mandatory. A page is not publishable or complete without it.**
+
+- The menu control must be visible at phone and desktop widths.
+- Opening and closing the menu must work in AMP.
+- Every new page, resource page, answer page, article page, landing page, and homepage must use the same navigation hierarchy and visual treatment.
+- A Home link by itself is not a site menu.
+- Never remove or replace a working menu while changing page content, colors, typography, logo treatment, downloads, or contact controls.
+- Before committing any page, verify that its AMP sidebar script, menu button target, sidebar `id`, close control, and navigation links are all present and consistent.
 
 Every site menu must provide access to:
 
@@ -84,13 +93,14 @@ Never report a task as complete until the result has been verified.
 For every website update:
 
 1. Verify each intended source file actually changed.
-2. Verify shared components were updated everywhere they appear.
-3. Verify every changed page remains valid AMP.
-4. Verify internal links and downloadable files resolve.
-5. Verify the page is present in the sitemap when appropriate.
-6. Verify mobile presentation using the same responsive design served to desktop.
-7. Verify Cloudflare deployed the exact GitHub commit containing the source changes.
-8. Verify the live URL displays the change.
+2. Verify every public HTML page has a visible, working full site menu.
+3. Verify shared components were updated everywhere they appear.
+4. Verify every changed page remains valid AMP.
+5. Verify internal links and downloadable files resolve.
+6. Verify the page is present in the sitemap when appropriate.
+7. Verify mobile presentation using the same responsive design served to desktop.
+8. Verify Cloudflare deployed the exact GitHub commit containing the source changes.
+9. Verify the live URL displays the change and the menu opens and closes.
 
 Do not use `complete`, `finished`, `done`, `sitewide`, or similar language when any required verification remains outstanding. State exactly what remains unverified.
 
