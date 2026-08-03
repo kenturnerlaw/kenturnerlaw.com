@@ -16,8 +16,8 @@
 ## Shared banner
 - [ ] Apply the homepage top banner to every public legacy page.
 - [x] Apply the homepage top banner to Best Interests of the Child.
-- [ ] Apply the homepage top banner to the Florida Criminal Defense Answers index.
-- [ ] Apply the homepage top banner to every Criminal Defense Answers article.
+- [x] Apply the homepage top banner to the Florida Criminal Defense Answers index.
+- [x] Apply the homepage top banner to every Criminal Defense Answers article.
 - [ ] Apply the homepage top banner to Practice Areas.
 - [ ] Apply the homepage top banner to Blog.
 - [ ] Apply the homepage top banner to Client Resources.
@@ -38,7 +38,7 @@
 - [ ] Confirm every page retains its own correct title and H1 outside the shared banner.
 - [x] Confirm Child Custody contains no Criminal Defense Answers banner text.
 - [ ] Confirm unrelated pages contain no Best Interests banner text.
-- [ ] Confirm every Criminal Defense Answers article retains its correct article title.
+- [x] Confirm every Criminal Defense Answers article retains its correct article title.
 - [ ] Confirm no page displays a copied heading from another page.
 
 ## Typography evaluation
@@ -72,8 +72,8 @@
 - [ ] Reviews
 - [ ] Blog
 - [ ] Client Resources
-- [ ] Florida Criminal Defense Answers index
-- [ ] Every individual Criminal Defense Answers article
+- [x] Florida Criminal Defense Answers index
+- [x] Every individual Criminal Defense Answers article
 - [ ] Every other public HTML page found in the repository
 
 ## Technical verification
