@@ -1,0 +1,96 @@
+name: Fix PageSpeed AI and accessibility audits v2
+
+on:
+  push:
+    paths:
+      - '.github/fix-pagespeed-audits-v2-trigger'
+
+permissions:
+  contents: write
+
+jobs:
+  fix:
+    if: github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+          fetch-depth: 0
+
+      - name: Apply verified fixes
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+
+          Path('llms.txt').write_text('''# Ken Turner Law
+
+> Florida criminal-defense and family-law information from attorney Ken Turner in Naples, Florida.
+
+## Primary legal resources
+
+- [Home](https://www.kenturnerlaw.com/)
+- [Florida Criminal Defense Answers](https://www.kenturnerlaw.com/florida-criminal-defense-answers/)
+- [Best Interests of the Child in Florida](https://www.kenturnerlaw.com/best-interests-of-the-child-florida/)
+- [Criminal Defense](https://www.kenturnerlaw.com/criminal-defense/)
+- [Divorce](https://www.kenturnerlaw.com/divorce/)
+- [Time-Sharing and Parenting Plans](https://www.kenturnerlaw.com/child-custody/)
+
+## Criminal-defense topics
+
+- [Arrested in Florida](https://www.kenturnerlaw.com/arrested/)
+- [DUI](https://www.kenturnerlaw.com/dui/)
+- [Drug Charges](https://www.kenturnerlaw.com/drug-charges/)
+- [Domestic Violence](https://www.kenturnerlaw.com/domestic-violence/)
+- [Violation of Probation](https://www.kenturnerlaw.com/violation-of-probation/)
+- [Suspended License](https://www.kenturnerlaw.com/suspended-license/)
+- [Traffic Offenses](https://www.kenturnerlaw.com/traffic-offenses/)
+
+## Service areas
+
+- [Naples](https://www.kenturnerlaw.com/criminal-defense-naples/)
+- [Fort Myers](https://www.kenturnerlaw.com/criminal-defense-fort-myers/)
+- [LaBelle](https://www.kenturnerlaw.com/criminal-defense-labelle/)
+- [Miami](https://www.kenturnerlaw.com/criminal-defense-miami/)
+
+## Author and contact
+
+- **Attorney:** Ken Turner
+- **Firm:** Ken Turner Law
+- **Location:** Naples, Florida
+- **Telephone:** +1-239-400-3733
+- **Email:** ken@kenturnerlaw.com
+
+## Use and verification
+
+This site provides Florida-specific legal information in plain English. Verify legal summaries against current Florida statutes, court rules, and published opinions. The content is general legal information, not individualized legal advice, and no result is guaranteed.
+''', encoding='utf-8')
+
+          home = Path('index.html')
+          text = home.read_text(encoding='utf-8')
+          old_open = '<h2 class="ampstart-title-sm" id="Misson">'
+          pos = text.find(old_open)
+          if pos == -1:
+              raise SystemExit('Exact Mission accordion heading not found')
+          close = text.find('</h2>', pos)
+          if close == -1:
+              raise SystemExit('Mission accordion closing h2 not found')
+          text = text[:pos] + '<header class="ampstart-title-sm" id="Mission">' + text[pos+len(old_open):close] + '</header>' + text[close+5:]
+          home.write_text(text, encoding='utf-8')
+          PY
+
+      - name: Verify source before commit
+        run: |
+          grep -q '^# Ken Turner Law' llms.txt
+          grep -q '<header class="ampstart-title-sm" id="Mission">' index.html
+          ! grep -q '<h2 class="ampstart-title-sm" id="Misson">' index.html
+          git diff --check
+
+      - name: Commit source fixes
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git rm .github/workflows/fix-pagespeed-audits-v2.yml .github/fix-pagespeed-audits-v2-trigger
+          git add index.html llms.txt
+          git commit -m "Fix PageSpeed llms and accordion accessibility audits"
+          git push origin main
