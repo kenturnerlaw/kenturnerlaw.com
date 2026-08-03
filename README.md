@@ -17,6 +17,16 @@ This website is **AMP-only**.
 - Do not use stacked bare text links as the primary menu.
 - Keep the page purpose and introduction visible immediately without unnecessary preliminary content.
 
+## Sitewide typography and color hierarchy
+
+- Main page headings and section headings must be larger than surrounding text and use the established gold site color.
+- Supporting text, summaries, labels, dates, and explanatory subtext must be smaller and white or near-white.
+- Body copy must remain white or near-white against the dark site background.
+- Navigation text must use the same gold-and-white hierarchy as the rest of the site.
+- Links and primary actions may use the established gold color, but body paragraphs must not be gold.
+- Do not introduce a separate type scale, font treatment, or color palette for new pages.
+- A page-specific CSS change is not a redesign. Prefer minimal CSS edits that preserve the existing site design.
+
 ## Reduce client burden
 
 - Every page and client resource must reduce cognitive load.
@@ -62,9 +72,10 @@ Every site menu must provide access to:
 - Reviews
 - Blog
 - Call (239) 400-FREE
-- Save Contact
 
 New pages must be reachable from the homepage and the site menu when published.
+
+`Save Contact` belongs with the homepage contact information and should not be repeated as a primary menu item on every page unless Ken expressly requests it.
 
 ## Verification before reporting completion
 
