@@ -18,8 +18,8 @@
 - [x] Apply the homepage top banner to Best Interests of the Child.
 - [x] Apply the homepage top banner to the Florida Criminal Defense Answers index.
 - [x] Apply the homepage top banner to every Criminal Defense Answers article.
-- [ ] Apply the homepage top banner to Practice Areas.
-- [ ] Apply the homepage top banner to Blog.
+- [x] Apply the homepage top banner to Practice Areas.
+- [x] Apply the homepage top banner to Blog.
 - [ ] Apply the homepage top banner to Client Resources.
 - [ ] Remove all page-specific banner variations.
 - [ ] Remove resource-link strips, page titles, breadcrumbs, and unrelated labels from banners.
@@ -51,7 +51,7 @@
 
 ## Public-page source audit
 - [ ] Homepage
-- [ ] Practice Areas
+- [x] Practice Areas
 - [ ] Criminal Defense
 - [ ] Arrested
 - [ ] DUI
@@ -70,7 +70,7 @@
 - [x] Child Custody and Time-Sharing
 - [x] Best Interests of the Child
 - [ ] Reviews
-- [ ] Blog
+- [x] Blog
 - [ ] Client Resources
 - [x] Florida Criminal Defense Answers index
 - [x] Every individual Criminal Defense Answers article
