@@ -8,14 +8,14 @@
 - [x] README records gold headings as an evaluation item requiring approval before broad application.
 
 ## Homepage source
-- [ ] Confirm the current homepage banner markup used as the canonical source.
-- [ ] Confirm the current homepage hamburger and AMP sidebar markup used as the canonical source.
+- [x] Confirm the current homepage banner markup used as the canonical source.
+- [x] Confirm the current homepage hamburger and AMP sidebar markup used as the canonical source.
 - [ ] Add Florida Criminal Defense Answers to the canonical homepage menu.
 - [ ] Confirm Save Contact is beside homepage contact information and not in the menu.
 
 ## Shared banner
 - [ ] Apply the homepage top banner to every public legacy page.
-- [ ] Apply the homepage top banner to Best Interests of the Child.
+- [x] Apply the homepage top banner to Best Interests of the Child.
 - [ ] Apply the homepage top banner to the Florida Criminal Defense Answers index.
 - [ ] Apply the homepage top banner to every Criminal Defense Answers article.
 - [ ] Apply the homepage top banner to Practice Areas.
@@ -36,7 +36,7 @@
 
 ## Page-specific accuracy
 - [ ] Confirm every page retains its own correct title and H1 outside the shared banner.
-- [ ] Confirm Child Custody contains no Criminal Defense Answers banner text.
+- [x] Confirm Child Custody contains no Criminal Defense Answers banner text.
 - [ ] Confirm unrelated pages contain no Best Interests banner text.
 - [ ] Confirm every Criminal Defense Answers article retains its correct article title.
 - [ ] Confirm no page displays a copied heading from another page.
@@ -67,8 +67,8 @@
 - [ ] LaBelle criminal-defense page
 - [ ] Miami criminal-defense page
 - [ ] Divorce
-- [ ] Child Custody and Time-Sharing
-- [ ] Best Interests of the Child
+- [x] Child Custody and Time-Sharing
+- [x] Best Interests of the Child
 - [ ] Reviews
 - [ ] Blog
 - [ ] Client Resources
