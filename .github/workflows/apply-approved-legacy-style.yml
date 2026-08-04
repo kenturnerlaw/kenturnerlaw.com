@@ -1,0 +1,52 @@
+name: Apply approved legacy typography menu and Facebook removal
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/apply-approved-legacy-style-trigger'
+
+permissions:
+  contents: write
+
+jobs:
+  apply:
+    if: github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+          fetch-depth: 0
+      - name: Apply only the approved changes
+        run: python3 .github/scripts/apply_approved_legacy_style.py
+      - name: Commit approved page changes
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -- \
+            index.html \
+            criminal-defense/index.html \
+            arrested/index.html \
+            dui/index.html \
+            drug-charges/index.html \
+            domestic-violence/index.html \
+            felony-charges/index.html \
+            misdemeanor-charges/index.html \
+            traffic-offenses/index.html \
+            suspended-license/index.html \
+            violation-of-probation/index.html \
+            criminal-defense-naples/index.html \
+            criminal-defense-fort-myers/index.html \
+            criminal-defense-labelle/index.html \
+            criminal-defense-miami/index.html \
+            divorce/index.html \
+            child-custody/index.html \
+            reviews/index.html \
+            clients/index.html
+          if git diff --cached --quiet; then
+            echo "No approved page changes were necessary"
+            exit 0
+          fi
+          git commit -m "Match older page typography and menu and remove Facebook"
+          git push origin main
