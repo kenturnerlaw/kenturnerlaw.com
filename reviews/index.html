@@ -351,10 +351,13 @@ amp-accordion section:not([expanded]) .show-less {
 /* Sidebar menu styles moved out of AMP boilerplate */
 .kt-sidebar-menu{padding-bottom:1rem}.ampstart-sidebar .kt-sidebar-section{margin:0 0 1.15rem}.kt-sidebar-parent{display:block;color:#fff;text-decoration:none;font-weight:700;letter-spacing:.01em}.kt-sidebar-sub{list-style:none;margin:.55rem 0 0 .65rem;padding:0 0 0 .75rem;border-left:1px solid rgba(255,255,255,.28)}.kt-sidebar-sub li{margin:0 0 .55rem;padding:0}.kt-sidebar-sub a{color:#fff;text-decoration:none;font-size:.95rem;line-height:1.25;opacity:.9}.kt-sidebar-action{margin-top:1.45rem}.kt-sidebar-sub a:active,.kt-sidebar-sub a:focus,.kt-sidebar-sub a:hover,.kt-sidebar-parent:active,.kt-sidebar-parent:focus,.kt-sidebar-parent:hover{opacity:1}
 
-/* Approved legacy typography alignment: preserve layout; match newer heading hierarchy. */
-h1 { color:#fff; font-size:2.15rem; line-height:1.15; }
-h2, h2.ampstart-title-sm { color:#e4c36a; font-size:1.75rem; line-height:1.4; }
-h3, h3.ampstart-title-sm { color:#e4c36a; font-size:1.25rem; line-height:1.5; }
+
+/* Sitewide gold-heading / white-subtext hierarchy. */
+.ampstart-sidebar .kt-sidebar-parent{display:block;color:#e4c36a!important;font-size:1rem!important;line-height:1.35!important;font-weight:700!important;text-decoration:none}.ampstart-sidebar .kt-sidebar-sub{list-style:none;margin:.5rem 0 0 .65rem;padding:0 0 0 .75rem;border-left:1px solid rgba(255,255,255,.28)}.ampstart-sidebar .kt-sidebar-sub li{margin:0 0 .45rem;color:#fff!important}.ampstart-sidebar .kt-sidebar-sub a{color:#fff!important;font-size:.88rem!important;line-height:1.3!important;font-weight:400!important;text-decoration:none;opacity:.95}
+main h2,main h3,main h4,main dt,main li>strong:first-child{color:#e4c36a!important}
+main p,main li,main dd,main blockquote,main .ampstart-subtitle,main .ampstart-small-text{color:#fff!important}
+main amp-accordion>section>h2,main amp-accordion>section>header{color:#e4c36a!important;font-size:1.25rem!important;line-height:1.45!important}
+main h3{font-size:1.15rem;line-height:1.5}
 </style>
 
 
@@ -434,47 +437,43 @@ h3, h3.ampstart-title-sm { color:#e4c36a; font-size:1.25rem; line-height:1.5; }
       
     </div>
     <!--sidebar-->
-    <amp-sidebar class="px3 ampstart-sidebar" id=header-sidebar layout=nodisplay>
-      <div class="flex items-center justify-start ampstart-sidebar-header">
-        <div class="ampstart-navbar-trigger items-start" on=tap:header-sidebar.toggle role=button tabindex=0 aria-label="close sidebar">✕</div>
-      </div>
-      <nav class="ampstart-nav ampstart-sidebar-nav">
-        <ul class="m0 list-reset ampstart-label p0 kt-sidebar-menu">
-          <li class="kt-sidebar-section"><a href="https://www.kenturnerlaw.com/" class="ampstart-nav-link kt-sidebar-parent">Home</a></li>
-          <li class="kt-sidebar-section"><a href="https://www.kenturnerlaw.com/practice-areas/" target="_self" class="ampstart-nav-link kt-sidebar-parent">Practice Areas</a></li>
-
-          <li class="kt-sidebar-section">
-            <a href="https://www.kenturnerlaw.com/criminal-defense/" target="_self" class="ampstart-nav-link kt-sidebar-parent">Criminal Defense</a>
-            <ul class="kt-sidebar-sub">
-              <li><a href="https://www.kenturnerlaw.com/arrested/" target="_self">Arrested?</a></li>
-              <li><a href="https://www.kenturnerlaw.com/dui/" target="_self">DUI</a></li>
-              <li><a href="https://www.kenturnerlaw.com/drug-charges/" target="_self">Drug Charges</a></li>
-              <li><a href="https://www.kenturnerlaw.com/domestic-violence/" target="_self">Domestic Violence</a></li>
-              <li><a href="https://www.kenturnerlaw.com/felony-charges/" target="_self">Felony Charges</a></li>
-              <li><a href="https://www.kenturnerlaw.com/misdemeanor-charges/" target="_self">Misdemeanor Charges</a></li>
-              <li><a href="https://www.kenturnerlaw.com/traffic-offenses/" target="_self">Traffic Offenses</a></li>
-              <li><a href="https://www.kenturnerlaw.com/suspended-license/" target="_self">Suspended License</a></li>
-              <li><a href="https://www.kenturnerlaw.com/violation-of-probation/" target="_self">Violation of Probation</a></li>
-            </ul>
-          </li>
-
-          <li class="kt-sidebar-section"><a href="https://www.kenturnerlaw.com/florida-criminal-defense-answers/" class="ampstart-nav-link kt-sidebar-parent" target="_self">Florida Criminal Defense Answers</a></li>
-
-          <li class="kt-sidebar-section">
-            <span class="kt-sidebar-parent">Family Law</span>
-            <ul class="kt-sidebar-sub">
-              <li><a href="https://www.kenturnerlaw.com/divorce/" target="_self">Divorce</a></li>
-              <li><a href="https://www.kenturnerlaw.com/child-custody/" target="_self">Child Custody</a></li>
-            </ul>
-          </li>
-
-          <li class="kt-sidebar-section"><a href="https://www.kenturnerlaw.com/reviews/" class="ampstart-nav-link kt-sidebar-parent" target="_self">Reviews</a></li>
-          <li class="kt-sidebar-section"><a href="https://www.kenturnerlaw.com/blog/" class="ampstart-nav-link kt-sidebar-parent" target="_self">Blog</a></li>
-
-          <li class="kt-sidebar-section kt-sidebar-action"><a href="https://kenturnerlaw.as.me/" target="_blank" rel="noopener" class="ampstart-nav-link kt-sidebar-parent">Phone Appointment</a></li>
-          <li class="kt-sidebar-section"><a href="https://app.clio.com/link/v2/2/2/43a6958c0f6a21eb731a81e3f7727cb9?hmac=fc5f57afa2754f5733beb65e2c274cdd2f2c788390eadadae2b7363ba373ca5a" class="ampstart-nav-link kt-sidebar-parent" target="_blank" rel="noopener">Make A Payment</a></li>
+    <amp-sidebar class="px3 ampstart-sidebar" id="header-sidebar" layout="nodisplay">
+  <div class="flex items-center justify-start ampstart-sidebar-header">
+    <div class="ampstart-navbar-trigger items-start" on="tap:header-sidebar.toggle" role="button" tabindex="0" aria-label="close sidebar">✕</div>
+  </div>
+  <nav class="ampstart-nav ampstart-sidebar-nav" aria-label="Site navigation">
+    <ul class="m0 list-reset p0 kt-sidebar-menu">
+      <li class="kt-sidebar-section"><a href="/" class="ampstart-nav-link kt-sidebar-parent">Home</a></li>
+      <li class="kt-sidebar-section"><a href="/practice-areas/" class="ampstart-nav-link kt-sidebar-parent">Practice Areas</a></li>
+      <li class="kt-sidebar-section">
+        <a href="/criminal-defense/" class="ampstart-nav-link kt-sidebar-parent">Criminal Defense</a>
+        <ul class="kt-sidebar-sub">
+          <li><a href="/arrested/">Arrested?</a></li>
+          <li><a href="/dui/">DUI</a></li>
+          <li><a href="/drug-charges/">Drug Charges</a></li>
+          <li><a href="/domestic-violence/">Domestic Violence</a></li>
+          <li><a href="/felony-charges/">Felony Charges</a></li>
+          <li><a href="/misdemeanor-charges/">Misdemeanor Charges</a></li>
+          <li><a href="/traffic-offenses/">Traffic Offenses</a></li>
+          <li><a href="/suspended-license/">Suspended License</a></li>
+          <li><a href="/violation-of-probation/">Violation of Probation</a></li>
         </ul>
-      </nav>
+      </li>
+      <li class="kt-sidebar-section"><a href="/florida-criminal-defense-answers/" class="ampstart-nav-link kt-sidebar-parent">Florida Criminal Defense Answers</a></li>
+      <li class="kt-sidebar-section">
+        <span class="kt-sidebar-parent">Family Law</span>
+        <ul class="kt-sidebar-sub">
+          <li><a href="/divorce/">Divorce</a></li>
+          <li><a href="/child-custody/">Child Custody</a></li>
+          <li><a href="/best-interests-of-the-child-florida/">Best Interests of the Child</a></li>
+        </ul>
+      </li>
+      <li class="kt-sidebar-section"><a href="/reviews/" class="ampstart-nav-link kt-sidebar-parent">Reviews</a></li>
+      <li class="kt-sidebar-section"><a href="/blog/" class="ampstart-nav-link kt-sidebar-parent">Blog</a></li>
+      <li class="kt-sidebar-section kt-sidebar-action"><a href="https://kenturnerlaw.as.me/" target="_blank" rel="noopener" class="ampstart-nav-link kt-sidebar-parent">Phone Appointment</a></li>
+      <li class="kt-sidebar-section"><a href="https://app.clio.com/link/v2/2/2/43a6958c0f6a21eb731a81e3f7727cb9?hmac=fc5f57afa2754f5733beb65e2c274cdd2f2c788390eadadae2b7363ba373ca5a" target="_blank" rel="noopener" class="ampstart-nav-link kt-sidebar-parent">Make A Payment</a></li>
+    </ul>
+  </nav>
 </amp-sidebar>
     <!--content-->
         
