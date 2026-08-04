@@ -26,7 +26,6 @@
     <script async src=https://cdn.ampproject.org/v0/amp-fit-text-0.1.js custom-element=amp-fit-text></script>
     <script async custom-element="amp-bind" src="https://cdn.ampproject.org/v0/amp-bind-0.1.js"></script>
     <script async custom-element="amp-selector" src="https://cdn.ampproject.org/v0/amp-selector-0.1.js"></script>
-    <script async custom-element="amp-facebook" src="https://cdn.ampproject.org/v0/amp-facebook-0.1.js"></script>
     <script async custom-element="amp-image-lightbox" src="https://cdn.ampproject.org/v0/amp-image-lightbox-0.1.js"></script>
     <script async custom-element="amp-lightbox" src="https://cdn.ampproject.org/v0/amp-lightbox-0.1.js"></script>
     <script async custom-element="amp-lightbox-gallery" src="https://cdn.ampproject.org/v0/amp-lightbox-gallery-0.1.js"></script>
@@ -69,7 +68,6 @@
   "description": "Criminal defense lawyer Ken Turner serving Naples, Fort Myers, and Miami — DUI, drug charges, domestic violence, and more. Office in Naples; practice across SWFL with Miami presence. Free initial consultation.",
   "url": "https://www.kenturnerlaw.com",
   "image": "https://www.kenturnerlaw.com/img/logo.png",
-  "sameAs": [  "https://www.facebook.com/kenturnerlawfirm"],
   "knowsAbout": [
     "Criminal Defense",
     "DUI",
@@ -109,8 +107,7 @@
     "url": "https://www.avvo.com/attorneys/34102-fl-kenneth-turner-3340449/reviews.html",
     "author": {
       "@type": "Person",
-      "name": "Angie",
-      "sameas": "https://www.facebook.com/profile.php?id=547499406"
+      "name": "Angie"
     },
     "publisher": {
       "@type": "Organization",
@@ -395,6 +392,13 @@ amp-accordion section:not([expanded]) .show-less {
 
 /* Sidebar menu styles moved out of AMP boilerplate */
 .kt-sidebar-menu{padding-bottom:1rem}.ampstart-sidebar .kt-sidebar-section{margin:0 0 1.15rem}.kt-sidebar-parent{display:block;color:#fff;text-decoration:none;font-weight:700;letter-spacing:.01em}.kt-sidebar-sub{list-style:none;margin:.55rem 0 0 .65rem;padding:0 0 0 .75rem;border-left:1px solid rgba(255,255,255,.28)}.kt-sidebar-sub li{margin:0 0 .55rem;padding:0}.kt-sidebar-sub a{color:#fff;text-decoration:none;font-size:.95rem;line-height:1.25;opacity:.9}.kt-sidebar-action{margin-top:1.45rem}.kt-sidebar-sub a:active,.kt-sidebar-sub a:focus,.kt-sidebar-sub a:hover,.kt-sidebar-parent:active,.kt-sidebar-parent:focus,.kt-sidebar-parent:hover{opacity:1}
+
+/* Sitewide gold-heading / white-subtext hierarchy. */
+.ampstart-sidebar .kt-sidebar-parent{display:block;color:#e4c36a!important;font-size:1rem!important;line-height:1.35!important;font-weight:700!important;text-decoration:none}.ampstart-sidebar .kt-sidebar-sub{list-style:none;margin:.5rem 0 0 .65rem;padding:0 0 0 .75rem;border-left:1px solid rgba(255,255,255,.28)}.ampstart-sidebar .kt-sidebar-sub li{margin:0 0 .45rem;color:#fff!important}.ampstart-sidebar .kt-sidebar-sub a{color:#fff!important;font-size:.88rem!important;line-height:1.3!important;font-weight:400!important;text-decoration:none;opacity:.95}
+main h2,main h3,main h4,main dt,main li>strong:first-child{color:#e4c36a!important}
+main p,main li,main dd,main blockquote,main .ampstart-subtitle,main .ampstart-small-text{color:#fff!important}
+main amp-accordion>section>h2,main amp-accordion>section>header{color:#e4c36a!important;font-size:1.25rem!important;line-height:1.45!important}
+main h3{font-size:1.15rem;line-height:1.5}
 </style>
     
 
@@ -473,67 +477,44 @@ amp-accordion section:not([expanded]) .show-less {
     </div>
     
 <!--SIDEBAR-->    
-    <amp-sidebar class="px3 ampstart-sidebar" id=header-sidebar layout=nodisplay>
-      <div class="flex items-center justify-start ampstart-sidebar-header">
-        <div class="ampstart-navbar-trigger items-start" on=tap:header-sidebar.toggle role=button tabindex=0 aria-label="close sidebar">✕</div>
-      </div>
-      <nav class="ampstart-nav ampstart-sidebar-nav">
-        <ul class="m0 list-reset ampstart-label p0 kt-sidebar-menu">
-          <li class="kt-sidebar-section"><a href="https://www.kenturnerlaw.com/" class="ampstart-nav-link kt-sidebar-parent">Home</a></li>
-          <li class="kt-sidebar-section"><a href="https://www.kenturnerlaw.com/practice-areas/" target="_self" class="ampstart-nav-link kt-sidebar-parent">Practice Areas</a></li>
-
-          <li class="kt-sidebar-section">
-            <a href="https://www.kenturnerlaw.com/criminal-defense/" target="_self" class="ampstart-nav-link kt-sidebar-parent">Criminal Defense</a>
-            <ul class="kt-sidebar-sub">
-              <li><a href="https://www.kenturnerlaw.com/arrested/" target="_self">Arrested?</a></li>
-              <li><a href="https://www.kenturnerlaw.com/dui/" target="_self">DUI</a></li>
-              <li><a href="https://www.kenturnerlaw.com/drug-charges/" target="_self">Drug Charges</a></li>
-              <li><a href="https://www.kenturnerlaw.com/domestic-violence/" target="_self">Domestic Violence</a></li>
-              <li><a href="https://www.kenturnerlaw.com/felony-charges/" target="_self">Felony Charges</a></li>
-              <li><a href="https://www.kenturnerlaw.com/misdemeanor-charges/" target="_self">Misdemeanor Charges</a></li>
-              <li><a href="https://www.kenturnerlaw.com/traffic-offenses/" target="_self">Traffic Offenses</a></li>
-              <li><a href="https://www.kenturnerlaw.com/suspended-license/" target="_self">Suspended License</a></li>
-              <li><a href="https://www.kenturnerlaw.com/violation-of-probation/" target="_self">Violation of Probation</a></li>
-            </ul>
-          </li>
-
-          <li class="kt-sidebar-section"><a href="https://www.kenturnerlaw.com/florida-criminal-defense-answers/" class="ampstart-nav-link kt-sidebar-parent" target="_self">Florida Criminal Defense Answers</a></li>
-
-          <li class="kt-sidebar-section">
-            <span class="kt-sidebar-parent">Family Law</span>
-            <ul class="kt-sidebar-sub">
-              <li><a href="https://www.kenturnerlaw.com/divorce/" target="_self">Divorce</a></li>
-              <li><a href="https://www.kenturnerlaw.com/child-custody/" target="_self">Child Custody</a></li>
-            </ul>
-          </li>
-
-          <li class="kt-sidebar-section"><a href="https://www.kenturnerlaw.com/reviews/" class="ampstart-nav-link kt-sidebar-parent" target="_self">Reviews</a></li>
-          <li class="kt-sidebar-section"><a href="https://www.kenturnerlaw.com/blog/" class="ampstart-nav-link kt-sidebar-parent" target="_self">Blog</a></li>
-
-          <li class="kt-sidebar-section kt-sidebar-action"><a href="https://kenturnerlaw.as.me/" target="_blank" rel="noopener" class="ampstart-nav-link kt-sidebar-parent">Phone Appointment</a></li>
-          <li class="kt-sidebar-section"><a href="https://app.clio.com/link/v2/2/2/43a6958c0f6a21eb731a81e3f7727cb9?hmac=fc5f57afa2754f5733beb65e2c274cdd2f2c788390eadadae2b7363ba373ca5a" class="ampstart-nav-link kt-sidebar-parent" target="_blank" rel="noopener">Make A Payment</a></li>
+    <amp-sidebar class="px3 ampstart-sidebar" id="header-sidebar" layout="nodisplay">
+  <div class="flex items-center justify-start ampstart-sidebar-header">
+    <div class="ampstart-navbar-trigger items-start" on="tap:header-sidebar.toggle" role="button" tabindex="0" aria-label="close sidebar">✕</div>
+  </div>
+  <nav class="ampstart-nav ampstart-sidebar-nav" aria-label="Site navigation">
+    <ul class="m0 list-reset p0 kt-sidebar-menu">
+      <li class="kt-sidebar-section"><a href="/" class="ampstart-nav-link kt-sidebar-parent">Home</a></li>
+      <li class="kt-sidebar-section"><a href="/practice-areas/" class="ampstart-nav-link kt-sidebar-parent">Practice Areas</a></li>
+      <li class="kt-sidebar-section">
+        <a href="/criminal-defense/" class="ampstart-nav-link kt-sidebar-parent">Criminal Defense</a>
+        <ul class="kt-sidebar-sub">
+          <li><a href="/arrested/">Arrested?</a></li>
+          <li><a href="/dui/">DUI</a></li>
+          <li><a href="/drug-charges/">Drug Charges</a></li>
+          <li><a href="/domestic-violence/">Domestic Violence</a></li>
+          <li><a href="/felony-charges/">Felony Charges</a></li>
+          <li><a href="/misdemeanor-charges/">Misdemeanor Charges</a></li>
+          <li><a href="/traffic-offenses/">Traffic Offenses</a></li>
+          <li><a href="/suspended-license/">Suspended License</a></li>
+          <li><a href="/violation-of-probation/">Violation of Probation</a></li>
         </ul>
-      </nav>
-      <ul class="flex items-center ampstart-social-follow flex-wrap justify-around list-reset m0 mb4">
-       <!-- <li>
-          <a href=# class="inline-block p1" target=_blank aria-label="Link to AMP HTML Twitter" rel="noopener">
-            <svg height=22.2 viewbox="0 0 53 49" width=24 xmlns=https://www.w3.org/2000/svg>
-              <title>Twitter</title>
-              <path class="ampstart-icon ampstart-icon-twitter" d="M45 6.9c-1.6 1-3.3 1.6-5.2 2-1.5-1.6-3.6-2.6-5.9-2.6-4.5 0-8.2 3.7-8.2 8.3 0 .6.1 1.3.2 1.9-6.8-.4-12.8-3.7-16.8-8.7C8.4 9 8 10.5 8 12c0 2.8 1.4 5.4 3.6 6.9-1.3-.1-2.6-.5-3.7-1.1v.1c0 4 2.8 7.4 6.6 8.1-.7.2-1.5.3-2.2.3-.5 0-1 0-1.5-.1 1 3.3 4 5.7 7.6 5.7-2.8 2.2-6.3 3.6-10.2 3.6-.6 0-1.3-.1-1.9-.1 3.6 2.3 7.9 3.7 12.5 3.7 15.1 0 23.3-12.6 23.3-23.6 0-.3 0-.7-.1-1 1.6-1.2 3-2.7 4.1-4.3-1.4.6-3 1.1-4.7 1.3 1.7-1 3-2.7 3.6-4.6"></path>
-            </svg>
-          </a> -->
-          
-         
-        <li>
-          <a href=# class="inline-block p1" target=_blank aria-label="Link to AMP HTML Facebook" rel="noopener">
-            <svg height=23.6 viewbox="0 0 56 55" width=24 xmlns=https://www.w3.org/2000/svg>
-              <title>Facebook</title>
-              <path class="ampstart-icon ampstart-icon-fb" d="M47.5 43c0 1.2-.9 2.1-2.1 2.1h-10V30h5.1l.8-5.9h-5.9v-3.7c0-1.7.5-2.9 3-2.9h3.1v-5.3c-.6 0-2.4-.2-4.6-.2-4.5 0-7.5 2.7-7.5 7.8v4.3h-5.1V30h5.1v15.1H10.7c-1.2 0-2.2-.9-2.2-2.1V8.3c0-1.2 1-2.2 2.2-2.2h34.7c1.2 0 2.1 1 2.1 2.2V43"></path>
-            </svg>
-          </a>
-       </li>
-      </ul>
-    </amp-sidebar>
+      </li>
+      <li class="kt-sidebar-section"><a href="/florida-criminal-defense-answers/" class="ampstart-nav-link kt-sidebar-parent">Florida Criminal Defense Answers</a></li>
+      <li class="kt-sidebar-section">
+        <span class="kt-sidebar-parent">Family Law</span>
+        <ul class="kt-sidebar-sub">
+          <li><a href="/divorce/">Divorce</a></li>
+          <li><a href="/child-custody/">Child Custody</a></li>
+          <li><a href="/best-interests-of-the-child-florida/">Best Interests of the Child</a></li>
+        </ul>
+      </li>
+      <li class="kt-sidebar-section"><a href="/reviews/" class="ampstart-nav-link kt-sidebar-parent">Reviews</a></li>
+      <li class="kt-sidebar-section"><a href="/blog/" class="ampstart-nav-link kt-sidebar-parent">Blog</a></li>
+      <li class="kt-sidebar-section kt-sidebar-action"><a href="https://kenturnerlaw.as.me/" target="_blank" rel="noopener" class="ampstart-nav-link kt-sidebar-parent">Phone Appointment</a></li>
+      <li class="kt-sidebar-section"><a href="https://app.clio.com/link/v2/2/2/43a6958c0f6a21eb731a81e3f7727cb9?hmac=fc5f57afa2754f5733beb65e2c274cdd2f2c788390eadadae2b7363ba373ca5a" target="_blank" rel="noopener" class="ampstart-nav-link kt-sidebar-parent">Make A Payment</a></li>
+    </ul>
+  </nav>
+</amp-sidebar>
 <!--SIDEBAR END-->
 
 
@@ -806,14 +787,7 @@ amp-accordion section:not([expanded]) .show-less {
           </a> -->
           
          
-        <li>
-          <a href=# class="inline-block p1" target=_blank aria-label="Link to AMP HTML Facebook" rel="noopener">
-            <svg height=23.6 viewbox="0 0 56 55" width=24 xmlns=https://www.w3.org/2000/svg>
-              <title>Facebook</title>
-              <path class="ampstart-icon ampstart-icon-fb" d="M47.5 43c0 1.2-.9 2.1-2.1 2.1h-10V30h5.1l.8-5.9h-5.9v-3.7c0-1.7.5-2.9 3-2.9h3.1v-5.3c-.6 0-2.4-.2-4.6-.2-4.5 0-7.5 2.7-7.5 7.8v4.3h-5.1V30h5.1v15.1H10.7c-1.2 0-2.2-.9-2.2-2.1V8.3c0-1.2 1-2.2 2.2-2.2h34.7c1.2 0 2.1 1 2.1 2.2V43"></path>
-            </svg>
-          </a>
-       </li>
+        
       </ul>   
           
           <amp-img class=align-middle height=50px width=63px src="https://www.kenturnerlaw.com/img/PaperlessLogo50DarkBG.png" layout="fixed" alt="Ken Turner Law"></amp-img>  
