@@ -113,6 +113,41 @@ Do not mark a checklist item complete merely because a file was edited. Mark it 
 - Confirm the Cloudflare deployment log identifies the intended commit SHA and reports `Success: Assets published!`.
 - After deployment, verify the live page itself rather than relying only on repository state or deployment status.
 
+## Mobile publishing (Q&A and updates)
+
+Publish short legal answers or updates from an iPhone without editing HTML.
+
+### One-time Cloudflare setup
+
+In Cloudflare Pages → Settings → Environment variables (Production):
+
+1. `PUBLISH_KEY` — any strong passphrase you choose
+2. `GITHUB_TOKEN` — fine-grained GitHub PAT with **Contents: Read and write** on `kenturnerlaw/kenturnerlaw.com`
+
+### Publish from iPhone Safari
+
+1. Open `https://www.kenturnerlaw.com/publish/`
+2. Enter the publish key once (saved on that phone)
+3. Add to Home Screen
+4. Enter title/question, answer/update text, optional category, optional county
+5. Tap **Publish**
+
+The API writes `content/posts/{slug}.json`. GitHub Action `Publish content pages` builds the AMP page, updates the answers/blog indexes, sitemap, `search/index.json`, and `llms.txt`, then Cloudflare deploys.
+
+- Q&A URLs: `/florida-criminal-defense-answers/{slug}/`
+- Updates URLs: `/updates/{slug}/`
+
+### Desktop / CLI
+
+```bash
+npm run publish -- --title "Should I talk to police?" --body "Your answer..." --type answer --category "Police encounters" --county Collier
+npm run build:content
+npm run test:publish
+npm run validate:amp
+```
+
+Longer body text: put a short opening paragraph first, then optional `## Heading` sections. Extra material becomes accordions so the first mobile view stays short.
+
 ## AI and accessibility
 
 - `llms.txt` must be valid Markdown beginning with an H1 and should remain concise, accurate, and limited to important current resources.

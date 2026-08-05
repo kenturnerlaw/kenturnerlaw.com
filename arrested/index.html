@@ -374,6 +374,8 @@ main h3{font-size:1.15rem;line-height:1.5}
 .ampstart-fullpage-hero-cta,.ampstart-fullpage-hero-cta:visited{color:#e4c36a;border-color:#e4c36a;background:rgba(0,0,0,.42)}
 
 /* Native disclosure accordion (replaces amp-accordion for valid ARIA). */
+/* Mobile accordion expand hint */
+.kt-acc-hint{color:#fff;font-size:.95rem;line-height:1.4;margin:.35rem 0 .85rem;padding:0 .15rem;opacity:.95}
 details.kt-acc{border:0;margin:0;background:transparent}
 details.kt-acc>summary.ampstart-title-sm,
 details.kt-acc>summary{
@@ -515,7 +517,8 @@ main details.kt-acc>summary{color:#fff}
 </amp-sidebar>
    <main id="content" role="main">
         <article class="px3">
-            <details class="kt-acc"><summary class="ampstart-title-sm" id="Arrested">
+            <p class="kt-acc-hint" role="note">Tap a heading to expand it.</p>
+<details class="kt-acc"><summary class="ampstart-title-sm" id="Arrested">
                     <amp-img class="align-middle" 
                     height="98" 
                     src="../img/rendered1.jpg" 

@@ -1,0 +1,174 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="robots" content="noindex,nofollow">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="theme-color" content="#000000">
+<title>Publish | Ken Turner Law</title>
+<style>
+*{box-sizing:border-box}
+body{
+  margin:0;min-height:100vh;padding:max(12px,env(safe-area-inset-top)) 16px 40px;
+  background:#050505 url('/dark-leather.webp');color:#fff;
+  font-family:Georgia,"Times New Roman",serif;line-height:1.45
+}
+h1{color:#e4c36a;font-size:1.55rem;margin:.4rem 0 .35rem;text-transform:uppercase;letter-spacing:.03em}
+.sub{color:#fff;font-size:.95rem;margin:0 0 1rem;opacity:.95}
+label{display:block;margin:1rem 0 .35rem;color:#e4c36a;font-size:.95rem}
+input[type=text],input[type=password],textarea,select{
+  width:100%;font:inherit;font-size:1.05rem;line-height:1.4;
+  padding:14px 12px;border:1px solid #8b6b2e;border-radius:4px;
+  background:#111;color:#fff;-webkit-appearance:none;appearance:none
+}
+textarea{min-height:220px;resize:vertical}
+.row{display:flex;gap:10px}
+.row>div{flex:1}
+.type-row{display:flex;gap:12px;margin-top:.35rem}
+.type-row label{display:flex;align-items:center;gap:.45rem;margin:0;color:#fff;font-size:1rem}
+button{
+  display:block;width:100%;margin-top:1.35rem;padding:16px 14px;
+  border:1px solid #e4c36a;background:#000;color:#e4c36a;
+  font:inherit;font-size:1.15rem;font-weight:700;cursor:pointer
+}
+button:disabled{opacity:.55;cursor:wait}
+.status{margin-top:1rem;padding:12px;border:1px solid #6f5526;background:rgba(0,0,0,.75);min-height:1.2em}
+.status.ok{border-color:#3d7a4a}
+.status.err{border-color:#a33}
+.hint{font-size:.88rem;color:#ddd;margin:.25rem 0 0}
+details.setup{margin-top:1.25rem;border-top:1px solid #6f5526;padding-top:.85rem}
+details.setup summary{color:#e4c36a;cursor:pointer}
+code{color:#efd98c;word-break:break-all}
+a{color:#e4c36a}
+</style>
+</head>
+<body>
+<h1>Publish</h1>
+<p class="sub">Dictate or paste from Notes. Title, text, optional category/county, then Publish.</p>
+
+<form id="publish-form" autocomplete="on">
+  <div class="type-row" role="radiogroup" aria-label="Content type">
+    <label><input type="radio" name="type" value="answer" checked> Q&amp;A</label>
+    <label><input type="radio" name="type" value="update"> Update</label>
+  </div>
+
+  <label for="title">Title or question</label>
+  <input id="title" name="title" type="text" required maxlength="180" placeholder="Should I talk to police?" enterkeyhint="next">
+
+  <label for="body">Answer or update text</label>
+  <textarea id="body" name="body" required placeholder="Paste from Apple Notes or tap the mic to dictate."></textarea>
+  <p class="hint">Blank lines become paragraphs. Optional ## Heading lines create accordion sections for longer material.</p>
+
+  <div class="row">
+    <div>
+      <label for="category">Category (optional)</label>
+      <select id="category" name="category">
+        <option value="">—</option>
+        <option>Police encounters</option>
+        <option>Searches</option>
+        <option>Arrest and court</option>
+        <option>DUI</option>
+        <option>Drug charges</option>
+        <option>Domestic violence</option>
+        <option>Traffic</option>
+        <option>Family law</option>
+        <option>General</option>
+      </select>
+    </div>
+    <div>
+      <label for="county">County (optional)</label>
+      <select id="county" name="county">
+        <option value="">—</option>
+        <option>Collier</option>
+        <option>Lee</option>
+        <option>Hendry</option>
+        <option>Miami-Dade</option>
+      </select>
+    </div>
+  </div>
+
+  <label for="key">Publish key</label>
+  <input id="key" name="key" type="password" autocomplete="current-password" placeholder="Saved on this iPhone" required>
+  <p class="hint">Saved only in this browser. Set the same value as Cloudflare <code>PUBLISH_KEY</code>.</p>
+
+  <button type="submit" id="submit">Publish</button>
+</form>
+
+<div id="status" class="status" aria-live="polite"></div>
+
+<details class="setup">
+  <summary>One-time setup</summary>
+  <ol>
+    <li>In Cloudflare Pages → Settings → Environment variables, add <code>PUBLISH_KEY</code> (any strong passphrase) and <code>GITHUB_TOKEN</code> (fine-grained PAT with Contents read/write on this repo).</li>
+    <li>Open this page on your iPhone, enter the publish key once, and Add to Home Screen.</li>
+    <li>After Publish, GitHub Action builds the AMP page and Cloudflare deploys it.</li>
+  </ol>
+  <p>Desktop/CLI alternative: <code>npm run publish -- --title "..." --body "..."</code></p>
+</details>
+
+<script>
+(function () {
+  var form = document.getElementById('publish-form');
+  var statusEl = document.getElementById('status');
+  var submit = document.getElementById('submit');
+  var keyInput = document.getElementById('key');
+  var KEY = 'ktPublishKey';
+
+  try {
+    var saved = localStorage.getItem(KEY);
+    if (saved) keyInput.value = saved;
+  } catch (e) {}
+
+  function setStatus(msg, cls) {
+    statusEl.textContent = msg;
+    statusEl.className = 'status' + (cls ? ' ' + cls : '');
+  }
+
+  form.addEventListener('submit', async function (ev) {
+    ev.preventDefault();
+    var title = document.getElementById('title').value.trim();
+    var body = document.getElementById('body').value.trim();
+    var type = (form.querySelector('input[name="type"]:checked') || {}).value || 'answer';
+    var category = document.getElementById('category').value;
+    var county = document.getElementById('county').value;
+    var key = keyInput.value.trim();
+
+    if (!title || !body || !key) {
+      setStatus('Title, text, and publish key are required.', 'err');
+      return;
+    }
+
+    try { localStorage.setItem(KEY, key); } catch (e) {}
+
+    submit.disabled = true;
+    setStatus('Publishing…');
+
+    try {
+      var res = await fetch('/api/publish', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ title: title, body: body, type: type, category: category, county: county, key: key })
+      });
+      var data = {};
+      try { data = await res.json(); } catch (e) {}
+      if (!res.ok) {
+        throw new Error(data.error || ('Publish failed (' + res.status + ')'));
+      }
+      setStatus('Published. Live URL after deploy: ' + (data.url || data.path), 'ok');
+      form.reset();
+      if (type) {
+        var radio = form.querySelector('input[name="type"][value="' + type + '"]');
+        if (radio) radio.checked = true;
+      }
+      try { keyInput.value = localStorage.getItem(KEY) || ''; } catch (e) {}
+    } catch (err) {
+      setStatus(err.message || String(err), 'err');
+    } finally {
+      submit.disabled = false;
+    }
+  });
+})();
+</script>
+</body>
+</html>
