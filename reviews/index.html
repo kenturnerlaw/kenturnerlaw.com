@@ -356,7 +356,7 @@ amp-accordion section:not([expanded]) .show-less {
 .ampstart-sidebar .kt-sidebar-parent{display:block;color:#e4c36a;font-size:1rem;line-height:1.35;font-weight:700;text-decoration:none}.ampstart-sidebar .kt-sidebar-sub{list-style:none;margin:.5rem 0 0 .65rem;padding:0 0 0 .75rem;border-left:1px solid rgba(255,255,255,.28)}.ampstart-sidebar .kt-sidebar-sub li{margin:0 0 .45rem;color:#fff}.ampstart-sidebar .kt-sidebar-sub a{color:#fff;font-size:.88rem;line-height:1.3;font-weight:400;text-decoration:none;opacity:.95}
 main h2,main h3,main h4,main dt,main li>strong:first-child{color:#e4c36a}
 main p,main li,main dd,main blockquote,main .ampstart-subtitle,main .ampstart-small-text{color:#fff}
-main amp-accordion>section>h2,main amp-accordion>section>header{color:#e4c36a;font-size:1.25rem;line-height:1.45}/* Accordion header a11y: neutralize AMP default gray header background */main amp-accordion>section>header.ampstart-title-sm,main amp-accordion.ampstart-dropdown>section>header{background-color:transparent;background:transparent;border:0;color:#fff;padding-right:0}main amp-accordion>section>header.ampstart-title-sm amp-img,main amp-accordion.ampstart-dropdown>section>header amp-img{display:inline-block;vertical-align:middle}
+main amp-accordion>section>h2,main amp-accordion>section>header{color:#e4c36a;font-size:1.25rem;line-height:1.45}
 main h3{font-size:1.15rem;line-height:1.5}
 
 /* Metallic-gold shared hero treatment. */
@@ -364,10 +364,26 @@ main h3{font-size:1.15rem;line-height:1.5}
 .ampstart-fullpage-hero-heading>span.h2,.ampstart-fullpage-hero-heading>span.h3{color:#e4c36a}
 .ampstart-fullpage-hero-heading>span.h4,.ampstart-fullpage-hero-heading>span.h5,.ampstart-fullpage-hero-heading>span.h6{color:#fff}
 .ampstart-fullpage-hero-cta,.ampstart-fullpage-hero-cta:visited{color:#e4c36a;border-color:#e4c36a;background:rgba(0,0,0,.42)}
+
+/* Native disclosure accordion (replaces amp-accordion for valid ARIA). */
+details.kt-acc{border:0;margin:0;background:transparent}
+details.kt-acc>summary.ampstart-title-sm,
+details.kt-acc>summary{
+  list-style:none;cursor:pointer;position:relative;
+  background:transparent;border:0;color:#fff;
+  font-size:1.25rem;line-height:1.6;letter-spacing:.06rem;
+  padding:0;margin:0;display:block
+}
+details.kt-acc>summary::-webkit-details-marker{display:none}
+details.kt-acc>summary::marker{content:''}
+details.kt-acc>summary:after{
+  display:inline-block;content:"+";position:absolute;right:15px;top:.55rem;color:#fff;padding:0
+}
+details.kt-acc[open]>summary:after{content:"–"}
+details.kt-acc>summary amp-img{pointer-events:none;vertical-align:middle}
+main details.kt-acc>summary{color:#fff}
+
 </style>
-
-
-<script async custom-element="amp-accordion" src="https://cdn.ampproject.org/v0/amp-accordion-0.1.js"></script>
     
 
     <link href=/img/themes_2/manifest.json rel=manifest>
@@ -481,10 +497,7 @@ main h3{font-size:1.15rem;line-height:1.5}
         
      <main id="content" role="main">
         <article class="px3">
-            <amp-accordion class="ampstart-dropdown disable-session-states">
-            <section>
-              
-                    <header class="ampstart-title-sm">
+            <details class="kt-acc"><summary class="ampstart-title-sm">
                     <amp-img 
                     class="align-middle" 
                     height="98" 
@@ -492,8 +505,8 @@ main h3{font-size:1.15rem;line-height:1.5}
                     src="../img/rendered1.jpg" 
                     layout="responsive" 
                     alt="Mission Naples Attorney Ken Turner"></amp-img>&nbsp;&nbsp;VERIFIED CLIENT REVIEWS
-                    </header>
-        <article class="px1">
+                    </summary>
+<article class="px1">
             
                 
                   <p>
@@ -515,10 +528,8 @@ Criminal Defense Attorney<br><p></p>
 <a href="https://www.thumbtack.com/fl/naples/divorce-lawyers/ken-turner-law-firm-llc/service/355472841853362180" class=ampstart-nav-link target=_blank rel="noopener">Click Here To Read More...</a></p>
 
 
-               </article> 
-            </section>
-            
-          </amp-accordion>
+               </article>
+</details>
     
           
         <!--</amp-selector>-->

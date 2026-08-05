@@ -348,14 +348,27 @@ amp-accordion section:not([expanded]) .show-less {
 
 /* Sidebar menu styles moved out of AMP boilerplate */
 .kt-sidebar-menu{padding-bottom:1rem}.ampstart-sidebar .kt-sidebar-section{margin:0 0 1.15rem}.kt-sidebar-parent{display:block;color:#fff;text-decoration:none;font-weight:700;letter-spacing:.01em}.kt-sidebar-sub{list-style:none;margin:.55rem 0 0 .65rem;padding:0 0 0 .75rem;border-left:1px solid rgba(255,255,255,.28)}.kt-sidebar-sub li{margin:0 0 .55rem;padding:0}.kt-sidebar-sub a{color:#fff;text-decoration:none;font-size:.95rem;line-height:1.25;opacity:.9}.kt-sidebar-action{margin-top:1.45rem}.kt-sidebar-sub a:active,.kt-sidebar-sub a:focus,.kt-sidebar-sub a:hover,.kt-sidebar-parent:active,.kt-sidebar-parent:focus,.kt-sidebar-parent:hover{opacity:1}
-/* Accordion header a11y: neutralize AMP default gray header background */main amp-accordion>section>header.ampstart-title-sm,main amp-accordion.ampstart-dropdown>section>header{background-color:transparent;background:transparent;border:0;color:#fff;padding-right:0}main amp-accordion>section>header.ampstart-title-sm amp-img,main amp-accordion.ampstart-dropdown>section>header amp-img{display:inline-block;vertical-align:middle}
+
+/* Native disclosure accordion (replaces amp-accordion for valid ARIA). */
+details.kt-acc{border:0;margin:0;background:transparent}
+details.kt-acc>summary.ampstart-title-sm,
+details.kt-acc>summary{
+  list-style:none;cursor:pointer;position:relative;
+  background:transparent;border:0;color:#fff;
+  font-size:1.25rem;line-height:1.6;letter-spacing:.06rem;
+  padding:0;margin:0;display:block
+}
+details.kt-acc>summary::-webkit-details-marker{display:none}
+details.kt-acc>summary::marker{content:''}
+details.kt-acc>summary:after{
+  display:inline-block;content:"+";position:absolute;right:15px;top:.55rem;color:#fff;padding:0
+}
+details.kt-acc[open]>summary:after{content:"–"}
+details.kt-acc>summary amp-img{pointer-events:none;vertical-align:middle}
+main details.kt-acc>summary{color:#fff}
+
 </style>
-
-
-<script async custom-element="amp-accordion" src="https://cdn.ampproject.org/v0/amp-accordion-0.1.js"></script>
-    
-
-    <link href=/img/themes_2/manifest.json rel=manifest>
+<link href=/img/themes_2/manifest.json rel=manifest>
     <link href=/img/themes_2/safari-pinned-tab.svg rel=mask-icon color=#5bbad5>
     <meta content=#ffffff name=theme-color>
     <script async custom-element="amp-iframe" src="https://cdn.ampproject.org/v0/amp-iframe-0.1.js"></script>
@@ -486,10 +499,7 @@ amp-accordion section:not([expanded]) .show-less {
     </amp-sidebar>
      <main id="content" role="main">
         <article class="px3">
-            <amp-accordion class="ampstart-dropdown disable-session-states">
-            <section>
-              
-                    <header class="ampstart-title-sm">
+            <details class="kt-acc"><summary class="ampstart-title-sm">
                     <amp-img 
                     class="align-middle" 
                     height="40" 
@@ -498,8 +508,8 @@ amp-accordion section:not([expanded]) .show-less {
                     layout="responsive" 
                     alt="Mission Naples Attorney Ken Turner">
             </amp-img>&nbsp;&nbsp;DIVORCE
-                    </header>
-        <article class="px1">
+                    </summary>
+<article class="px1">
             
                 
                   <p class="indented">Dissolution of marriage (Divorce) is one of the most stressful events of a person's life.  Some studies show that the stress of divorce can be near the levels of stress and grief that a person experiences when they lose a parent or child.  I believe that every person considering divorce or actively going through a divorce should seek mental health counseling.  Whether you think you need counseling or not, counseling can teach you a lot about yourself, help rebuild your confidence, manage stress, and enable you to make good decisions during the divorce process.  Also, therapy is much more cost effective than taliking to your attorney about stress and anxiety.  Your attorney is not a mental health expert and while I listen to clients in order to represent them in achieving their goals; I can do a better job representing you with the assistance of a therapist.  Therapy will save you attorney fees by equiping you with the ability to ask your attorney better questions and provide your attorney with relevant information.</p><br>
@@ -553,10 +563,8 @@ When couples cannot agree on the division of assets, the court will intervene. I
 <p>Equitable distribution in a Florida divorce requires a careful examination of marital assets, liabilities, and various contributing factors. Understanding the principles behind this process can empower individuals to make informed decisions and work towards a fair resolution. Legal advice and representation play a crucial role in navigating the complexities of equitable distribution and ensuring one's interests are protected during this challenging period.
  </p>
             </article>
-            </section>
-              
-              <section>
-                <header class=ampstart-title-sm>
+</details>
+<details class="kt-acc"><summary class=ampstart-title-sm>
                     <amp-img 
                     class=align-middle 
                     height=40
@@ -564,8 +572,8 @@ When couples cannot agree on the division of assets, the court will intervene. I
                     width=1200
                     layout=responsive 
                     alt="Mediation" ></amp-img>&nbsp;&nbsp;MEDIATION
-                </header>
-            <article class=px1>
+                </summary>
+<article class=px1>
                    <br>
                     
                     
@@ -580,13 +588,12 @@ When couples cannot agree on the division of assets, the court will intervene. I
                   <p class=indented>Mediations are relatively informal events.  The parties may begin mediation in the same room while the mediator introduces themself and instructs the parties about the mediation process.  After the introduction by the mediator, the parties may begin discussing the issues and making offers/proposals of settlement.  In most cases, the parties will break out into seperate rooms so that they may have discussions with there attorney in privacy. </p>
                   <p class=indented>Mediation creates an environement that is conducive to settling disputes.  Parties are free to speak knowing that their negotiations are confidential.  The mediator is a neutral third party that each party can talk to about their goals.  The mediatior does not and cannot give legal advice but a good mediator has experience and skills in presenting the proposals and keeping the parties focused on settling.</p>
                 </article>
-              </section>
-              <section>
-                <header class=ampstart-title-sm>
+</details>
+<details class="kt-acc"><summary class=ampstart-title-sm>
                     <amp-img class=align-middle height=5 src=../img/rendered3.jpg width=1200 layout=responsive alt="Practice Areas Naples Attorney Ken Turner" >Practice Areas
                     </amp-img>&nbsp;&nbsp;PRACTICE AREAS
-                </header>
-                <article class=px1>
+                </summary>
+<article class=px1>
                     <br>
                   <ul class=m0>
                     <li>Family Law</li>
@@ -618,13 +625,10 @@ When couples cannot agree on the division of assets, the court will intervene. I
                     <li>Risk Protection Orders</li>
                   </ul>
                   </article>
-              </section>
-              
-              <section>  
-              
-                <header class="ampstart-title-sm" id=criminaldefense>
-                     <amp-img class=align-middle height=5 src=../img/rendered4.jpg width=1200 layout=responsive alt="Florida Criminal Defense Attorney" >CRIMINAL DEFENSE</amp-img>&nbsp;&nbsp;CRIMINAL DEFENSE</header>
-                     <article class=px3>
+</details>
+<details class="kt-acc"><summary class="ampstart-title-sm" id=criminaldefense>
+                     <amp-img class=align-middle height=5 src=../img/rendered4.jpg width=1200 layout=responsive alt="Florida Criminal Defense Attorney" >CRIMINAL DEFENSE</amp-img>&nbsp;&nbsp;CRIMINAL DEFENSE</summary>
+<article class=px3>
                          <p class=ampstart-dropcap>
                              Criminal court came about during the Norman conquest of England in 1066.  There were no written laws and prosecutions were conducted by private individuals. <p>
                                  This early system proved to be insufficient.  Local governments of the time began to pay lawyers to prosecute criminal acts and the system evolved to what we have today. The crown had a very important interest in seeing that the people of the kingdom maintained a manageable level of civility.  
@@ -648,11 +652,8 @@ When couples cannot agree on the division of assets, the court will intervene. I
                                                     <p>I want to represent you and I will do my best to accomodate you on fees.  Give me a call or text me directly at (239)744-3434</p>
                       </p>
                       </article>
-              </section>
-            
-                    
-                <section>
-                <header class="ampstart-title-sm" id=DivorceGuide>
+</details>
+<details class="kt-acc"><summary class="ampstart-title-sm" id=DivorceGuide>
                      <amp-img class=align-middle 
                      height=5 
                      src=../img/rendered5.jpg 
@@ -660,8 +661,8 @@ When couples cannot agree on the division of assets, the court will intervene. I
                      layout=responsive 
                      alt="Florida Divorce Naples Attorney Ken Turner" >FAMILY LAW & DIVORCE
                      </amp-img>&nbsp;&nbsp;FAMILY LAW & DIVORCE
-                   </header>
- <article class=px3>
+                   </summary>
+<article class=px3>
                  
                       <h3 class=ampstart-title-sm>INTRODUCTION</h3>
                        <article class=px3>
@@ -707,11 +708,9 @@ When couples cannot agree on the division of assets, the court will intervene. I
                     </p></article>
           
            <article class=PX3>
-            <amp-accordion class=ampstart-dropdown disable-session-states>
-             <section><h2 class="ampstart-title-sm">MAP TO OFFICE</h2><amp-iframe frameborder=0 height=400 layout="responsive" sandbox="allow-scripts allow-same-origin allow-popups" src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3332.198558683133!2d81.79891172634794!3d26.14158973236933!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x88dae19ef57243f7%3A0xc8d582f5b67a0a70!2sThe+Ken+Turner+Law+Firm%2C+LLC!5e0!3m2!1sen!2sus!4v1513548502569" title="Embedded Google Map of Ken Turner Law" width="600"></amp-iframe></section>
-            
-          
-          </amp-accordion>
+            <details class="kt-acc"><summary class="ampstart-title-sm">MAP TO OFFICE</summary>
+             <amp-iframe frameborder=0 height=400 layout="responsive" sandbox="allow-scripts allow-same-origin allow-popups" src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3332.198558683133!2d81.79891172634794!3d26.14158973236933!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x88dae19ef57243f7%3A0xc8d582f5b67a0a70!2sThe+Ken+Turner+Law+Firm%2C+LLC!5e0!3m2!1sen!2sus!4v1513548502569" title="Embedded Google Map of Ken Turner Law" width="600"></amp-iframe>
+</details>
        
           
         <!--</amp-selector>-->

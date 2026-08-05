@@ -4,7 +4,6 @@
 <meta charset="utf-8">
 <script async src="https://cdn.ampproject.org/v0.js"></script>
 <script async custom-element="amp-sidebar" src="https://cdn.ampproject.org/v0/amp-sidebar-0.1.js"></script>
-<script async custom-element="amp-accordion" src="https://cdn.ampproject.org/v0/amp-accordion-0.1.js"></script>
 <link rel="canonical" href="https://www.kenturnerlaw.com/florida-criminal-defense-answers/">
 <meta name="viewport" content="width=device-width,minimum-scale=1,initial-scale=1">
 <title>Florida Criminal Defense Answers | Ken Turner Law</title>
@@ -19,7 +18,33 @@
 .ampstart-sidebar .kt-sidebar-parent{display:block;color:#e4c36a;font-size:1rem;line-height:1.35;font-weight:700;text-decoration:none}.ampstart-sidebar .kt-sidebar-sub{list-style:none;margin:.5rem 0 0 .65rem;padding:0 0 0 .75rem;border-left:1px solid rgba(255,255,255,.28)}.ampstart-sidebar .kt-sidebar-sub li{margin:0 0 .45rem;color:#fff}.ampstart-sidebar .kt-sidebar-sub a{color:#fff;font-size:.88rem;line-height:1.3;font-weight:400;text-decoration:none;opacity:.95}
 main h1,main h2,main h3,main h4,main dt,main li>strong:first-child,.hero h1{color:#e4c36a}
 main p,main li,main dd,main blockquote,main .lede,main .small,main .subtext{color:#fff}
-/* Accordion header a11y: neutralize AMP default gray header background */main amp-accordion>section>header.ampstart-title-sm,main amp-accordion.ampstart-dropdown>section>header{background-color:transparent;background:transparent;border:0;color:#fff;padding-right:0}main amp-accordion>section>header.ampstart-title-sm amp-img,main amp-accordion.ampstart-dropdown>section>header amp-img{display:inline-block;vertical-align:middle}
+
+/* Native disclosure accordion (replaces amp-accordion for valid ARIA). */
+details.kt-acc{border:0;margin:0;background:transparent}
+details.kt-acc>summary.ampstart-title-sm,
+details.kt-acc>summary{
+  list-style:none;cursor:pointer;position:relative;
+  background:transparent;border:0;color:#fff;
+  font-size:1.25rem;line-height:1.6;letter-spacing:.06rem;
+  padding:0;margin:0;display:block
+}
+details.kt-acc>summary::-webkit-details-marker{display:none}
+details.kt-acc>summary::marker{content:''}
+details.kt-acc>summary:after{
+  display:inline-block;content:"+";position:absolute;right:15px;top:.55rem;color:#fff;padding:0
+}
+details.kt-acc[open]>summary:after{content:"–"}
+details.kt-acc>summary amp-img{pointer-events:none;vertical-align:middle}
+main details.kt-acc>summary{color:#fff}
+
+details.kt-acc>summary{
+  background:#111;color:#efd98c;padding:17px;margin:0;font-size:1.05rem;text-transform:none;border:1px solid #6f5526
+}
+details.kt-acc{border:0}
+details.kt-acc+details.kt-acc>summary{border-top:0}
+details.kt-acc:last-child>summary{border-bottom:1px solid #6f5526}
+details.kt-acc>div,details.kt-acc>article{padding:18px;background:#080808;color:#fff}
+
 </style>
 </head>
 <body>
@@ -71,7 +96,21 @@ main p,main li,main dd,main blockquote,main .lede,main .small,main .subtext{colo
 <section><h2>Police encounters and searches</h2><div class="topic-grid"><div class="topic"><h3>Talking to Police</h3><ul><li><a href="/florida-criminal-defense-answers/should-i-talk-to-police/">Should I talk to police?</a></li><li><a href="/florida-criminal-defense-answers/what-is-reasonable-suspicion/">What is reasonable suspicion?</a></li><li><a href="/florida-criminal-defense-answers/what-is-probable-cause/">What is probable cause?</a></li></ul></div><div class="topic"><h3>Consent and Searches</h3><ul><li><a href="/florida-criminal-defense-answers/should-i-consent-to-a-search/">Should I consent to a search?</a></li><li><a href="/florida-criminal-defense-answers/can-police-search-my-car/">Can police search my car?</a></li><li><a href="/florida-criminal-defense-answers/can-police-search-my-phone/">Can police search my phone?</a></li></ul></div><div class="topic"><h3>Challenging Evidence</h3><ul><li><a href="/florida-criminal-defense-answers/what-is-a-motion-to-suppress/">What is a motion to suppress?</a></li><li><a href="/criminal-defense/">Criminal defense overview</a></li><li><a href="/drug-charges/">Drug-charge search issues</a></li></ul></div></div></section>
 <section><h2>Arrest, release, and court</h2><div class="topic-grid"><div class="topic"><h3>Arrest and First Appearance</h3><ul><li><a href="/arrested/">What happens after arrest?</a></li><li><a href="/florida-criminal-defense-answers/what-happens-at-first-appearance/">What happens at first appearance?</a></li><li><a href="/florida-criminal-defense-answers/how-does-bond-work-in-florida/">How does bond work?</a></li></ul></div><div class="topic"><h3>Release Conditions</h3><ul><li><a href="/florida-criminal-defense-answers/what-is-a-no-contact-order/">What is a no-contact order?</a></li><li><a href="/violation-of-probation/">Violation of probation</a></li><li><a href="/criminal-defense/">Pretrial issues</a></li></ul></div><div class="topic"><h3>DUI</h3><ul><li><a href="/florida-criminal-defense-answers/what-happens-after-a-dui-arrest/">What happens after a DUI arrest?</a></li><li><a href="/dui/">Florida DUI guide</a></li><li><a href="/suspended-license/">Driver-license suspension</a></li></ul></div></div></section>
 <section class="card"><h2>Why the facts matter</h2><p>Criminal-defense questions rarely turn on a single label. A vehicle search may depend on consent, probable cause, the scope of a warrant, the timing of an arrest, or an inventory policy. Bond may depend on the charge, prior history, ties to the community, alleged victim safety, and the information available at first appearance.</p><p>These pages are designed to help readers recognize those questions. They are not a substitute for reviewing reports, video, witness statements, criminal history, court orders, and deadlines in an individual case.</p></section>
-<section class="card"><h2>Frequently asked questions</h2><amp-accordion expand-single-section><section><header>Can police search without a warrant?</header><div>Sometimes. Consent, probable cause involving a vehicle, exigent circumstances, and other recognized exceptions may permit a warrantless search. The government must identify and prove the exception it relies upon.</div></section><section><header>What is the difference between reasonable suspicion and probable cause?</header><div>Reasonable suspicion is generally the lower standard used to justify a temporary investigative detention. Probable cause is a higher standard commonly associated with arrest, warrants, and certain searches.</div></section><section><header>Can bond conditions be changed?</header><div>A court may modify release conditions after considering the governing law, allegations, safety concerns, appearance risk, and evidence presented.</div></section><section><header>Can charges be dismissed?</header><div>Yes, but dismissal depends on the evidence, legal defects, witness availability, admissibility rulings, prosecutorial decisions, and court orders.</div></section><section><header>What does a motion to suppress do?</header><div>It asks the court to exclude evidence obtained in violation of constitutional, statutory, or procedural protections.</div></section></amp-accordion></section>
+<section class="card"><h2>Frequently asked questions</h2><details class="kt-acc"><summary class="kt-acc-summary">Can police search without a warrant?</summary>
+<div>Sometimes. Consent, probable cause involving a vehicle, exigent circumstances, and other recognized exceptions may permit a warrantless search. The government must identify and prove the exception it relies upon.</div>
+</details>
+<details class="kt-acc"><summary class="kt-acc-summary">What is the difference between reasonable suspicion and probable cause?</summary>
+<div>Reasonable suspicion is generally the lower standard used to justify a temporary investigative detention. Probable cause is a higher standard commonly associated with arrest, warrants, and certain searches.</div>
+</details>
+<details class="kt-acc"><summary class="kt-acc-summary">Can bond conditions be changed?</summary>
+<div>A court may modify release conditions after considering the governing law, allegations, safety concerns, appearance risk, and evidence presented.</div>
+</details>
+<details class="kt-acc"><summary class="kt-acc-summary">Can charges be dismissed?</summary>
+<div>Yes, but dismissal depends on the evidence, legal defects, witness availability, admissibility rulings, prosecutorial decisions, and court orders.</div>
+</details>
+<details class="kt-acc"><summary class="kt-acc-summary">What does a motion to suppress do?</summary>
+<div>It asks the court to exclude evidence obtained in violation of constitutional, statutory, or procedural protections.</div>
+</details></section>
 <section class="card"><h2>Primary Florida sources</h2><p>Legal statements should be verifiable. Primary sources include the <a href="https://www.leg.state.fl.us/statutes/">Florida Statutes</a>, the <a href="https://www.flcourts.gov/Resources-Services/Court-Improvement/Self-Help-Information/Florida-Rules-of-Court">Florida Rules of Court</a>, and published Florida appellate decisions.</p></section>
 <section class="card cta"><h2>Need advice about a specific Florida case?</h2><p>Individual advice requires review of the allegations, reports, video, witnesses, court orders, criminal history, and deadlines.</p><p><a href="tel:+12394003733">Call (239) 400-FREE</a> • <a href="mailto:ken@kenturnerlaw.com">ken@kenturnerlaw.com</a></p></section>
 </main>

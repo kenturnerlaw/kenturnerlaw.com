@@ -35,12 +35,6 @@
     <meta property="og:description" content="Criminal Defense and family law firm offering free initial consultations. Attorney Ken Turner has more than a decade of courtroom and trial experience in Collier, Lee, Charlotte and surrounding counties."/>
     <meta property="og:image" content="https://www.kenturnerlaw.com/ken_turner.jpg"/>
     <meta property="og:image:secure_url" content="https://www.kenturnerlaw.com/ken_turner.jpg"/>
-    
-  
-    
-    
-     
-   <script async custom-element="amp-accordion" src="https://cdn.ampproject.org/v0/amp-accordion-0.1.js"></script>
   
    
 
@@ -338,7 +332,25 @@ amp-accordion section:not([expanded]) .show-less {
     cursor: not-allowed;
 }
 .kt-sidebar-menu{padding-bottom:1rem}.ampstart-sidebar .kt-sidebar-section{margin:0 0 1.15rem}.kt-sidebar-parent{display:block;color:#fff;text-decoration:none;font-weight:700;letter-spacing:.01em}.kt-sidebar-sub{list-style:none;margin:.55rem 0 0 .65rem;padding:0 0 0 .75rem;border-left:1px solid rgba(255,255,255,.28)}.kt-sidebar-sub li{margin:0 0 .55rem;padding:0}.kt-sidebar-sub a{color:#fff;text-decoration:none;font-size:.95rem;line-height:1.25;opacity:.9}.kt-sidebar-action{margin-top:1.45rem}.kt-sidebar-sub a:active,.kt-sidebar-sub a:focus,.kt-sidebar-sub a:hover,.kt-sidebar-parent:active,.kt-sidebar-parent:focus,.kt-sidebar-parent:hover{opacity:1}
-/* Accordion header a11y: neutralize AMP default gray header background */main amp-accordion>section>header.ampstart-title-sm,main amp-accordion.ampstart-dropdown>section>header{background-color:transparent;background:transparent;border:0;color:#fff;padding-right:0}main amp-accordion>section>header.ampstart-title-sm amp-img,main amp-accordion.ampstart-dropdown>section>header amp-img{display:inline-block;vertical-align:middle}
+
+/* Native disclosure accordion (replaces amp-accordion for valid ARIA). */
+details.kt-acc{border:0;margin:0;background:transparent}
+details.kt-acc>summary.ampstart-title-sm,
+details.kt-acc>summary{
+  list-style:none;cursor:pointer;position:relative;
+  background:transparent;border:0;color:#fff;
+  font-size:1.25rem;line-height:1.6;letter-spacing:.06rem;
+  padding:0;margin:0;display:block
+}
+details.kt-acc>summary::-webkit-details-marker{display:none}
+details.kt-acc>summary::marker{content:''}
+details.kt-acc>summary:after{
+  display:inline-block;content:"+";position:absolute;right:15px;top:.55rem;color:#fff;padding:0
+}
+details.kt-acc[open]>summary:after{content:"–"}
+details.kt-acc>summary amp-img{pointer-events:none;vertical-align:middle}
+main details.kt-acc>summary{color:#fff}
+
 </style>
     
 
@@ -516,14 +528,10 @@ amp-accordion section:not([expanded]) .show-less {
            
           </header>
     
-            <amp-accordion expand-single-section class="ampstart-dropdown" disable-session-states>
-            <section>
-              
-                <header class="ampstart-title-sm" id=DivorceGuide>
+            <details class="kt-acc"><summary class="ampstart-title-sm" id=DivorceGuide>
                      COMMUNICATION GUIDE
-                   </header>
- 
-        <article class="px3">
+                   </summary>
+<article class="px3">
              
 <p class=indented>1.   Texting is a common form of communication that requires a basic level of etiquette. It is best practice to:
 </P> 
@@ -543,52 +551,40 @@ amp-accordion section:not([expanded]) .show-less {
 <a href="https://www.kenturnerlaw.com/handbook/textmessages.pdf" class="inline-block" target="_blank" aria-label="Texting Guide">Texting Guide</a>
 
             </article>
-            </section>
-              
-              <section>
-                  <header class="ampstart-title-sm" id=DivorceGuide>
+</details>
+<details class="kt-acc"><summary class="ampstart-title-sm" id=DivorceGuide>
                      FAQ
-                   </header>
-            <article class=px1>
+                   </summary>
+<article class=px1>
                    <br>
                     
                    
                 </article>
-              </section>
-              <section>
-                <header class=ampstart-title-sm>
+</details>
+<details class="kt-acc"><summary class=ampstart-title-sm>
                     FAQ
-                </header>
-                <article class=px1>
+                </summary>
+<article class=px1>
                     <br>
                   
                   </article>
-              </section>
-              
-              <section>  
-              
-                <header class="ampstart-title-sm" id=criminaldefense>
-                     FAQ</header>
-                     <article class=px1>
+</details>
+<details class="kt-acc"><summary class="ampstart-title-sm" id=criminaldefense>
+                     FAQ</summary>
+<article class=px1>
                         <br> 
                     
                       </article>
-              </section>
-            
-                  
-                <section>
-                <header class="ampstart-title-sm" id=DivorceGuide>
+</details>
+<details class="kt-acc"><summary class="ampstart-title-sm" id=DivorceGuide>
                      FAQ
                      
-                   </header>
- <article class=px3>
+                   </summary>
+<article class=px3>
                  <br>
                      
                       </article>
-                    
-                </section>
-
-          </amp-accordion>
+</details>
    
     </main>
    
