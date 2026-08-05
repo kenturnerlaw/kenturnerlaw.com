@@ -115,6 +115,8 @@ Do not mark a checklist item complete merely because a file was edited. Mark it 
 
 ## Mobile publishing (Q&A and updates)
 
+**Full directions:** [PUBLISH.md](./PUBLISH.md)
+
 Publish short legal answers or updates from an iPhone without editing HTML.
 
 `/publish/` is unlisted and `noindex`, but anyone who knows the URL can open the page. **Publishing is password-protected.** Without the correct `PUBLISH_PASSWORD`, the API rejects the request.
