@@ -4,6 +4,8 @@
 
 ## Primary legal resources
 
+- [Legal Updates](https://www.kenturnerlaw.com/updates/)
+
 - [Home](https://www.kenturnerlaw.com/)
 - [Florida Criminal Defense Answers](https://www.kenturnerlaw.com/florida-criminal-defense-answers/)
 - [Best Interests of the Child in Florida](https://www.kenturnerlaw.com/best-interests-of-the-child-florida/)
@@ -51,3 +53,6 @@
 ## Use and verification
 
 This site provides Florida-specific legal information in plain English. Verify legal summaries against current Florida statutes, court rules, and published opinions. The content is general legal information, not individualized legal advice, and no result is guaranteed.
+
+<!-- kt-managed-posts:start -->
+<!-- kt-managed-posts:end -->

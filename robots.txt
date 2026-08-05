@@ -16,6 +16,10 @@ Disallow:
 User-agent: Slurp
 Disallow: 
 
+User-agent: *
+Disallow: /publish/
+Disallow: /api/
+
 # Sitemap location
 Sitemap: https://www.kenturnerlaw.com/sitemap.xml
 Sitemap: https://kenturnerlaw.com/sitemap.xml
