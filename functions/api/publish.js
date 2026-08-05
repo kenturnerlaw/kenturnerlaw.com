@@ -1,12 +1,13 @@
 /**
  * Cloudflare Pages Function: POST /api/publish
  *
- * Required environment variables (Cloudflare Pages → Settings):
- * - PUBLISH_KEY: shared passphrase used by /publish/
+ * Required environment variable (Cloudflare Pages → Settings → Environment variables):
  * - GITHUB_TOKEN: fine-grained PAT with Contents: Read and write on kenturnerlaw/kenturnerlaw.com
  * Optional:
  * - GITHUB_REPO: defaults to kenturnerlaw/kenturnerlaw.com
  * - GITHUB_BRANCH: defaults to main
+ *
+ * The phone form does not ask for a password. Auth is the server-side GitHub token only.
  */
 
 const CATEGORIES = new Set([
@@ -79,10 +80,10 @@ async function github(env, method, apiPath, body) {
 export async function onRequestPost(context) {
   const { request, env } = context;
 
-  if (!env.PUBLISH_KEY || !env.GITHUB_TOKEN) {
+  if (!env.GITHUB_TOKEN) {
     return json(503, {
       error:
-        'Publish API is not configured. Set PUBLISH_KEY and GITHUB_TOKEN in Cloudflare Pages environment variables.',
+        'Publish API is not configured. In Cloudflare Pages → Settings → Environment variables, set GITHUB_TOKEN (fine-grained PAT with Contents read/write on this repo).',
     });
   }
 
@@ -91,11 +92,6 @@ export async function onRequestPost(context) {
     payload = await request.json();
   } catch (_) {
     return json(400, { error: 'Invalid JSON body.' });
-  }
-
-  const key = String(payload.key || '');
-  if (key !== env.PUBLISH_KEY) {
-    return json(401, { error: 'Invalid publish key.' });
   }
 
   const title = String(payload.title || '').trim();

@@ -17,7 +17,7 @@ body{
 h1{color:#e4c36a;font-size:1.55rem;margin:.4rem 0 .35rem;text-transform:uppercase;letter-spacing:.03em}
 .sub{color:#fff;font-size:.95rem;margin:0 0 1rem;opacity:.95}
 label{display:block;margin:1rem 0 .35rem;color:#e4c36a;font-size:.95rem}
-input[type=text],input[type=password],textarea,select{
+input[type=text],textarea,select{
   width:100%;font:inherit;font-size:1.05rem;line-height:1.4;
   padding:14px 12px;border:1px solid #8b6b2e;border-radius:4px;
   background:#111;color:#fff;-webkit-appearance:none;appearance:none
@@ -37,9 +37,6 @@ button:disabled{opacity:.55;cursor:wait}
 .status.ok{border-color:#3d7a4a}
 .status.err{border-color:#a33}
 .hint{font-size:.88rem;color:#ddd;margin:.25rem 0 0}
-details.setup{margin-top:1.25rem;border-top:1px solid #6f5526;padding-top:.85rem}
-details.setup summary{color:#e4c36a;cursor:pointer}
-code{color:#efd98c;word-break:break-all}
 a{color:#e4c36a}
 </style>
 </head>
@@ -88,37 +85,16 @@ a{color:#e4c36a}
     </div>
   </div>
 
-  <label for="key">Publish key</label>
-  <input id="key" name="key" type="password" autocomplete="current-password" placeholder="Saved on this iPhone" required>
-  <p class="hint">Saved only in this browser. Set the same value as Cloudflare <code>PUBLISH_KEY</code>.</p>
-
   <button type="submit" id="submit">Publish</button>
 </form>
 
 <div id="status" class="status" aria-live="polite"></div>
-
-<details class="setup">
-  <summary>One-time setup</summary>
-  <ol>
-    <li>In Cloudflare Pages → Settings → Environment variables, add <code>PUBLISH_KEY</code> (any strong passphrase) and <code>GITHUB_TOKEN</code> (fine-grained PAT with Contents read/write on this repo).</li>
-    <li>Open this page on your iPhone, enter the publish key once, and Add to Home Screen.</li>
-    <li>After Publish, GitHub Action builds the AMP page and Cloudflare deploys it.</li>
-  </ol>
-  <p>Desktop/CLI alternative: <code>npm run publish -- --title "..." --body "..."</code></p>
-</details>
 
 <script>
 (function () {
   var form = document.getElementById('publish-form');
   var statusEl = document.getElementById('status');
   var submit = document.getElementById('submit');
-  var keyInput = document.getElementById('key');
-  var KEY = 'ktPublishKey';
-
-  try {
-    var saved = localStorage.getItem(KEY);
-    if (saved) keyInput.value = saved;
-  } catch (e) {}
 
   function setStatus(msg, cls) {
     statusEl.textContent = msg;
@@ -132,14 +108,11 @@ a{color:#e4c36a}
     var type = (form.querySelector('input[name="type"]:checked') || {}).value || 'answer';
     var category = document.getElementById('category').value;
     var county = document.getElementById('county').value;
-    var key = keyInput.value.trim();
 
-    if (!title || !body || !key) {
-      setStatus('Title, text, and publish key are required.', 'err');
+    if (!title || !body) {
+      setStatus('Title and text are required.', 'err');
       return;
     }
-
-    try { localStorage.setItem(KEY, key); } catch (e) {}
 
     submit.disabled = true;
     setStatus('Publishing…');
@@ -148,20 +121,17 @@ a{color:#e4c36a}
       var res = await fetch('/api/publish', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ title: title, body: body, type: type, category: category, county: county, key: key })
+        body: JSON.stringify({ title: title, body: body, type: type, category: category, county: county })
       });
       var data = {};
       try { data = await res.json(); } catch (e) {}
       if (!res.ok) {
         throw new Error(data.error || ('Publish failed (' + res.status + ')'));
       }
-      setStatus('Published. Live URL after deploy: ' + (data.url || data.path), 'ok');
+      setStatus('Published. Live after deploy: ' + (data.url || data.path), 'ok');
       form.reset();
-      if (type) {
-        var radio = form.querySelector('input[name="type"][value="' + type + '"]');
-        if (radio) radio.checked = true;
-      }
-      try { keyInput.value = localStorage.getItem(KEY) || ''; } catch (e) {}
+      var radio = form.querySelector('input[name="type"][value="' + type + '"]');
+      if (radio) radio.checked = true;
     } catch (err) {
       setStatus(err.message || String(err), 'err');
     } finally {

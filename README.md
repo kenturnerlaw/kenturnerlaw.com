@@ -117,20 +117,22 @@ Do not mark a checklist item complete merely because a file was edited. Mark it 
 
 Publish short legal answers or updates from an iPhone without editing HTML.
 
+The phone form asks only for: title/question, text, optional category, optional county, then **Publish**. No password or “publish key” on the phone.
+
 ### One-time Cloudflare setup
 
-In Cloudflare Pages → Settings → Environment variables (Production):
+In Cloudflare Pages → Settings → Environment variables (Production), set:
 
-1. `PUBLISH_KEY` — any strong passphrase you choose
-2. `GITHUB_TOKEN` — fine-grained GitHub PAT with **Contents: Read and write** on `kenturnerlaw/kenturnerlaw.com`
+- `GITHUB_TOKEN` — fine-grained GitHub PAT with **Contents: Read and write** on `kenturnerlaw/kenturnerlaw.com`
+
+That token stays in Cloudflare. You never type it on the iPhone.
 
 ### Publish from iPhone Safari
 
 1. Open `https://www.kenturnerlaw.com/publish/`
-2. Enter the publish key once (saved on that phone)
-3. Add to Home Screen
-4. Enter title/question, answer/update text, optional category, optional county
-5. Tap **Publish**
+2. Add to Home Screen
+3. Enter title/question, answer/update text, optional category, optional county
+4. Tap **Publish**
 
 The API writes `content/posts/{slug}.json`. GitHub Action `Publish content pages` builds the AMP page, updates the answers/blog indexes, sitemap, `search/index.json`, and `llms.txt`, then Cloudflare deploys.
 
