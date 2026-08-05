@@ -4,7 +4,9 @@ Use this to put a short legal Q&A or legal update on the site from your iPhone.
 
 **Publish page:** https://www.kenturnerlaw.com/publish/
 
-That page is for you only. It is unlisted (not in the public menu) and blocked from search engines. Publishing requires your private password.
+That page is for you only. It is unlisted (not in the public menu) and blocked from search engines.
+
+**Yes — there is a sign-in.** You must enter your private password before the publish form appears. The server also rejects every publish request without that password. This is not open to the public.
 
 ---
 
@@ -43,7 +45,7 @@ Until both are set, Publish stays locked.
 ## Publish from your iPhone
 
 1. Open https://www.kenturnerlaw.com/publish/  
-2. Enter your `PUBLISH_PASSWORD` → **Unlock**  
+2. **Sign in** with your `PUBLISH_PASSWORD`  
 3. Optional but useful: Share → **Add to Home Screen**  
 4. Choose:
    - **Q&A** = legal question-and-answer page  
@@ -106,7 +108,7 @@ You do **not** edit HTML. On publish, the system:
 - **Paste from Notes:** copy in Notes → paste into the text box  
 - **Longer material:** start with a short opening paragraph, then use lines like `## Heading` for sections (those become tap-to-expand accordions)  
 - **County:** optional note on that one page only — it does **not** create duplicate county pages  
-- **Lock this phone:** use the Lock button on the publish page when you are done  
+- **Sign out:** use the Sign out button when you are done  
 
 ---
 

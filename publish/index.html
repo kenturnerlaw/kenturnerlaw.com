@@ -6,7 +6,7 @@
 <meta name="robots" content="noindex,nofollow,noarchive">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="theme-color" content="#000000">
-<title>Private Publish | Ken Turner Law</title>
+<title>Sign in to Publish | Ken Turner Law</title>
 <style>
 *{box-sizing:border-box}
 body{
@@ -44,16 +44,16 @@ code{color:#efd98c}
 </style>
 </head>
 <body>
-<h1>Private Publish</h1>
-<p class="warn">This page is for Ken only. Publishing requires your password. Random visitors cannot publish without it.</p>
+<h1>Sign in to Publish</h1>
+<p class="warn">Private. Not for the public. You must sign in with your password before you can publish. Without the password, the server rejects every publish request.</p>
 
 <section id="gate">
-  <p class="sub">Enter the password you saved in Cloudflare as <code>PUBLISH_PASSWORD</code>.</p>
+  <p class="sub">Sign in with the password you stored in Cloudflare as <code>PUBLISH_PASSWORD</code>.</p>
   <label for="gate-password">Password</label>
-  <input id="gate-password" type="password" autocomplete="current-password" placeholder="Your private password">
-  <button type="button" id="unlock">Unlock</button>
-  <p class="hint">One-time: Cloudflare Pages → Settings → Environment variables → add <code>PUBLISH_PASSWORD</code> (any password you choose) and <code>GITHUB_TOKEN</code>.</p>
-  <p class="hint">Full directions: <a href="/PUBLISH.md">PUBLISH.md</a> — Q&amp;A goes under <code>/florida-criminal-defense-answers/</code>; updates go under <code>/updates/</code>.</p>
+  <input id="gate-password" type="password" autocomplete="current-password" placeholder="Your private password" required>
+  <button type="button" id="unlock">Sign in</button>
+  <p class="hint">One-time setup: Cloudflare Pages → Settings → Environment variables → add <code>PUBLISH_PASSWORD</code> and <code>GITHUB_TOKEN</code>.</p>
+  <p class="hint">Directions: <a href="/PUBLISH.md">PUBLISH.md</a></p>
 </section>
 
 <section id="app" class="hidden">
@@ -100,7 +100,7 @@ code{color:#efd98c}
     </div>
 
     <button type="submit" id="submit">Publish</button>
-    <button type="button" class="secondary" id="lock">Lock this phone</button>
+    <button type="button" class="secondary" id="lock">Sign out</button>
   </form>
 </section>
 
@@ -161,7 +161,7 @@ code{color:#efd98c}
 
   document.getElementById('lock').addEventListener('click', function () {
     showGate();
-    setStatus('Locked on this phone.');
+    setStatus('Signed out on this phone.');
   });
 
   form.addEventListener('submit', async function (ev) {
