@@ -1,13 +1,15 @@
 /**
  * Cloudflare Pages Function: POST /api/publish
  *
- * Required environment variable (Cloudflare Pages → Settings → Environment variables):
+ * Required environment variables (Cloudflare Pages → Settings → Environment variables):
+ * - PUBLISH_PASSWORD: private password required on every publish (fail closed if missing)
  * - GITHUB_TOKEN: fine-grained PAT with Contents: Read and write on kenturnerlaw/kenturnerlaw.com
  * Optional:
  * - GITHUB_REPO: defaults to kenturnerlaw/kenturnerlaw.com
  * - GITHUB_BRANCH: defaults to main
  *
- * The phone form does not ask for a password. Auth is the server-side GitHub token only.
+ * The HTML page is publicly reachable if someone knows the URL, but publishing is blocked
+ * without PUBLISH_PASSWORD. Do not leave PUBLISH_PASSWORD unset.
  */
 
 const CATEGORIES = new Set([
@@ -77,13 +79,24 @@ async function github(env, method, apiPath, body) {
   return data;
 }
 
+function passwordsMatch(provided, expected) {
+  const a = String(provided || '');
+  const b = String(expected || '');
+  if (!a || !b || a.length !== b.length) return false;
+  let mismatch = 0;
+  for (let i = 0; i < a.length; i += 1) {
+    mismatch |= a.charCodeAt(i) ^ b.charCodeAt(i);
+  }
+  return mismatch === 0;
+}
+
 export async function onRequestPost(context) {
   const { request, env } = context;
 
-  if (!env.GITHUB_TOKEN) {
+  if (!env.PUBLISH_PASSWORD || !env.GITHUB_TOKEN) {
     return json(503, {
       error:
-        'Publish API is not configured. In Cloudflare Pages → Settings → Environment variables, set GITHUB_TOKEN (fine-grained PAT with Contents read/write on this repo).',
+        'Publish API is locked. In Cloudflare Pages → Settings → Environment variables, set both PUBLISH_PASSWORD and GITHUB_TOKEN.',
     });
   }
 
@@ -92,6 +105,10 @@ export async function onRequestPost(context) {
     payload = await request.json();
   } catch (_) {
     return json(400, { error: 'Invalid JSON body.' });
+  }
+
+  if (!passwordsMatch(payload.password, env.PUBLISH_PASSWORD)) {
+    return json(401, { error: 'Wrong password. Publishing blocked.' });
   }
 
   const title = String(payload.title || '').trim();
