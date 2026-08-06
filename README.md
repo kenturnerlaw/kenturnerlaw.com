@@ -124,10 +124,10 @@ Publish short legal answers or updates from an iPhone without editing HTML.
 ### Publish from iPhone
 
 1. Open `https://www.kenturnerlaw.com/publish/`
-2. Password → Sign in → title/text → **Post**
+2. Password → title/text → optional category/county → **Post**
 
-One-time: set Cloudflare Pages env `GITHUB_TOKEN` (Contents read/write on this repo).  
-Do not paste tokens into Cursor chat. Details: [PUBLISH.md](./PUBLISH.md).
+First use only: tap **Enable publishing** and approve on GitHub once.  
+Details: [PUBLISH.md](./PUBLISH.md).
 
 - Q&A URLs: `/florida-criminal-defense-answers/{slug}/`
 - Updates URLs: `/updates/{slug}/`

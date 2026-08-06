@@ -4,6 +4,5 @@
  */
 export const PUBLISH_PASSWORD = '4Y3asSIIVLgK7y';
 
-// Set in Cloudflare Pages → Settings → Environment variables as GITHUB_TOKEN (Production).
-// Do not paste tokens into Cursor chat (chat deletes them).
+// Optional fallback. Prefer Enable publishing (GitHub App) on /publish.
 export const GITHUB_TOKEN = '';
