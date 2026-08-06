@@ -20,6 +20,8 @@ const GENERATED_NAV = `<nav class="answer-nav" aria-label="Legal answers">
   <a href="/updates/">Legal Updates</a>
 </nav>`;
 
+const GENERATED_NAV_CSS = `.answer-nav{display:flex;gap:14px;overflow-x:auto;padding:10px 18px;background:#f3f3f3;border-bottom:1px solid #ccc;font:600 14px Arial,sans-serif;white-space:nowrap}.answer-nav a{color:#111;text-decoration:none}.answer-nav a:hover,.answer-nav a:focus{text-decoration:underline}`;
+
 const SIDEBAR_ITEMS = `
       <li class="kt-sidebar-section">
         <span class="kt-sidebar-parent">Legal Answers</span>
@@ -44,8 +46,14 @@ function updateFile(file, updater) {
 
 function updateGenerated(html) {
   if (!html.includes('kt-generated-v2') && !html.includes('<p class="kicker">Answer Center</p>')) return html;
-  if (html.includes('class="answer-nav"')) return html;
-  return html.replace('</header><main', `</header>${GENERATED_NAV}<main`);
+  let output = html;
+  if (!output.includes('class="answer-nav"')) {
+    output = output.replace('</header><main', `</header>${GENERATED_NAV}<main`);
+  }
+  if (!output.includes('.answer-nav{')) {
+    output = output.replace('</style></head>', `${GENERATED_NAV_CSS}</style></head>`);
+  }
+  return output;
 }
 
 function updateExistingSidebar(html) {
