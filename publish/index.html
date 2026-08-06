@@ -136,7 +136,7 @@ button.secondary,a.btn.secondary{margin-top:.7rem;border-color:#555;color:#bbb;f
         public: false,
         default_permissions: { contents: 'write', metadata: 'read' }
       });
-      setGate('First GitHub sign-in sets up publishing for this site. Continue on GitHub, then sign in again.', '');
+      setGate('First time: continue on GitHub (create + install for this repo). Then Sign in with GitHub again.', '');
     } else {
       signin.classList.remove('hidden');
       setupForm.classList.add('hidden');
@@ -154,28 +154,61 @@ button.secondary,a.btn.secondary{margin-top:.7rem;border-color:#555;color:#bbb;f
     var errMsg = {
       setup_expired: 'Setup timed out. Tap Sign in with GitHub again and stay in this Safari window.',
       setup_save: 'Could not save setup. Tap Sign in with GitHub again.',
+      setup_store: 'Could not save sign-in keys. Tap Sign in with GitHub again.',
       setup_install: 'GitHub install did not finish. Tap Sign in with GitHub again.',
+      setup_convert: 'GitHub did not finish creating the app. Tap Sign in with GitHub again.',
       forbidden: 'That GitHub account cannot publish to this site.',
-      not_configured: 'Sign in is still connecting. Wait one minute, then try again.'
+      not_configured: 'Sign in is still connecting. Wait a few seconds, then try again.',
+      token: 'GitHub sign-in did not finish. Try Sign in with GitHub again.',
+      state: 'Sign in expired. Tap Sign in with GitHub again.'
     };
     setGate(errMsg[err] || 'Sign in failed. Try Sign in with GitHub again.', 'err');
   }
 
-  fetch('/api/publish/status', { credentials: 'same-origin' })
-    .then(function (r) { return r.json(); })
-    .then(function (d) {
-      if (d.signedIn) {
-        showApp(d.login);
-        return;
-      }
-      // After first-time connect, show normal Sign in (not setup again) while deploy catches up.
-      var needsSetup = (!d.oauthConfigured && params.get('connected') !== '1') || params.get('setup') === '1';
-      showGate(needsSetup);
-      if (params.get('connected') === '1') {
-        setGate('Setup saved. Wait about one minute, then tap Sign in with GitHub.', 'ok');
-      }
-    })
-    .catch(function () { showGate(false); });
+  function refresh() {
+    return fetch('/api/publish/status', { credentials: 'same-origin' })
+      .then(function (r) { return r.json(); })
+      .then(function (d) {
+        if (d.signedIn) {
+          showApp(d.login);
+          return d;
+        }
+        var needsSetup = (!d.oauthConfigured && params.get('connected') !== '1') || params.get('setup') === '1';
+        if (params.get('connected') === '1' && d.oauthConfigured) {
+          needsSetup = false;
+        }
+        showGate(needsSetup);
+        if (params.get('connected') === '1') {
+          if (d.oauthConfigured) {
+            setGate('Connected. Tap Sign in with GitHub.', 'ok');
+          } else {
+            setGate('Finishing connect… tap Sign in with GitHub in a few seconds.', 'ok');
+          }
+        }
+        return d;
+      });
+  }
+
+  refresh().catch(function () { showGate(false); });
+
+  // Avoid the old dead loop: login → setup → same page with no GitHub window.
+  signin.addEventListener('click', function (ev) {
+    ev.preventDefault();
+    setGate('Opening GitHub…');
+    fetch('/api/publish/status', { credentials: 'same-origin' })
+      .then(function (r) { return r.json(); })
+      .then(function (d) {
+        if (!d.oauthConfigured) {
+          showGate(true);
+          setGate('Sign in is not connected yet. Use the button below once, finish on GitHub, then come back.', 'err');
+          return;
+        }
+        window.location.href = '/api/auth/login';
+      })
+      .catch(function () {
+        window.location.href = '/api/auth/login';
+      });
+  });
 
   document.getElementById('signout').onclick = async function () {
     await fetch('/api/auth/logout', { method: 'POST', credentials: 'same-origin' });

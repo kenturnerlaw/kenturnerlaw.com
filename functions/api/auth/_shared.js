@@ -1,8 +1,4 @@
-import {
-  CLIENT_ID,
-  CLIENT_SECRET,
-  isOAuthConfigured,
-} from '../../github-app-credentials.js';
+import { resolveOAuthCredentials } from '../../lib/oauth-credentials.js';
 
 const COOKIE = 'kt_session';
 const DEFAULT_REPO = 'kenturnerlaw/kenturnerlaw.com';
@@ -22,14 +18,9 @@ export function siteOrigin(request, env) {
   return (env && env.SITE_ORIGIN) || 'https://www.kenturnerlaw.com';
 }
 
-export function oauthCredentials(env) {
-  const clientId = String((env && env.GITHUB_OAUTH_CLIENT_ID) || CLIENT_ID || '').trim();
-  const clientSecret = String((env && env.GITHUB_OAUTH_CLIENT_SECRET) || CLIENT_SECRET || '').trim();
-  return {
-    clientId,
-    clientSecret,
-    configured: Boolean(clientId && clientSecret),
-  };
+/** @deprecated use resolveOAuthCredentials — kept name for call sites */
+export async function oauthCredentials(env) {
+  return resolveOAuthCredentials(env);
 }
 
 function bytesToHex(bytes) {
@@ -133,4 +124,4 @@ export async function assertRepoPush(token, env) {
   return info;
 }
 
-export { COOKIE, DEFAULT_REPO, isOAuthConfigured };
+export { COOKIE, DEFAULT_REPO };

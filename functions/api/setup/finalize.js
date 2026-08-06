@@ -1,10 +1,12 @@
 /**
  * POST /api/setup/finalize
- * Body: pending GitHub App creds + installationId → write credentials file.
+ * Fallback path: browser posts pending App creds after install.
+ * Saves to server cache (required) and git (best-effort).
  */
 
 import { installationAccessToken, githubFetch } from '../../lib/github-app-auth.js';
 import { json } from '../auth/_shared.js';
+import { saveOAuthCredentials } from '../../lib/oauth-store.js';
 
 const REPO = 'kenturnerlaw/kenturnerlaw.com';
 const BRANCH = 'main';
@@ -19,7 +21,7 @@ function credentialsFile({
   clientSecret,
 }) {
   return `/**
- * Auto-written on first Connect for /publish.
+ * Auto-written on Connect for /publish.
  * Private repo only.
  */
 export const APP_ID = ${JSON.stringify(String(appId))};
@@ -56,26 +58,33 @@ export async function onRequestPost(context) {
   const clientSecret = String(payload.clientSecret || '').trim();
 
   if (!appId || !installationId || !privateKey || !clientId || !clientSecret) {
-    return json(400, { error: 'Missing connect data. Tap Connect again.' });
+    return json(400, { error: 'Missing connect data. Tap Sign in with GitHub again.' });
   }
 
+  const creds = {
+    appId,
+    installationId,
+    privateKey,
+    slug,
+    clientId,
+    clientSecret,
+  };
+
+  try {
+    await saveOAuthCredentials(creds);
+  } catch (err) {
+    return json(502, { error: err.message || 'Could not save sign-in credentials.' });
+  }
+
+  // Best-effort repo write for multi-edge durability. Cache is enough for Sign in.
   try {
     const token = await installationAccessToken({
       appId,
       privateKey,
       installationId,
     });
-
-    const content = credentialsFile({
-      appId,
-      installationId,
-      privateKey,
-      slug,
-      clientId,
-      clientSecret,
-    });
+    const content = credentialsFile(creds);
     const encoded = btoa(unescape(encodeURIComponent(content)));
-
     let sha;
     try {
       const existing = await githubFetch(
@@ -87,15 +96,14 @@ export async function onRequestPost(context) {
     } catch (err) {
       if (err.status !== 404) throw err;
     }
-
     await githubFetch(token, 'PUT', `/repos/${REPO}/contents/${CRED_PATH}`, {
       message: 'Connect Sign in with GitHub for /publish',
       content: encoded,
       branch: BRANCH,
       ...(sha ? { sha } : {}),
     });
-  } catch (err) {
-    return json(502, { error: err.message || 'Could not save connect credentials.' });
+  } catch (_) {
+    /* ignore — cache already has what Sign in needs */
   }
 
   return json(200, { ok: true });

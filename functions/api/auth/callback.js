@@ -15,7 +15,7 @@ export async function onRequestGet(context) {
   const { request, env } = context;
   const origin = siteOrigin(request, env);
   const url = new URL(request.url);
-  const { clientId, clientSecret, configured } = oauthCredentials(env);
+  const { clientId, clientSecret, configured } = await oauthCredentials(env);
 
   if (!configured) {
     return Response.redirect(`${origin}/publish/?error=not_configured`, 302);

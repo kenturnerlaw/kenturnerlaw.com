@@ -36,7 +36,7 @@ function todayISO() {
 
 export async function onRequestPost(context) {
   const { request, env } = context;
-  const { clientSecret, configured } = oauthCredentials(env);
+  const { clientSecret, configured } = await oauthCredentials(env);
 
   if (!configured) {
     return json(503, {
