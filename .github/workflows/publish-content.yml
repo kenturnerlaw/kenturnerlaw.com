@@ -6,6 +6,7 @@ on:
     paths:
       - 'content/posts/**'
       - 'tools/publish/**'
+      - 'publish/**'
       - 'package.json'
       - '.github/workflows/publish-content.yml'
   workflow_dispatch:
@@ -40,14 +41,12 @@ jobs:
           node --check tools/publish/build-v2.js
           node --check tools/publish/enhance-seo.js
           node --check tools/publish/update-answer-menus.js
+          node --check tools/publish/update-publisher-ui.js
           node --check tools/publish/validate-amp.js
           node --check functions/api/publish.js
 
-      - name: Build published AMP pages and automatic SEO
+      - name: Build published AMP pages, SEO, menus, and publisher UI
         run: npm run build:content
-
-      - name: Update article hub menus
-        run: node tools/publish/update-answer-menus.js
 
       - name: Validate generated AMP pages and SEO
         run: npm run validate:amp
@@ -60,6 +59,7 @@ jobs:
             index.html \
             practice-areas/index.html \
             blog/index.html \
+            publish/index.html \
             florida-criminal-defense-answers \
             florida-family-law-answers \
             florida-traffic-ticket-answers \
@@ -73,6 +73,6 @@ jobs:
           if git diff --cached --quiet; then
             echo "No generated changes to commit."
           else
-            git commit -m "Publish AMP articles with automatic SEO and menus"
+            git commit -m "Publish AMP articles, SEO, menus, and publisher UI"
             git push
           fi
