@@ -3,25 +3,16 @@
 **Page:** https://www.kenturnerlaw.com/publish/
 
 ## Login
-**Sign in with GitHub** — same style of login as Cursor / GitHub / Vercel.
+- Username: `ken`
+- Password: `AmCRmDF4xy2F`
 
-- Use your GitHub account that owns `kenturnerlaw/kenturnerlaw.com`
-- Change your password in GitHub → Settings (normal account password change)
+Change the password on the publish page after sign-in (**Change password**), once posting is allowed.
 
-## First time only
-Use the **Connect** button on the publish page — do not create an app yourself in GitHub Settings.
+## First time after login
+If asked, tap **Allow posting** and complete the GitHub screens that appear (same Safari window). Wait about one minute.
 
-1. Tap **Connect Sign in with GitHub**
-2. On GitHub: create/install for `kenturnerlaw/kenturnerlaw.com` (same Safari window)
-3. You should land back on publish with **Connected**
-4. Wait about one minute
-5. Tap **Sign in with GitHub**
-
-If it fails, tap Connect again.  
-Delete leftover apps anytime: GitHub → Settings → Developer settings → GitHub Apps.
-
-## Every time after that
-1. Sign in with GitHub  
+## Every time
+1. Sign in  
 2. Title / question  
 3. Answer / update text  
 4. Optional category / county  

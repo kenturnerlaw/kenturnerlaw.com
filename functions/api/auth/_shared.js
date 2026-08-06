@@ -1,8 +1,4 @@
-import {
-  CLIENT_ID,
-  CLIENT_SECRET,
-  isOAuthConfigured,
-} from '../../github-app-credentials.js';
+import { USERNAME, PASSWORD, SESSION_SECRET } from '../../publish-users.js';
 
 const COOKIE = 'kt_session';
 const DEFAULT_REPO = 'kenturnerlaw/kenturnerlaw.com';
@@ -20,16 +16,6 @@ export function json(status, body, headers = {}) {
 
 export function siteOrigin(request, env) {
   return (env && env.SITE_ORIGIN) || 'https://www.kenturnerlaw.com';
-}
-
-export function oauthCredentials(env) {
-  const clientId = String((env && env.GITHUB_OAUTH_CLIENT_ID) || CLIENT_ID || '').trim();
-  const clientSecret = String((env && env.GITHUB_OAUTH_CLIENT_SECRET) || CLIENT_SECRET || '').trim();
-  return {
-    clientId,
-    clientSecret,
-    configured: Boolean(clientId && clientSecret) || isOAuthConfigured(),
-  };
 }
 
 function bytesToHex(bytes) {
@@ -54,18 +40,41 @@ async function importKey(secret) {
   );
 }
 
-export async function sealSession(secret, payload) {
+export function passwordsMatch(provided, expected) {
+  const a = String(provided || '');
+  const b = String(expected || '');
+  if (!a || !b || a.length !== b.length) return false;
+  let mismatch = 0;
+  for (let i = 0; i < a.length; i += 1) {
+    mismatch |= a.charCodeAt(i) ^ b.charCodeAt(i);
+  }
+  return mismatch === 0;
+}
+
+export function usersMatch(providedUser, providedPass) {
+  return (
+    passwordsMatch(String(providedUser || '').trim().toLowerCase(), USERNAME.toLowerCase()) &&
+    passwordsMatch(providedPass, PASSWORD)
+  );
+}
+
+export async function sealSession(login) {
+  const payload = {
+    ok: true,
+    login: login || USERNAME,
+    exp: Math.floor(Date.now() / 1000) + 60 * 60 * 12,
+  };
   const body = btoa(unescape(encodeURIComponent(JSON.stringify(payload))));
-  const key = await importKey(secret);
+  const key = await importKey(SESSION_SECRET);
   const sigBuf = await crypto.subtle.sign('HMAC', key, new TextEncoder().encode(body));
   return `${body}.${bytesToHex(new Uint8Array(sigBuf))}`;
 }
 
-export async function openSession(secret, token) {
-  if (!token || !secret) return null;
+export async function openSession(token) {
+  if (!token || !SESSION_SECRET) return null;
   const [body, sig] = String(token).split('.');
   if (!body || !sig) return null;
-  const key = await importKey(secret);
+  const key = await importKey(SESSION_SECRET);
   const ok = await crypto.subtle.verify(
     'HMAC',
     key,
@@ -76,7 +85,7 @@ export async function openSession(secret, token) {
   try {
     const payload = JSON.parse(decodeURIComponent(escape(atob(body))));
     if (!payload.exp || payload.exp < Math.floor(Date.now() / 1000)) return null;
-    if (!payload.accessToken) return null;
+    if (!payload.ok) return null;
     return payload;
   } catch (_) {
     return null;
@@ -124,13 +133,4 @@ export async function github(token, method, apiPath, body) {
   return data;
 }
 
-export async function assertRepoPush(token, env) {
-  const repo = (env && env.GITHUB_REPO) || DEFAULT_REPO;
-  const info = await github(token, 'GET', `/repos/${repo}`);
-  if (!info.permissions || !info.permissions.push) {
-    throw new Error('GitHub account cannot publish to this repository.');
-  }
-  return info;
-}
-
-export { COOKIE, DEFAULT_REPO };
+export { COOKIE, DEFAULT_REPO, USERNAME, PASSWORD, SESSION_SECRET };
