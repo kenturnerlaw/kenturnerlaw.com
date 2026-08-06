@@ -149,8 +149,14 @@ button.secondary,a.btn.secondary{margin-top:.7rem;border-color:#555;color:#bbb;f
   }
 
   var params = new URLSearchParams(location.search);
-  if (params.get('error')) {
-    setGate('Sign in failed. Try again.', 'err');
+  var err = params.get('error');
+  var detail = params.get('detail') || '';
+  if (err === 'setup_expired') {
+    setGate('Connect almost finished but iPhone dropped the session. Tap Connect again (same steps).', 'err');
+  } else if (err === 'setup_save') {
+    setGate('Connect reached GitHub but saving failed' + (detail ? ': ' + detail : '') + '. Tap Connect again.', 'err');
+  } else if (err) {
+    setGate('Connect/sign-in failed' + (detail ? ': ' + detail : '') + '. Tap Connect again.', 'err');
   }
   if (params.get('connected') === '1') {
     setGate('Connected. Wait about one minute, then tap Sign in with GitHub.', 'ok');
