@@ -5,34 +5,26 @@ const path = require('path');
 const amphtmlValidator = require('amphtml-validator');
 
 const ROOT = path.resolve(__dirname, '../..');
+const SKIP_DIRS = new Set(['.git', '.github', 'node_modules', 'functions', 'tools', 'publish', 'content']);
 const GENERATED_MARKERS = ['kt-generated-v2', 'kt-generated'];
-const HUBS = [
-  'florida-criminal-defense-answers',
-  'florida-family-law-answers',
-  'florida-traffic-ticket-answers',
-  'florida-legal-answers',
-  'updates',
-];
 
-function generatedFiles() {
-  const files = [];
-  for (const hub of HUBS) {
-    const root = path.join(ROOT, hub);
-    if (!fs.existsSync(root)) continue;
-    const hubIndex = path.join(root, 'index.html');
-    if (fs.existsSync(hubIndex)) files.push(hubIndex);
-    for (const entry of fs.readdirSync(root, { withFileTypes: true })) {
-      if (!entry.isDirectory()) continue;
-      const file = path.join(root, entry.name, 'index.html');
-      if (!fs.existsSync(file)) continue;
-      const html = fs.readFileSync(file, 'utf8');
-      if (GENERATED_MARKERS.some((marker) => html.includes(marker))) files.push(file);
-    }
+function walk(dir, files = []) {
+  for (const entry of fs.readdirSync(dir, { withFileTypes: true })) {
+    if (entry.name.startsWith('.')) continue;
+    if (dir === ROOT && SKIP_DIRS.has(entry.name)) continue;
+    const full = path.join(dir, entry.name);
+    if (entry.isDirectory()) walk(full, files);
+    else if (entry.name === 'index.html') files.push(full);
   }
-  return [...new Set(files)];
+  return files;
+}
+
+function isAmp(html) {
+  return /<html\b[^>]*(?:\samp(?:\s|>|=)|⚡)/i.test(html);
 }
 
 function seoErrors(html) {
+  if (!GENERATED_MARKERS.some((marker) => html.includes(marker))) return [];
   const required = [
     ['canonical', /<link\s+rel="canonical"\s+href="https:\/\/www\.kenturnerlaw\.com\//i],
     ['meta description', /<meta\s+name="description"\s+content="[^"]+"/i],
@@ -46,9 +38,9 @@ function seoErrors(html) {
 }
 
 async function main() {
-  const files = generatedFiles();
+  const files = walk(ROOT).filter((file) => isAmp(fs.readFileSync(file, 'utf8')));
   if (!files.length) {
-    console.log('No generated AMP pages found.');
+    console.log('No AMP pages found.');
     return;
   }
 
@@ -73,10 +65,10 @@ async function main() {
   }
 
   if (failed) {
-    console.error(`${failed} generated page(s) failed AMP or SEO validation.`);
+    console.error(`${failed} AMP page(s) failed validation.`);
     process.exit(1);
   }
-  console.log(`Validated ${files.length} generated AMP page(s).`);
+  console.log(`Validated ${files.length} AMP page(s) sitewide.`);
 }
 
 main().catch((error) => {
