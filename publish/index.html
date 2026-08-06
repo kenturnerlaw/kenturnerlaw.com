@@ -36,6 +36,7 @@ button.secondary{margin-top:.7rem;border-color:#555;color:#bbb;font-size:.95rem}
 .status.ok{color:#8dca9a}
 .status.err{color:#e89a9a}
 .hint{font-size:.85rem;color:#aaa;margin:.35rem 0 0}
+.hint a{color:#e4c36a}
 .hidden{display:none}
 .wrap{max-width:420px;margin:0 auto}
 </style>
@@ -44,8 +45,9 @@ button.secondary{margin-top:.7rem;border-color:#555;color:#bbb;font-size:.95rem}
 <div class="wrap">
   <section id="gate">
     <h1>Login</h1>
-    <label for="gate-password">Password</label>
-    <input id="gate-password" type="password" autocomplete="current-password">
+    <label for="token">GitHub access token</label>
+    <input id="token" type="password" autocomplete="off" spellcheck="false">
+    <p class="hint">Paste once. Saved on this iPhone only. <a href="https://github.com/settings/personal-access-tokens/new" target="_blank" rel="noopener">Create token</a> → this repo only → Contents: Read and write.</p>
     <button type="button" id="unlock">Sign in</button>
     <div id="gate-status" class="status" aria-live="polite"></div>
   </section>
@@ -101,15 +103,15 @@ button.secondary{margin-top:.7rem;border-color:#555;color:#bbb;font-size:.95rem}
 
 <script>
 (function () {
-  var STORE = 'ktPublishPassword';
+  var STORE = 'ktGithubToken';
   var gate = document.getElementById('gate');
   var app = document.getElementById('app');
-  var gatePassword = document.getElementById('gate-password');
+  var tokenInput = document.getElementById('token');
   var gateStatus = document.getElementById('gate-status');
   var form = document.getElementById('publish-form');
   var statusEl = document.getElementById('status');
   var submit = document.getElementById('submit');
-  var password = '';
+  var token = '';
 
   function setGateStatus(msg, cls) {
     gateStatus.textContent = msg || '';
@@ -120,9 +122,9 @@ button.secondary{margin-top:.7rem;border-color:#555;color:#bbb;font-size:.95rem}
     statusEl.className = 'status' + (cls ? ' ' + cls : '');
   }
 
-  function showApp(pw) {
-    password = pw;
-    try { localStorage.setItem(STORE, pw); } catch (e) {}
+  function showApp(t) {
+    token = t;
+    try { localStorage.setItem(STORE, t); } catch (e) {}
     gate.classList.add('hidden');
     app.classList.remove('hidden');
     setGateStatus('');
@@ -130,11 +132,11 @@ button.secondary{margin-top:.7rem;border-color:#555;color:#bbb;font-size:.95rem}
   }
 
   function showGate() {
-    password = '';
+    token = '';
     try { localStorage.removeItem(STORE); } catch (e) {}
     app.classList.add('hidden');
     gate.classList.remove('hidden');
-    gatePassword.value = '';
+    tokenInput.value = '';
   }
 
   try {
@@ -143,15 +145,15 @@ button.secondary{margin-top:.7rem;border-color:#555;color:#bbb;font-size:.95rem}
   } catch (e) {}
 
   document.getElementById('unlock').addEventListener('click', function () {
-    var pw = gatePassword.value.trim();
-    if (!pw) {
-      setGateStatus('Enter your password.', 'err');
+    var t = tokenInput.value.trim();
+    if (!t) {
+      setGateStatus('Paste your GitHub access token.', 'err');
       return;
     }
-    showApp(pw);
+    showApp(t);
   });
 
-  gatePassword.addEventListener('keydown', function (ev) {
+  tokenInput.addEventListener('keydown', function (ev) {
     if (ev.key === 'Enter') {
       ev.preventDefault();
       document.getElementById('unlock').click();
@@ -171,7 +173,7 @@ button.secondary{margin-top:.7rem;border-color:#555;color:#bbb;font-size:.95rem}
     var category = document.getElementById('category').value;
     var county = document.getElementById('county').value;
 
-    if (!password) {
+    if (!token) {
       showGate();
       setGateStatus('Sign in first.', 'err');
       return;
@@ -194,15 +196,15 @@ button.secondary{margin-top:.7rem;border-color:#555;color:#bbb;font-size:.95rem}
           type: type,
           category: category,
           county: county,
-          password: password
+          token: token
         })
       });
       var data = {};
       try { data = await res.json(); } catch (e) {}
       if (!res.ok) {
-        if (res.status === 401) {
+        if (res.status === 401 || res.status === 403) {
           showGate();
-          throw new Error('Wrong password.');
+          throw new Error(data.error || 'Sign in failed. Check the token.');
         }
         throw new Error(data.error || ('Failed (' + res.status + ')'));
       }
@@ -212,7 +214,6 @@ button.secondary{margin-top:.7rem;border-color:#555;color:#bbb;font-size:.95rem}
       if (radio) radio.checked = true;
     } catch (err) {
       setStatus(err.message || String(err), 'err');
-      if (/Wrong password/i.test(err.message || '')) setGateStatus(err.message, 'err');
     } finally {
       submit.disabled = false;
     }

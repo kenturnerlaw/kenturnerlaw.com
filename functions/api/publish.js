@@ -1,15 +1,10 @@
 /**
  * Cloudflare Pages Function: POST /api/publish
  *
- * Required environment variables (Cloudflare Pages → Settings → Environment variables):
- * - PUBLISH_PASSWORD: private password required on every publish (fail closed if missing)
- * - GITHUB_TOKEN: fine-grained PAT with Contents: Read and write on kenturnerlaw/kenturnerlaw.com
- * Optional:
- * - GITHUB_REPO: defaults to kenturnerlaw/kenturnerlaw.com
- * - GITHUB_BRANCH: defaults to main
+ * Auth: the iPhone sends a GitHub token (saved on the phone after one paste).
+ * No Cloudflare password. No Cloudflare GITHUB_TOKEN required.
  *
- * The HTML page is publicly reachable if someone knows the URL, but publishing is blocked
- * without PUBLISH_PASSWORD. Do not leave PUBLISH_PASSWORD unset.
+ * Body: { title, body, type, category?, county?, token }
  */
 
 const CATEGORIES = new Set([
@@ -25,6 +20,7 @@ const CATEGORIES = new Set([
 ]);
 
 const COUNTIES = new Set(['Collier', 'Lee', 'Hendry', 'Miami-Dade']);
+const DEFAULT_REPO = 'kenturnerlaw/kenturnerlaw.com';
 
 function json(status, body) {
   return new Response(JSON.stringify(body), {
@@ -51,12 +47,12 @@ function todayISO() {
   return new Date().toISOString().slice(0, 10);
 }
 
-async function github(env, method, apiPath, body) {
+async function github(token, method, apiPath, body) {
   const res = await fetch(`https://api.github.com${apiPath}`, {
     method,
     headers: {
       Accept: 'application/vnd.github+json',
-      Authorization: `Bearer ${env.GITHUB_TOKEN}`,
+      Authorization: `Bearer ${token}`,
       'User-Agent': 'kenturnerlaw-publish',
       'X-GitHub-Api-Version': '2022-11-28',
       ...(body ? { 'Content-Type': 'application/json' } : {}),
@@ -79,26 +75,34 @@ async function github(env, method, apiPath, body) {
   return data;
 }
 
-function passwordsMatch(provided, expected) {
-  const a = String(provided || '');
-  const b = String(expected || '');
-  if (!a || !b || a.length !== b.length) return false;
-  let mismatch = 0;
-  for (let i = 0; i < a.length; i += 1) {
-    mismatch |= a.charCodeAt(i) ^ b.charCodeAt(i);
+async function assertCanPublish(token, repo) {
+  if (!token || token.length < 20) {
+    const err = new Error('Sign in with your GitHub access token.');
+    err.status = 401;
+    throw err;
   }
-  return mismatch === 0;
+  try {
+    const repoInfo = await github(token, 'GET', `/repos/${repo}`);
+    if (!repoInfo.permissions || !repoInfo.permissions.push) {
+      const err = new Error('That token cannot publish to this site.');
+      err.status = 403;
+      throw err;
+    }
+  } catch (err) {
+    if (err.status === 401 || err.status === 403) throw err;
+    if (err.status === 404) {
+      const e = new Error('That token cannot access this repository.');
+      e.status = 403;
+      throw e;
+    }
+    throw err;
+  }
 }
 
 export async function onRequestPost(context) {
   const { request, env } = context;
-
-  if (!env.PUBLISH_PASSWORD || !env.GITHUB_TOKEN) {
-    return json(503, {
-      error:
-        'Publish API is locked. In Cloudflare Pages → Settings → Environment variables, set both PUBLISH_PASSWORD and GITHUB_TOKEN.',
-    });
-  }
+  const repo = env.GITHUB_REPO || DEFAULT_REPO;
+  const branch = env.GITHUB_BRANCH || 'main';
 
   let payload;
   try {
@@ -107,8 +111,11 @@ export async function onRequestPost(context) {
     return json(400, { error: 'Invalid JSON body.' });
   }
 
-  if (!passwordsMatch(payload.password, env.PUBLISH_PASSWORD)) {
-    return json(401, { error: 'Wrong password. Publishing blocked.' });
+  const token = String(payload.token || '').trim();
+  try {
+    await assertCanPublish(token, repo);
+  } catch (err) {
+    return json(err.status || 401, { error: err.message });
   }
 
   const title = String(payload.title || '').trim();
@@ -118,21 +125,19 @@ export async function onRequestPost(context) {
   const county = String(payload.county || '').trim();
   let slug = String(payload.slug || '').trim() || slugify(title);
 
-  if (!title || !body) return json(400, { error: 'Title and body are required.' });
+  if (!title || !body) return json(400, { error: 'Title and text are required.' });
   if (!['answer', 'update'].includes(type)) return json(400, { error: 'Type must be answer or update.' });
   if (category && !CATEGORIES.has(category)) return json(400, { error: 'Unknown category.' });
   if (county && !COUNTIES.has(county)) return json(400, { error: 'Unknown county.' });
   if (!slug) return json(400, { error: 'Could not derive slug.' });
 
-  const repo = env.GITHUB_REPO || 'kenturnerlaw/kenturnerlaw.com';
-  const branch = env.GITHUB_BRANCH || 'main';
   const contentPath = `content/posts/${slug}.json`;
   const now = todayISO();
 
   let datePublished = now;
   let sha;
   try {
-    const existing = await github(env, 'GET', `/repos/${repo}/contents/${contentPath}?ref=${branch}`);
+    const existing = await github(token, 'GET', `/repos/${repo}/contents/${contentPath}?ref=${branch}`);
     sha = existing.sha;
     if (existing.content) {
       const decoded = JSON.parse(atob(existing.content.replace(/\n/g, '')));
@@ -157,7 +162,7 @@ export async function onRequestPost(context) {
 
   const encoded = btoa(unescape(encodeURIComponent(`${JSON.stringify(post, null, 2)}\n`)));
   try {
-    await github(env, 'PUT', `/repos/${repo}/contents/${contentPath}`, {
+    await github(token, 'PUT', `/repos/${repo}/contents/${contentPath}`, {
       message: `Publish ${type}: ${title}`,
       content: encoded,
       branch,
@@ -167,14 +172,13 @@ export async function onRequestPost(context) {
     return json(502, { error: `GitHub write failed: ${err.message}` });
   }
 
-  // Trigger content build workflow (idempotent if push already triggered it)
   try {
-    await github(env, 'POST', `/repos/${repo}/actions/workflows/publish-content.yml/dispatches`, {
+    await github(token, 'POST', `/repos/${repo}/actions/workflows/publish-content.yml/dispatches`, {
       ref: branch,
       inputs: { reason: `publish:${slug}` },
     });
   } catch (_) {
-    // Push to content/ may already trigger the workflow; ignore dispatch failures.
+    /* content push may already trigger the workflow */
   }
 
   const path =
@@ -187,7 +191,7 @@ export async function onRequestPost(context) {
     slug,
     path,
     url: `https://www.kenturnerlaw.com${path}`,
-    message: 'Content saved. AMP page will appear after the publish workflow and Cloudflare deploy finish.',
+    message: 'Saved. The page will go live after GitHub Action + Cloudflare deploy.',
   });
 }
 
