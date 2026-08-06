@@ -1,30 +1,22 @@
-import { oauthCredentials, siteOrigin } from './_shared.js';
+import { json, usersMatch, sealSession, sessionCookie, USERNAME } from './_shared.js';
 
 /**
- * GET /api/auth/login
- * Normal Sign in with GitHub (OAuth).
+ * POST /api/auth/login
+ * Body: { username, password }
  */
-export async function onRequestGet(context) {
-  const { request, env } = context;
-  const { clientId, configured } = oauthCredentials(env);
-  const origin = siteOrigin(request, env);
-
-  if (!configured || !clientId) {
-    return Response.redirect(`${origin}/publish/?setup=1`, 302);
+export async function onRequestPost(context) {
+  const { request } = context;
+  let payload;
+  try {
+    payload = await request.json();
+  } catch (_) {
+    return json(400, { error: 'Invalid request.' });
   }
 
-  const state = crypto.randomUUID();
-  const params = new URLSearchParams({
-    client_id: clientId,
-    redirect_uri: `${origin}/api/auth/callback`,
-    state,
-  });
+  if (!usersMatch(payload.username, payload.password)) {
+    return json(401, { error: 'Wrong username or password.' });
+  }
 
-  return new Response(null, {
-    status: 302,
-    headers: {
-      Location: `https://github.com/login/oauth/authorize?${params}`,
-      'Set-Cookie': `kt_oauth_state=${state}; Path=/; HttpOnly; Secure; SameSite=Lax; Max-Age=600`,
-    },
-  });
+  const sealed = await sealSession(USERNAME);
+  return json(200, { ok: true, login: USERNAME }, { 'Set-Cookie': sessionCookie(sealed) });
 }

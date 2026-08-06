@@ -1,9 +1,16 @@
 /**
  * POST /api/publish
- * Requires Sign in with GitHub session. Uses the signed-in user's token.
+ * Requires username/password session. Writes via GitHub App or GITHUB_TOKEN.
  */
 
-import { json, readCookie, openSession, oauthCredentials, github, DEFAULT_REPO } from './auth/_shared.js';
+import { json, readCookie, openSession, github, DEFAULT_REPO } from './auth/_shared.js';
+import {
+  APP_ID,
+  INSTALLATION_ID,
+  PRIVATE_KEY,
+  isGitHubAppConfigured,
+} from '../github-app-credentials.js';
+import { installationAccessToken } from '../lib/github-app-auth.js';
 
 const CATEGORIES = new Set([
   'Police encounters',
@@ -34,23 +41,40 @@ function todayISO() {
   return new Date().toISOString().slice(0, 10);
 }
 
-export async function onRequestPost(context) {
-  const { request, env } = context;
-  const { clientSecret, configured } = oauthCredentials(env);
-
-  if (!configured) {
-    return json(503, {
-      error: 'Sign in is not connected yet. Tap Sign in with GitHub once to connect.',
-      needsSetup: true,
+async function resolveWriteToken(env) {
+  if (isGitHubAppConfigured()) {
+    return installationAccessToken({
+      appId: APP_ID,
+      privateKey: PRIVATE_KEY,
+      installationId: INSTALLATION_ID,
     });
   }
+  return String((env && env.GITHUB_TOKEN) || '').trim();
+}
 
-  const session = await openSession(clientSecret, readCookie(request));
+export async function onRequestPost(context) {
+  const { request, env } = context;
+
+  const session = await openSession(readCookie(request));
   if (!session) {
     return json(401, { error: 'Sign in required.' });
   }
 
-  const token = session.accessToken;
+  let token = '';
+  try {
+    token = await resolveWriteToken(env);
+  } catch (err) {
+    return json(503, {
+      error: `Posting is not enabled yet. Tap Allow posting once. (${err.message})`,
+      needsEnable: true,
+    });
+  }
+  if (!token) {
+    return json(503, {
+      error: 'Posting is not enabled yet. Tap Allow posting once.',
+      needsEnable: true,
+    });
+  }
 
   let payload;
   try {

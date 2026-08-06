@@ -124,12 +124,11 @@ Publish short legal answers or updates from an iPhone without editing HTML.
 ### Publish from iPhone
 
 1. Open `https://www.kenturnerlaw.com/publish/`
-2. **Sign in with GitHub**
+2. Username + password → Sign in  
 3. Title/text → optional category/county → **Post**
 
-First use only: connect Sign in with GitHub once when asked.  
-Password changes are in your GitHub account settings (normal).  
-Details: [PUBLISH.md](./PUBLISH.md).
+First use after login may ask to **Allow posting** once.  
+Change password on the publish page. Details: [PUBLISH.md](./PUBLISH.md).
 
 - Q&A URLs: `/florida-criminal-defense-answers/{slug}/`
 - Updates URLs: `/updates/{slug}/`

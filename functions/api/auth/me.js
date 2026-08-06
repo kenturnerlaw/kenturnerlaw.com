@@ -1,12 +1,14 @@
-import { json, readCookie, openSession, oauthCredentials } from './_shared.js';
+import { json, readCookie, openSession } from './_shared.js';
+import { isGitHubAppConfigured } from '../../github-app-credentials.js';
 
 export async function onRequestGet(context) {
   const { request, env } = context;
-  const { clientSecret, configured } = oauthCredentials(env);
-  const session = configured ? await openSession(clientSecret, readCookie(request)) : null;
+  const session = await openSession(readCookie(request));
+  const writeReady =
+    isGitHubAppConfigured() || Boolean(String((env && env.GITHUB_TOKEN) || '').trim());
   return json(200, {
     signedIn: Boolean(session),
     login: session ? session.login : '',
-    oauthConfigured: configured,
+    writeReady,
   });
 }
