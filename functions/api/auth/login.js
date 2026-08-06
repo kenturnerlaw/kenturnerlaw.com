@@ -1,4 +1,13 @@
-import { json, usersMatch, sealSession, sessionCookie, USERNAME } from './_shared.js';
+import { json, usersMatch, sealSession, sessionCookie, USERNAME, siteOrigin } from './_shared.js';
+
+/**
+ * GET /api/auth/login
+ * Browser visits should go to the publish login page.
+ */
+export async function onRequestGet(context) {
+  const { request, env } = context;
+  return Response.redirect(`${siteOrigin(request, env)}/publish/`, 302);
+}
 
 /**
  * POST /api/auth/login
