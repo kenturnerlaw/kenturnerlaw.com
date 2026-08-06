@@ -100,7 +100,7 @@ You do **not** edit HTML. On publish, the system:
 - **Paste from Notes:** copy in Notes → paste into the text box  
 - **Longer material:** start with a short opening paragraph, then use lines like `## Heading` for sections (those become tap-to-expand accordions)  
 - **County:** optional note on that one page only — it does **not** create duplicate county pages  
-- **Sign out:** use the Sign out button when you are done  
+- **Sign out** when finished on a shared device
 
 ---
 
