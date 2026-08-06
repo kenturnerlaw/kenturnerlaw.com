@@ -15,7 +15,7 @@ body{
 }
 h1{color:#e4c36a;font-size:1.4rem;margin:1.5rem 0 1rem;font-weight:400;letter-spacing:.04em}
 label{display:block;margin:1rem 0 .35rem;color:#cfcfcf;font-size:.95rem}
-input[type=text],textarea,select{
+input[type=text],input[type=password],textarea,select{
   width:100%;font:inherit;font-size:1.05rem;line-height:1.4;
   padding:14px 12px;border:1px solid #5a5a5a;border-radius:3px;
   background:#111;color:#fff;-webkit-appearance:none;appearance:none
@@ -25,17 +25,16 @@ textarea{min-height:220px;resize:vertical}
 .row>div{flex:1}
 .type-row{display:flex;gap:14px;margin:.35rem 0 0}
 .type-row label{display:flex;align-items:center;gap:.45rem;margin:0;color:#fff;font-size:1rem}
-button,a.btn{
+button{
   display:block;width:100%;margin-top:1.25rem;padding:14px;
   border:1px solid #e4c36a;background:#000;color:#e4c36a;
-  font:inherit;font-size:1.05rem;cursor:pointer;text-align:center;text-decoration:none
+  font:inherit;font-size:1.05rem;cursor:pointer
 }
 button:disabled{opacity:.55;cursor:wait}
-button.secondary,a.btn.secondary{margin-top:.7rem;border-color:#555;color:#bbb;font-size:.95rem}
+button.secondary{margin-top:.7rem;border-color:#555;color:#bbb;font-size:.95rem}
 .status{margin-top:1rem;min-height:1.2em;font-size:.92rem;color:#ddd}
 .status.ok{color:#8dca9a}
 .status.err{color:#e89a9a}
-.hint{font-size:.85rem;color:#aaa;margin:.35rem 0 0}
 .hidden{display:none}
 .wrap{max-width:420px;margin:0 auto}
 </style>
@@ -44,30 +43,27 @@ button.secondary,a.btn.secondary{margin-top:.7rem;border-color:#555;color:#bbb;f
 <div class="wrap">
   <section id="gate">
     <h1>Login</h1>
-    <a class="btn" id="signin" href="/api/auth/login">Sign in with GitHub</a>
-    <p class="hint">Only your GitHub account for this site can sign in.</p>
+    <label for="password">Password</label>
+    <input id="password" type="password" autocomplete="current-password">
+    <button type="button" id="signin">Sign in</button>
     <div id="gate-status" class="status" aria-live="polite"></div>
   </section>
 
   <section id="app" class="hidden">
     <h1>New post</h1>
-    <p class="hint" id="who"></p>
-    <form id="publish-form" autocomplete="on">
-      <div class="type-row" role="radiogroup" aria-label="Type">
+    <form id="publish-form">
+      <div class="type-row">
         <label><input type="radio" name="type" value="answer" checked> Question</label>
         <label><input type="radio" name="type" value="update"> Update</label>
       </div>
-
       <label for="title">Title</label>
-      <input id="title" name="title" type="text" required maxlength="180" enterkeyhint="next">
-
+      <input id="title" type="text" required maxlength="180">
       <label for="body">Text</label>
-      <textarea id="body" name="body" required placeholder="Dictate or paste from Notes"></textarea>
-
+      <textarea id="body" required placeholder="Dictate or paste from Notes"></textarea>
       <div class="row">
         <div>
           <label for="category">Category</label>
-          <select id="category" name="category">
+          <select id="category">
             <option value="">—</option>
             <option>Police encounters</option>
             <option>Searches</option>
@@ -82,7 +78,7 @@ button.secondary,a.btn.secondary{margin-top:.7rem;border-color:#555;color:#bbb;f
         </div>
         <div>
           <label for="county">County</label>
-          <select id="county" name="county">
+          <select id="county">
             <option value="">—</option>
             <option>Collier</option>
             <option>Lee</option>
@@ -91,14 +87,12 @@ button.secondary,a.btn.secondary{margin-top:.7rem;border-color:#555;color:#bbb;f
           </select>
         </div>
       </div>
-
       <button type="submit" id="submit">Post</button>
-      <a class="btn secondary" href="/api/auth/logout">Sign out</a>
+      <button type="button" class="secondary" id="signout">Sign out</button>
     </form>
     <div id="status" class="status" aria-live="polite"></div>
   </section>
 </div>
-
 <script>
 (function () {
   var gate = document.getElementById('gate');
@@ -107,9 +101,8 @@ button.secondary,a.btn.secondary{margin-top:.7rem;border-color:#555;color:#bbb;f
   var statusEl = document.getElementById('status');
   var form = document.getElementById('publish-form');
   var submit = document.getElementById('submit');
-  var who = document.getElementById('who');
 
-  function setGateStatus(msg, cls) {
+  function setGate(msg, cls) {
     gateStatus.textContent = msg || '';
     gateStatus.className = 'status' + (cls ? ' ' + cls : '');
   }
@@ -117,47 +110,59 @@ button.secondary,a.btn.secondary{margin-top:.7rem;border-color:#555;color:#bbb;f
     statusEl.textContent = msg || '';
     statusEl.className = 'status' + (cls ? ' ' + cls : '');
   }
-
-  var params = new URLSearchParams(location.search);
-  var err = params.get('error');
-  if (err === 'forbidden') setGateStatus('That GitHub account cannot publish to this site.', 'err');
-  else if (err === 'not_configured') setGateStatus('Sign-in is not configured yet.', 'err');
-  else if (err) setGateStatus('Sign-in failed. Try again.', 'err');
-  if (err) history.replaceState({}, '', '/publish/');
+  function showApp() {
+    gate.classList.add('hidden');
+    app.classList.remove('hidden');
+    setGate('');
+  }
+  function showGate() {
+    app.classList.add('hidden');
+    gate.classList.remove('hidden');
+    document.getElementById('password').value = '';
+  }
 
   fetch('/api/auth/me', { credentials: 'same-origin' })
     .then(function (r) { return r.json(); })
-    .then(function (data) {
-      if (!data.configured) {
-        setGateStatus('Sign-in is not configured yet.', 'err');
-        return;
-      }
-      if (data.signedIn) {
-        gate.classList.add('hidden');
-        app.classList.remove('hidden');
-        who.textContent = data.login ? ('Signed in as ' + data.login) : 'Signed in';
-      }
-    })
-    .catch(function () {
-      setGateStatus('Could not check sign-in status.', 'err');
-    });
+    .then(function (d) { if (d.signedIn) showApp(); })
+    .catch(function () {});
 
-  form.addEventListener('submit', async function (ev) {
+  document.getElementById('signin').onclick = async function () {
+    var password = document.getElementById('password').value;
+    if (!password) { setGate('Enter password.', 'err'); return; }
+    setGate('Signing in…');
+    try {
+      var res = await fetch('/api/auth/login', {
+        method: 'POST',
+        credentials: 'same-origin',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ password: password })
+      });
+      var data = await res.json().catch(function () { return {}; });
+      if (!res.ok) throw new Error(data.error || 'Sign in failed');
+      showApp();
+    } catch (e) {
+      setGate(e.message || String(e), 'err');
+    }
+  };
+
+  document.getElementById('password').addEventListener('keydown', function (ev) {
+    if (ev.key === 'Enter') document.getElementById('signin').click();
+  });
+
+  document.getElementById('signout').onclick = async function () {
+    await fetch('/api/auth/logout', { method: 'POST', credentials: 'same-origin' });
+    showGate();
+    setGate('Signed out.');
+  };
+
+  form.onsubmit = async function (ev) {
     ev.preventDefault();
     var title = document.getElementById('title').value.trim();
     var body = document.getElementById('body').value.trim();
     var type = (form.querySelector('input[name="type"]:checked') || {}).value || 'answer';
-    var category = document.getElementById('category').value;
-    var county = document.getElementById('county').value;
-
-    if (!title || !body) {
-      setStatus('Title and text are required.', 'err');
-      return;
-    }
-
+    if (!title || !body) { setStatus('Title and text required.', 'err'); return; }
     submit.disabled = true;
     setStatus('Posting…');
-
     try {
       var res = await fetch('/api/publish', {
         method: 'POST',
@@ -167,29 +172,21 @@ button.secondary,a.btn.secondary{margin-top:.7rem;border-color:#555;color:#bbb;f
           title: title,
           body: body,
           type: type,
-          category: category,
-          county: county
+          category: document.getElementById('category').value,
+          county: document.getElementById('county').value
         })
       });
-      var data = {};
-      try { data = await res.json(); } catch (e) {}
-      if (!res.ok) {
-        if (res.status === 401) {
-          location.href = '/publish/';
-          return;
-        }
-        throw new Error(data.error || ('Failed (' + res.status + ')'));
-      }
+      var data = await res.json().catch(function () { return {}; });
+      if (res.status === 401) { showGate(); throw new Error('Sign in required.'); }
+      if (!res.ok) throw new Error(data.error || 'Failed');
       setStatus('Posted: ' + (data.url || data.path), 'ok');
       form.reset();
-      var radio = form.querySelector('input[name="type"][value="' + type + '"]');
-      if (radio) radio.checked = true;
     } catch (e) {
       setStatus(e.message || String(e), 'err');
     } finally {
       submit.disabled = false;
     }
-  });
+  };
 })();
 </script>
 </body>

@@ -1,16 +1,10 @@
 /**
  * POST /api/publish
- * Requires a normal GitHub OAuth session cookie from /api/auth/login.
+ * Requires login session cookie from /api/auth/login.
  */
 
-import {
-  json,
-  readCookie,
-  openSession,
-  assertRepoPush,
-  github,
-  oauthConfigured,
-} from './auth/_shared.js';
+import { GITHUB_TOKEN as CONFIG_TOKEN } from '../publish-config.js';
+import { json, readCookie, openSession } from './auth/_shared.js';
 
 const CATEGORIES = new Set([
   'Police encounters',
@@ -25,6 +19,7 @@ const CATEGORIES = new Set([
 ]);
 
 const COUNTIES = new Set(['Collier', 'Lee', 'Hendry', 'Miami-Dade']);
+const DEFAULT_REPO = 'kenturnerlaw/kenturnerlaw.com';
 
 function slugify(title) {
   return String(title || '')
@@ -41,25 +36,46 @@ function todayISO() {
   return new Date().toISOString().slice(0, 10);
 }
 
+async function github(token, method, apiPath, body) {
+  const res = await fetch(`https://api.github.com${apiPath}`, {
+    method,
+    headers: {
+      Accept: 'application/vnd.github+json',
+      Authorization: `Bearer ${token}`,
+      'User-Agent': 'kenturnerlaw-publish',
+      'X-GitHub-Api-Version': '2022-11-28',
+      ...(body ? { 'Content-Type': 'application/json' } : {}),
+    },
+    body: body ? JSON.stringify(body) : undefined,
+  });
+  const text = await res.text();
+  let data = {};
+  try {
+    data = text ? JSON.parse(text) : {};
+  } catch (_) {
+    data = { message: text };
+  }
+  if (!res.ok) {
+    const err = new Error(data.message || `GitHub API ${res.status}`);
+    err.status = res.status;
+    throw err;
+  }
+  return data;
+}
+
 export async function onRequestPost(context) {
   const { request, env } = context;
 
-  if (!oauthConfigured(env)) {
-    return json(503, {
-      error: 'Sign-in is not configured. Set GITHUB_OAUTH_CLIENT_ID and GITHUB_OAUTH_CLIENT_SECRET.',
-    });
-  }
-
-  const session = await openSession(env, readCookie(request));
-  if (!session || !session.accessToken) {
+  if (!(await openSession(readCookie(request)))) {
     return json(401, { error: 'Sign in required.' });
   }
 
-  let repo;
-  try {
-    repo = await assertRepoPush(session.accessToken, env);
-  } catch (err) {
-    return json(err.status || 403, { error: err.message });
+  const token = String(env.GITHUB_TOKEN || CONFIG_TOKEN || '').trim();
+  if (!token) {
+    return json(503, {
+      error:
+        'Publishing is signed in, but no GitHub token is configured. Ask Cursor to put a GitHub token in functions/publish-config.js, or set GITHUB_TOKEN in Cloudflare.',
+    });
   }
 
   let payload;
@@ -82,10 +98,10 @@ export async function onRequestPost(context) {
   if (county && !COUNTIES.has(county)) return json(400, { error: 'Unknown county.' });
   if (!slug) return json(400, { error: 'Could not derive slug.' });
 
+  const repo = env.GITHUB_REPO || DEFAULT_REPO;
   const branch = env.GITHUB_BRANCH || 'main';
   const contentPath = `content/posts/${slug}.json`;
   const now = todayISO();
-  const token = session.accessToken;
 
   let datePublished = now;
   let sha;
@@ -131,7 +147,7 @@ export async function onRequestPost(context) {
       inputs: { reason: `publish:${slug}` },
     });
   } catch (_) {
-    /* content push may already trigger workflow */
+    /* push may already trigger workflow */
   }
 
   const path =

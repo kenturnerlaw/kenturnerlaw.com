@@ -119,22 +119,15 @@ Do not mark a checklist item complete merely because a file was edited. Mark it 
 
 Publish short legal answers or updates from an iPhone without editing HTML.
 
-`/publish/` is a discreet login page (unlisted, `noindex`) with normal **Sign in with GitHub**.
-
-### One-time setup
-
-1. Create a GitHub OAuth App (callback `https://www.kenturnerlaw.com/api/auth/callback`)
-2. Put `GITHUB_OAUTH_CLIENT_ID` and `GITHUB_OAUTH_CLIENT_SECRET` in Cloudflare Pages env vars
-
-Details: [PUBLISH.md](./PUBLISH.md)
+`/publish/` is a private login page (unlisted, `noindex`). Password is in [PUBLISH.md](./PUBLISH.md) / `functions/publish-config.js`. No OAuth App.
 
 ### Publish from iPhone Safari
 
 1. Open `https://www.kenturnerlaw.com/publish/`
-2. **Sign in with GitHub**
+2. Enter password → Sign in
 3. Title/text → **Post**
 
-Signed-in session writes `content/posts/{slug}.json`. GitHub Action builds the AMP page, indexes, sitemap, search data, and Cloudflare deploys.
+Needs a GitHub write token in `functions/publish-config.js` or Cloudflare `GITHUB_TOKEN`. Details: [PUBLISH.md](./PUBLISH.md).
 
 - Q&A URLs: `/florida-criminal-defense-answers/{slug}/`
 - Updates URLs: `/updates/{slug}/`
