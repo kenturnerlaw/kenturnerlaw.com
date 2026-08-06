@@ -49,8 +49,9 @@ export async function onRequestGet(context) {
   });
   headers.append('Set-Cookie', cookie('ktl_app_id', appId));
   headers.append('Set-Cookie', cookie('ktl_app_slug', slug));
-  // PEM can be large; split across cookies if needed
-  const pemParts = pem.match(/.{1,1800}/g) || [pem];
+  // Store PEM as base64 chunks (cookie-safe).
+  const pemB64 = btoa(unescape(encodeURIComponent(pem)));
+  const pemParts = pemB64.match(/.{1,1800}/g) || [pemB64];
   headers.append('Set-Cookie', cookie('ktl_app_pem_n', String(pemParts.length)));
   pemParts.forEach((part, i) => {
     headers.append('Set-Cookie', cookie(`ktl_app_pem_${i}`, part));

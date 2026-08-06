@@ -62,7 +62,13 @@ export async function onRequestGet(context) {
   const n = Number(cookies.ktl_app_pem_n || '0');
   let privateKey = '';
   if (n > 0) {
-    for (let i = 0; i < n; i += 1) privateKey += cookies[`ktl_app_pem_${i}`] || '';
+    let pemB64 = '';
+    for (let i = 0; i < n; i += 1) pemB64 += cookies[`ktl_app_pem_${i}`] || '';
+    try {
+      privateKey = decodeURIComponent(escape(atob(pemB64)));
+    } catch (_) {
+      privateKey = '';
+    }
   }
 
   // Clear setup cookies either way
