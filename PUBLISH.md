@@ -2,11 +2,9 @@
 
 Use this to put a short legal Q&A or legal update on the site from your iPhone.
 
-**Publish page:** https://www.kenturnerlaw.com/publish/
+**Login page:** https://www.kenturnerlaw.com/publish/
 
-That page is for you only. It is unlisted (not in the public menu) and blocked from search engines.
-
-**Yes — there is a sign-in.** You must enter your private password before the publish form appears. The server also rejects every publish request without that password. This is not open to the public.
+It looks like a plain login. Sign in with your password, then post. No public menu link. Blocked from search engines. The server rejects posts without the correct password.
 
 ---
 
@@ -45,19 +43,13 @@ Until both are set, Publish stays locked.
 ## Publish from your iPhone
 
 1. Open https://www.kenturnerlaw.com/publish/  
-2. **Sign in** with your `PUBLISH_PASSWORD`  
-3. Optional but useful: Share → **Add to Home Screen**  
-4. Choose:
-   - **Q&A** = legal question-and-answer page  
-   - **Update** = short legal update  
-5. Enter:
-   - Title or question  
-   - Answer or update text (dictate or paste from Notes)  
-   - Category (optional)  
-   - County (optional)  
-6. Tap **Publish**
+2. Sign in with your password  
+3. Optional: Share → **Add to Home Screen**  
+4. Choose **Question** or **Update**  
+5. Enter title, text, optional category/county  
+6. Tap **Post**
 
-Wait a few minutes for GitHub + Cloudflare to finish. Then open the URL shown on the success message.
+Wait a few minutes for GitHub + Cloudflare to finish. Then open the URL shown.
 
 ---
 
