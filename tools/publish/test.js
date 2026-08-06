@@ -12,6 +12,7 @@ const {
   ensureDir,
 } = require('./lib');
 const { build } = require('./build');
+const { extractPayload, validate } = require('./from-issue');
 
 const TMP_SLUG = '__publish-system-selftest__';
 const TMP_FILE = path.join(CONTENT_DIR, `${TMP_SLUG}.json`);
@@ -87,12 +88,34 @@ function testBuildRoundTrip() {
   assert.ok(!fs.existsSync(page), 'orphan generated page was not removed');
 }
 
+function testFromIssue() {
+  const body =
+    '<!-- ktl-publish\n' +
+    JSON.stringify(
+      {
+        type: 'answer',
+        title: 'Can police search my phone?',
+        body: 'Short answer for the parser test.',
+        category: 'Searches',
+        county: 'Lee',
+        slug: 'can-police-search-my-phone',
+      },
+      null,
+      2,
+    ) +
+    '\n-->\n\nCan police search my phone?\n\nShort answer for the parser test.';
+  const payload = validate(extractPayload(body));
+  assert.strictEqual(payload.slug, 'can-police-search-my-phone');
+  assert.strictEqual(payload.county, 'Lee');
+}
+
 function main() {
   cleanup();
   try {
     testSlugify();
     testSections();
     testMeta();
+    testFromIssue();
     testBuildRoundTrip();
     console.log('Publish tooling tests passed.');
   } catch (err) {
