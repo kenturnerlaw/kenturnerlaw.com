@@ -119,25 +119,19 @@ Do not mark a checklist item complete merely because a file was edited. Mark it 
 
 Publish short legal answers or updates from an iPhone without editing HTML.
 
-`/publish/` is a discreet login page (unlisted, `noindex`). After sign-in you can post. Without the correct `PUBLISH_PASSWORD`, the API rejects the request.
+`/publish/` is a discreet login page (unlisted, `noindex`). No Cloudflare password.
 
-### One-time Cloudflare setup
+### One-time setup
 
-In Cloudflare Pages → Settings → Environment variables (Production), set both:
-
-1. `PUBLISH_PASSWORD` — any private password you choose  
-2. `GITHUB_TOKEN` — fine-grained GitHub PAT with **Contents: Read and write** on `kenturnerlaw/kenturnerlaw.com`
-
-If either is missing, publishing stays locked.
+Create a GitHub fine-grained token for this repo with **Contents: Read and write**. Paste it once on the iPhone login page (saved on that phone only).
 
 ### Publish from iPhone Safari
 
 1. Open `https://www.kenturnerlaw.com/publish/`
-2. Enter your `PUBLISH_PASSWORD` once (saved on that phone) → Unlock  
-3. Add to Home Screen  
-4. Enter title/question, text, optional category/county → **Publish**
+2. Paste token → **Sign in**
+3. Title/text → **Post**
 
-The API writes `content/posts/{slug}.json`. GitHub Action `Publish content pages` builds the AMP page, updates the answers/blog indexes, sitemap, `search/index.json`, and `llms.txt`, then Cloudflare deploys.
+The API writes `content/posts/{slug}.json` using your token. GitHub Action builds the AMP page, indexes, sitemap, search data, and Cloudflare deploys.
 
 - Q&A URLs: `/florida-criminal-defense-answers/{slug}/`
 - Updates URLs: `/updates/{slug}/`
