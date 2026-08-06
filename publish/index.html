@@ -52,7 +52,7 @@ button.secondary{margin-top:.7rem;border-color:#555;color:#bbb;font-size:.95rem}
 
   <section id="app" class="hidden">
     <h1>New post</h1>
-    <p class="hint">Post opens GitHub. Tap <strong>Submit new issue</strong> once (stay logged into GitHub on this phone). No token setup.</p>
+    <p class="hint">Write here, tap <strong>Copy for Cursor</strong>, paste into your Ken Turner Law Cursor chat, send. Cursor publishes it. Nothing to open on GitHub.</p>
     <form id="publish-form">
       <div class="type-row">
         <label><input type="radio" name="type" value="answer" checked> Question</label>
@@ -89,7 +89,7 @@ button.secondary{margin-top:.7rem;border-color:#555;color:#bbb;font-size:.95rem}
           </select>
         </div>
       </div>
-      <button type="submit" id="submit">Post</button>
+      <button type="submit" id="submit">Copy for Cursor</button>
       <button type="button" class="secondary" id="signout">Sign out</button>
     </form>
     <div id="status" class="status" aria-live="polite"></div>
@@ -103,7 +103,6 @@ button.secondary{margin-top:.7rem;border-color:#555;color:#bbb;font-size:.95rem}
   var statusEl = document.getElementById('status');
   var form = document.getElementById('publish-form');
   var submit = document.getElementById('submit');
-  var ISSUE_NEW = 'https://github.com/kenturnerlaw/kenturnerlaw.com/issues/new';
 
   function setGate(msg, cls) {
     gateStatus.textContent = msg || '';
@@ -122,14 +121,6 @@ button.secondary{margin-top:.7rem;border-color:#555;color:#bbb;font-size:.95rem}
     app.classList.add('hidden');
     gate.classList.remove('hidden');
     document.getElementById('password').value = '';
-  }
-  function slugify(title) {
-    return String(title || '')
-      .toLowerCase()
-      .replace(/['’]/g, '')
-      .replace(/[^a-z0-9]+/g, '-')
-      .replace(/^-+|-+$/g, '')
-      .slice(0, 80);
   }
 
   fetch('/api/auth/me', { credentials: 'same-origin' })
@@ -171,41 +162,53 @@ button.secondary{margin-top:.7rem;border-color:#555;color:#bbb;font-size:.95rem}
     var title = document.getElementById('title').value.trim();
     var body = document.getElementById('body').value.trim();
     var type = (form.querySelector('input[name="type"]:checked') || {}).value || 'answer';
+    var category = document.getElementById('category').value;
+    var county = document.getElementById('county').value;
     if (!title || !body) { setStatus('Title and text required.', 'err'); return; }
 
-    var payload = {
-      type: type,
-      title: title,
-      body: body,
-      category: document.getElementById('category').value,
-      county: document.getElementById('county').value,
-      slug: slugify(title)
-    };
-    var marker =
-      '<!-- ktl-publish\n' +
-      JSON.stringify(payload, null, 2) +
-      '\n-->\n\n' +
-      title + '\n\n' + body;
-    var issueTitle = 'publish: ' + title;
-    var fullUrl =
-      ISSUE_NEW +
-      '?title=' + encodeURIComponent(issueTitle) +
-      '&body=' + encodeURIComponent(marker);
+    var lines = [
+      'Publish this on kenturnerlaw.com:',
+      '',
+      'Type: ' + (type === 'update' ? 'Update' : 'Question'),
+      'Title: ' + title,
+      category ? 'Category: ' + category : '',
+      county ? 'County: ' + county : '',
+      '',
+      body
+    ].filter(function (line, i, arr) {
+      // keep blank line before body; drop empty optional fields
+      return line !== '' || (i > 0 && arr[i - 1].indexOf(':') === 0) || i === arr.length - 2;
+    });
+    // Simpler join without fancy filter:
+    lines = [
+      'Publish this on kenturnerlaw.com:',
+      '',
+      'Type: ' + (type === 'update' ? 'Update' : 'Question'),
+      'Title: ' + title
+    ];
+    if (category) lines.push('Category: ' + category);
+    if (county) lines.push('County: ' + county);
+    lines.push('', body);
 
+    var text = lines.join('\n');
     submit.disabled = true;
     try {
-      if (fullUrl.length > 7500) {
-        if (navigator.clipboard && navigator.clipboard.writeText) {
-          await navigator.clipboard.writeText(marker);
-        }
-        setStatus('Long post: body copied. Paste into the GitHub issue, then tap Submit new issue.', 'ok');
-        window.location.href = ISSUE_NEW + '?title=' + encodeURIComponent(issueTitle);
-        return;
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        await navigator.clipboard.writeText(text);
+        setStatus('Copied. Paste into your Cursor Ken Turner Law chat and send.', 'ok');
+      } else {
+        // Fallback select
+        var ta = document.createElement('textarea');
+        ta.value = text;
+        document.body.appendChild(ta);
+        ta.select();
+        document.execCommand('copy');
+        document.body.removeChild(ta);
+        setStatus('Copied. Paste into your Cursor Ken Turner Law chat and send.', 'ok');
       }
-      setStatus('Opening GitHub — tap Submit new issue.', 'ok');
-      window.location.href = fullUrl;
     } catch (e) {
-      setStatus(e.message || String(e), 'err');
+      setStatus('Could not copy. Select and copy from your Notes, then paste in Cursor.', 'err');
+    } finally {
       submit.disabled = false;
     }
   };
