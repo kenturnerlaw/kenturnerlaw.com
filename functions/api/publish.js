@@ -1,11 +1,16 @@
 /**
- * Cloudflare Pages Function: POST /api/publish
- *
- * Auth: the iPhone sends a GitHub token (saved on the phone after one paste).
- * No Cloudflare password. No Cloudflare GITHUB_TOKEN required.
- *
- * Body: { title, body, type, category?, county?, token }
+ * POST /api/publish
+ * Requires a normal GitHub OAuth session cookie from /api/auth/login.
  */
+
+import {
+  json,
+  readCookie,
+  openSession,
+  assertRepoPush,
+  github,
+  oauthConfigured,
+} from './auth/_shared.js';
 
 const CATEGORIES = new Set([
   'Police encounters',
@@ -20,17 +25,6 @@ const CATEGORIES = new Set([
 ]);
 
 const COUNTIES = new Set(['Collier', 'Lee', 'Hendry', 'Miami-Dade']);
-const DEFAULT_REPO = 'kenturnerlaw/kenturnerlaw.com';
-
-function json(status, body) {
-  return new Response(JSON.stringify(body), {
-    status,
-    headers: {
-      'Content-Type': 'application/json; charset=utf-8',
-      'Cache-Control': 'no-store',
-    },
-  });
-}
 
 function slugify(title) {
   return String(title || '')
@@ -47,75 +41,32 @@ function todayISO() {
   return new Date().toISOString().slice(0, 10);
 }
 
-async function github(token, method, apiPath, body) {
-  const res = await fetch(`https://api.github.com${apiPath}`, {
-    method,
-    headers: {
-      Accept: 'application/vnd.github+json',
-      Authorization: `Bearer ${token}`,
-      'User-Agent': 'kenturnerlaw-publish',
-      'X-GitHub-Api-Version': '2022-11-28',
-      ...(body ? { 'Content-Type': 'application/json' } : {}),
-    },
-    body: body ? JSON.stringify(body) : undefined,
-  });
-  const text = await res.text();
-  let data = {};
-  try {
-    data = text ? JSON.parse(text) : {};
-  } catch (_) {
-    data = { message: text };
-  }
-  if (!res.ok) {
-    const msg = data.message || `GitHub API ${res.status}`;
-    const err = new Error(msg);
-    err.status = res.status;
-    throw err;
-  }
-  return data;
-}
-
-async function assertCanPublish(token, repo) {
-  if (!token || token.length < 20) {
-    const err = new Error('Sign in with your GitHub access token.');
-    err.status = 401;
-    throw err;
-  }
-  try {
-    const repoInfo = await github(token, 'GET', `/repos/${repo}`);
-    if (!repoInfo.permissions || !repoInfo.permissions.push) {
-      const err = new Error('That token cannot publish to this site.');
-      err.status = 403;
-      throw err;
-    }
-  } catch (err) {
-    if (err.status === 401 || err.status === 403) throw err;
-    if (err.status === 404) {
-      const e = new Error('That token cannot access this repository.');
-      e.status = 403;
-      throw e;
-    }
-    throw err;
-  }
-}
-
 export async function onRequestPost(context) {
   const { request, env } = context;
-  const repo = env.GITHUB_REPO || DEFAULT_REPO;
-  const branch = env.GITHUB_BRANCH || 'main';
+
+  if (!oauthConfigured(env)) {
+    return json(503, {
+      error: 'Sign-in is not configured. Set GITHUB_OAUTH_CLIENT_ID and GITHUB_OAUTH_CLIENT_SECRET.',
+    });
+  }
+
+  const session = await openSession(env, readCookie(request));
+  if (!session || !session.accessToken) {
+    return json(401, { error: 'Sign in required.' });
+  }
+
+  let repo;
+  try {
+    repo = await assertRepoPush(session.accessToken, env);
+  } catch (err) {
+    return json(err.status || 403, { error: err.message });
+  }
 
   let payload;
   try {
     payload = await request.json();
   } catch (_) {
     return json(400, { error: 'Invalid JSON body.' });
-  }
-
-  const token = String(payload.token || '').trim();
-  try {
-    await assertCanPublish(token, repo);
-  } catch (err) {
-    return json(err.status || 401, { error: err.message });
   }
 
   const title = String(payload.title || '').trim();
@@ -131,8 +82,10 @@ export async function onRequestPost(context) {
   if (county && !COUNTIES.has(county)) return json(400, { error: 'Unknown county.' });
   if (!slug) return json(400, { error: 'Could not derive slug.' });
 
+  const branch = env.GITHUB_BRANCH || 'main';
   const contentPath = `content/posts/${slug}.json`;
   const now = todayISO();
+  const token = session.accessToken;
 
   let datePublished = now;
   let sha;
@@ -178,7 +131,7 @@ export async function onRequestPost(context) {
       inputs: { reason: `publish:${slug}` },
     });
   } catch (_) {
-    /* content push may already trigger the workflow */
+    /* content push may already trigger workflow */
   }
 
   const path =
@@ -191,17 +144,5 @@ export async function onRequestPost(context) {
     slug,
     path,
     url: `https://www.kenturnerlaw.com${path}`,
-    message: 'Saved. The page will go live after GitHub Action + Cloudflare deploy.',
-  });
-}
-
-export async function onRequestOptions() {
-  return new Response(null, {
-    status: 204,
-    headers: {
-      'Access-Control-Allow-Origin': '*',
-      'Access-Control-Allow-Methods': 'POST, OPTIONS',
-      'Access-Control-Allow-Headers': 'Content-Type',
-    },
   });
 }
