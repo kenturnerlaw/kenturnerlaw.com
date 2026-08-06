@@ -4,7 +4,7 @@
   "version": "1.0.0",
   "description": "Static AMP site for Ken Turner Law — content publish tooling",
   "scripts": {
-    "build:content": "node tools/publish/build-v2.js && node tools/publish/enhance-seo.js",
+    "build:content": "node tools/publish/build-v2.js && node tools/publish/enhance-seo.js && node tools/publish/update-answer-menus.js && node tools/publish/update-publisher-ui.js",
     "publish": "node tools/publish/add.js",
     "test:publish": "node tools/publish/test.js",
     "validate:amp": "node tools/publish/validate-amp.js"
