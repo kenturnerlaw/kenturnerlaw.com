@@ -119,7 +119,7 @@ Do not mark a checklist item complete merely because a file was edited. Mark it 
 
 Publish short legal answers or updates from an iPhone without editing HTML.
 
-`/publish/` is unlisted and `noindex`, but anyone who knows the URL can open the page. **Publishing is password-protected.** Without the correct `PUBLISH_PASSWORD`, the API rejects the request.
+`/publish/` is a discreet login page (unlisted, `noindex`). After sign-in you can post. Without the correct `PUBLISH_PASSWORD`, the API rejects the request.
 
 ### One-time Cloudflare setup
 
