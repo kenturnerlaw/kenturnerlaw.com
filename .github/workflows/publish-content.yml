@@ -6,6 +6,7 @@ on:
     paths:
       - 'content/posts/**'
       - 'tools/publish/**'
+      - 'package.json'
       - '.github/workflows/publish-content.yml'
   workflow_dispatch:
     inputs:
@@ -31,22 +32,34 @@ jobs:
         with:
           node-version: '20'
 
+      - name: Install publisher dependencies
+        run: npm install --no-audit --no-fund
+
       - name: Check publisher syntax
         run: |
           node --check tools/publish/build-v2.js
+          node --check tools/publish/enhance-seo.js
+          node --check tools/publish/update-answer-menus.js
+          node --check tools/publish/validate-amp.js
           node --check functions/api/publish.js
 
-      - name: Build published AMP pages
-        run: node tools/publish/build-v2.js
+      - name: Build published AMP pages and automatic SEO
+        run: npm run build:content
 
-      - name: Validate generated AMP pages
-        run: node tools/publish/validate-amp.js
+      - name: Update article hub menus
+        run: node tools/publish/update-answer-menus.js
+
+      - name: Validate generated AMP pages and SEO
+        run: npm run validate:amp
 
       - name: Commit generated site files
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add \
+            index.html \
+            practice-areas/index.html \
+            blog/index.html \
             florida-criminal-defense-answers \
             florida-family-law-answers \
             florida-traffic-ticket-answers \
@@ -55,10 +68,11 @@ jobs:
             sitemap.xml \
             sitemap.txt \
             search/published.json \
-            content/posts || true
+            content/posts \
+            package-lock.json || true
           if git diff --cached --quiet; then
             echo "No generated changes to commit."
           else
-            git commit -m "Publish generated article pages and indexes"
+            git commit -m "Publish AMP articles with automatic SEO and menus"
             git push
           fi

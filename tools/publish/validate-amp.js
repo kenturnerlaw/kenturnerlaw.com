@@ -2,77 +2,84 @@
 
 const fs = require('fs');
 const path = require('path');
-const { ROOT, GENERATED_MARKER, listPosts, postDir } = require('./lib');
+const amphtmlValidator = require('amphtml-validator');
 
-const REQUIRED = [
-  '<html amp',
-  'cdn.ampproject.org/v0.js',
-  'rel="canonical"',
-  'amp-boilerplate',
-  'amp-sidebar',
+const ROOT = path.resolve(__dirname, '../..');
+const GENERATED_MARKERS = ['kt-generated-v2', 'kt-generated'];
+const HUBS = [
+  'florida-criminal-defense-answers',
+  'florida-family-law-answers',
+  'florida-traffic-ticket-answers',
+  'florida-legal-answers',
+  'updates',
 ];
 
-function checkFile(file) {
-  const html = fs.readFileSync(file, 'utf8');
-  const errors = [];
-  for (const needle of REQUIRED) {
-    if (!html.includes(needle)) errors.push(`missing ${needle}`);
-  }
-  if (!html.includes('Call (239) 400-FREE')) errors.push('missing shared phone banner');
-  if (!html.includes('header-sidebar')) errors.push('missing sidebar id');
-  if (html.includes('<script>') && !html.includes('application/ld+json') && !html.includes('application/json')) {
-    // custom JS not allowed in AMP except amp components / ld+json
-  }
-  if (/<script(?![^>]*application\/(?:ld\+)?json)[^>]*>/i.test(html.replace(/<script async[^>]*src="https:\/\/cdn\.ampproject\.org\/[^"]+"[^>]*><\/script>/g, ''))) {
-    // Strip amp CDN scripts then look for leftover custom scripts
-    const stripped = html
-      .replace(/<script async[^>]*src="https:\/\/cdn\.ampproject\.org\/[^"]+"[^>]*><\/script>/gi, '')
-      .replace(/<script type="application\/ld\+json">[\s\S]*?<\/script>/gi, '')
-      .replace(/<script type="application\/json">[\s\S]*?<\/script>/gi, '');
-    if (/<script[\s>]/i.test(stripped)) errors.push('contains non-AMP custom script');
-  }
-  return errors;
-}
-
-function main() {
-  const posts = listPosts();
-  const files = [
-    path.join(ROOT, 'updates', 'index.html'),
-    ...posts.map((p) => postDir(p)),
-  ].filter((f) => fs.existsSync(f));
-
-  // Also validate any generated marker pages under answers/
-  const answersRoot = path.join(ROOT, 'florida-criminal-defense-answers');
-  if (fs.existsSync(answersRoot)) {
-    for (const entry of fs.readdirSync(answersRoot, { withFileTypes: true })) {
+function generatedFiles() {
+  const files = [];
+  for (const hub of HUBS) {
+    const root = path.join(ROOT, hub);
+    if (!fs.existsSync(root)) continue;
+    const hubIndex = path.join(root, 'index.html');
+    if (fs.existsSync(hubIndex)) files.push(hubIndex);
+    for (const entry of fs.readdirSync(root, { withFileTypes: true })) {
       if (!entry.isDirectory()) continue;
-      const f = path.join(answersRoot, entry.name, 'index.html');
-      if (fs.existsSync(f) && fs.readFileSync(f, 'utf8').includes(GENERATED_MARKER)) {
-        if (!files.includes(f)) files.push(f);
-      }
+      const file = path.join(root, entry.name, 'index.html');
+      if (!fs.existsSync(file)) continue;
+      const html = fs.readFileSync(file, 'utf8');
+      if (GENERATED_MARKERS.some((marker) => html.includes(marker))) files.push(file);
     }
   }
+  return [...new Set(files)];
+}
 
+function seoErrors(html) {
+  const required = [
+    ['canonical', /<link\s+rel="canonical"\s+href="https:\/\/www\.kenturnerlaw\.com\//i],
+    ['meta description', /<meta\s+name="description"\s+content="[^"]+"/i],
+    ['robots index', /<meta\s+name="robots"\s+content="index,follow"/i],
+    ['Open Graph title', /<meta\s+property="og:title"\s+content="[^"]+"/i],
+    ['Open Graph description', /<meta\s+property="og:description"\s+content="[^"]+"/i],
+    ['Open Graph URL', /<meta\s+property="og:url"\s+content="https:\/\/www\.kenturnerlaw\.com\//i],
+    ['structured data', /<script\s+type="application\/ld\+json">/i],
+  ];
+  return required.filter(([, pattern]) => !pattern.test(html)).map(([label]) => `missing ${label}`);
+}
+
+async function main() {
+  const files = generatedFiles();
+  if (!files.length) {
+    console.log('No generated AMP pages found.');
+    return;
+  }
+
+  const validator = await amphtmlValidator.getInstance();
   let failed = 0;
+
   for (const file of files) {
-    const errors = checkFile(file);
+    const html = fs.readFileSync(file, 'utf8');
+    const result = validator.validateString(html);
+    const errors = result.errors
+      .filter((item) => item.severity === 'ERROR')
+      .map((item) => `AMP line ${item.line}, col ${item.col}: ${item.message}`);
+    errors.push(...seoErrors(html));
+
     if (errors.length) {
       failed += 1;
-      console.error(`FAIL ${path.relative(ROOT, file)}: ${errors.join('; ')}`);
+      console.error(`FAIL ${path.relative(ROOT, file)}`);
+      for (const error of errors) console.error(`  - ${error}`);
     } else {
       console.log(`OK   ${path.relative(ROOT, file)}`);
     }
   }
 
-  if (!files.length) {
-    console.log('No generated AMP pages to validate yet (content/posts is empty).');
-    return;
-  }
-
   if (failed) {
+    console.error(`${failed} generated page(s) failed AMP or SEO validation.`);
     process.exit(1);
   }
-  console.log(`Validated ${files.length} AMP page(s).`);
+  console.log(`Validated ${files.length} generated AMP page(s).`);
 }
 
-main();
+main().catch((error) => {
+  console.error(error.stack || error.message || String(error));
+  process.exit(1);
+});
