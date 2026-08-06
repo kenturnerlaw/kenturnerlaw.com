@@ -1,28 +1,36 @@
 # How to publish
 
-**Page:** https://www.kenturnerlaw.com/publish/
+You do **not** open GitHub.
 
-## Sign in
-Password:
+## Fastest (use this)
+
+In your **Ken Turner Law Cursor chat**, send something like:
+
+```text
+Publish this:
+
+Type: Question
+Title: Should I talk to police?
+Category: Police encounters
+County: Collier
+
+Your answer text here…
+```
+
+Cursor turns it into AMP, commits, and it goes live on Cloudflare Pages.
+
+## Optional draft page
+
+https://www.kenturnerlaw.com/publish/
+
+Password (private repo):
 
 ```text
 4Y3asSIIVLgK7y
 ```
 
-Stored in this private repo: `functions/publish-config.js`.  
-Change it anytime (or tell Cursor).
-
-## Post (no GitHub token needed)
-1. Stay logged into GitHub.com on your phone (same account that owns this repo).
-2. Open https://www.kenturnerlaw.com/publish/
-3. Password → Sign in
-4. Question or Update → title → text → **Post**
-5. GitHub opens → tap **Submit new issue** once
-6. An Action publishes the page (usually 1–2 minutes)
+Sign in → write draft → **Copy for Cursor** → paste into the Cursor chat → send.
 
 ## Where it goes
 - Question → `/florida-criminal-defense-answers/...`
 - Update → `/updates/...`
-
-## Or skip the form
-Paste the title/text in Cursor chat and ask to publish — same result.
