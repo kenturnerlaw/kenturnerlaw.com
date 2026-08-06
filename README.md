@@ -121,11 +121,13 @@ Publish short legal answers or updates from an iPhone without editing HTML.
 
 `/publish/` is a private login page (unlisted, `noindex`). Password is in [PUBLISH.md](./PUBLISH.md) / `functions/publish-config.js`. No OAuth App.
 
-### Publish (no GitHub screens)
+### Publish from iPhone
 
-Paste title + text in the Ken Turner Law **Cursor chat** and say publish.  
-Optional draft page: `/publish/` → password → **Copy for Cursor** → paste into chat.  
-Details: [PUBLISH.md](./PUBLISH.md).
+1. Open `https://www.kenturnerlaw.com/publish/`
+2. Password → Sign in → title/text → **Post**
+
+One-time: set Cloudflare Pages env `GITHUB_TOKEN` (Contents read/write on this repo).  
+Do not paste tokens into Cursor chat. Details: [PUBLISH.md](./PUBLISH.md).
 
 - Q&A URLs: `/florida-criminal-defense-answers/{slug}/`
 - Updates URLs: `/updates/{slug}/`
