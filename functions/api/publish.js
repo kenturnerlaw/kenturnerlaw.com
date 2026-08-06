@@ -1,16 +1,19 @@
 /**
  * Cloudflare Pages Function: POST /api/publish
  *
- * Required environment variables (Cloudflare Pages → Settings → Environment variables):
- * - PUBLISH_PASSWORD: private password required on every publish (fail closed if missing)
- * - GITHUB_TOKEN: fine-grained PAT with Contents: Read and write on kenturnerlaw/kenturnerlaw.com
- * Optional:
- * - GITHUB_REPO: defaults to kenturnerlaw/kenturnerlaw.com
- * - GITHUB_BRANCH: defaults to main
- *
- * The HTML page is publicly reachable if someone knows the URL, but publishing is blocked
- * without PUBLISH_PASSWORD. Do not leave PUBLISH_PASSWORD unset.
+ * Required:
+ * - GITHUB_TOKEN
+ * And at least one login method:
+ * - PUBLISH_PASSWORD (password login), and/or
+ * - Twilio SMS Verify + PUBLISH_PHONE (text-code login)
  */
+
+import {
+  passwordsMatch,
+  readSessionCookie,
+  verifySessionToken,
+  smsConfigured,
+} from './auth/_shared.js';
 
 const CATEGORIES = new Set([
   'Police encounters',
@@ -79,24 +82,29 @@ async function github(env, method, apiPath, body) {
   return data;
 }
 
-function passwordsMatch(provided, expected) {
-  const a = String(provided || '');
-  const b = String(expected || '');
-  if (!a || !b || a.length !== b.length) return false;
-  let mismatch = 0;
-  for (let i = 0; i < a.length; i += 1) {
-    mismatch |= a.charCodeAt(i) ^ b.charCodeAt(i);
+async function isAuthorized(request, env, payload) {
+  const session = readSessionCookie(request);
+  if (session && (await verifySessionToken(env, session))) return true;
+  if (env.PUBLISH_PASSWORD && passwordsMatch(payload.password, env.PUBLISH_PASSWORD)) {
+    return true;
   }
-  return mismatch === 0;
+  return false;
 }
 
 export async function onRequestPost(context) {
   const { request, env } = context;
 
-  if (!env.PUBLISH_PASSWORD || !env.GITHUB_TOKEN) {
+  if (!env.GITHUB_TOKEN) {
     return json(503, {
       error:
-        'Publish API is locked. In Cloudflare Pages → Settings → Environment variables, set both PUBLISH_PASSWORD and GITHUB_TOKEN.',
+        'Publish API is locked. Set GITHUB_TOKEN in Cloudflare Pages environment variables.',
+    });
+  }
+
+  if (!env.PUBLISH_PASSWORD && !smsConfigured(env)) {
+    return json(503, {
+      error:
+        'No login method configured. Set PUBLISH_PASSWORD and/or Twilio SMS + PUBLISH_PHONE in Cloudflare.',
     });
   }
 
@@ -107,8 +115,8 @@ export async function onRequestPost(context) {
     return json(400, { error: 'Invalid JSON body.' });
   }
 
-  if (!passwordsMatch(payload.password, env.PUBLISH_PASSWORD)) {
-    return json(401, { error: 'Wrong password. Publishing blocked.' });
+  if (!(await isAuthorized(request, env, payload))) {
+    return json(401, { error: 'Sign in required. Publishing blocked.' });
   }
 
   const title = String(payload.title || '').trim();
@@ -167,14 +175,13 @@ export async function onRequestPost(context) {
     return json(502, { error: `GitHub write failed: ${err.message}` });
   }
 
-  // Trigger content build workflow (idempotent if push already triggered it)
   try {
     await github(env, 'POST', `/repos/${repo}/actions/workflows/publish-content.yml/dispatches`, {
       ref: branch,
       inputs: { reason: `publish:${slug}` },
     });
   } catch (_) {
-    // Push to content/ may already trigger the workflow; ignore dispatch failures.
+    /* push may already trigger the workflow */
   }
 
   const path =

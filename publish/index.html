@@ -15,7 +15,7 @@ body{
 }
 h1{color:#e4c36a;font-size:1.4rem;margin:1.5rem 0 1rem;font-weight:400;letter-spacing:.04em}
 label{display:block;margin:1rem 0 .35rem;color:#cfcfcf;font-size:.95rem}
-input[type=text],input[type=password],textarea,select{
+input[type=text],input[type=tel],input[type=password],textarea,select{
   width:100%;font:inherit;font-size:1.05rem;line-height:1.4;
   padding:14px 12px;border:1px solid #5a5a5a;border-radius:3px;
   background:#111;color:#fff;-webkit-appearance:none;appearance:none
@@ -38,15 +38,33 @@ button.secondary{margin-top:.7rem;border-color:#555;color:#bbb;font-size:.95rem}
 .hint{font-size:.85rem;color:#aaa;margin:.35rem 0 0}
 .hidden{display:none}
 .wrap{max-width:420px;margin:0 auto}
+.switch{margin-top:1rem;font-size:.9rem}
+.switch a{color:#e4c36a}
 </style>
 </head>
 <body>
 <div class="wrap">
   <section id="gate">
     <h1>Login</h1>
-    <label for="gate-password">Password</label>
-    <input id="gate-password" type="password" autocomplete="current-password">
-    <button type="button" id="unlock">Sign in</button>
+
+    <div id="sms-pane">
+      <label for="phone">Phone number</label>
+      <input id="phone" type="tel" inputmode="tel" autocomplete="tel" placeholder="2395551212">
+      <button type="button" id="send-code">Text me a code</button>
+
+      <label for="code">Code from text message</label>
+      <input id="code" type="text" inputmode="numeric" autocomplete="one-time-code" placeholder="6-digit code">
+      <button type="button" id="verify-code">Sign in</button>
+      <p class="switch"><a href="#" id="show-password">Use password instead</a></p>
+    </div>
+
+    <div id="password-pane" class="hidden">
+      <label for="gate-password">Password</label>
+      <input id="gate-password" type="password" autocomplete="current-password">
+      <button type="button" id="unlock">Sign in</button>
+      <p class="switch"><a href="#" id="show-sms">Use text message instead</a></p>
+    </div>
+
     <div id="gate-status" class="status" aria-live="polite"></div>
   </section>
 
@@ -101,15 +119,18 @@ button.secondary{margin-top:.7rem;border-color:#555;color:#bbb;font-size:.95rem}
 
 <script>
 (function () {
-  var STORE = 'ktPublishPassword';
+  var PASS_STORE = 'ktPublishPassword';
   var gate = document.getElementById('gate');
   var app = document.getElementById('app');
+  var smsPane = document.getElementById('sms-pane');
+  var passwordPane = document.getElementById('password-pane');
   var gatePassword = document.getElementById('gate-password');
   var gateStatus = document.getElementById('gate-status');
   var form = document.getElementById('publish-form');
   var statusEl = document.getElementById('status');
   var submit = document.getElementById('submit');
   var password = '';
+  var methods = { sms: false, password: true };
 
   function setGateStatus(msg, cls) {
     gateStatus.textContent = msg || '';
@@ -121,8 +142,10 @@ button.secondary{margin-top:.7rem;border-color:#555;color:#bbb;font-size:.95rem}
   }
 
   function showApp(pw) {
-    password = pw;
-    try { localStorage.setItem(STORE, pw); } catch (e) {}
+    password = pw || '';
+    if (pw) {
+      try { localStorage.setItem(PASS_STORE, pw); } catch (e) {}
+    }
     gate.classList.add('hidden');
     app.classList.remove('hidden');
     setGateStatus('');
@@ -131,16 +154,105 @@ button.secondary{margin-top:.7rem;border-color:#555;color:#bbb;font-size:.95rem}
 
   function showGate() {
     password = '';
-    try { localStorage.removeItem(STORE); } catch (e) {}
+    try { localStorage.removeItem(PASS_STORE); } catch (e) {}
     app.classList.add('hidden');
     gate.classList.remove('hidden');
     gatePassword.value = '';
+    document.getElementById('code').value = '';
   }
 
+  function showSms() {
+    passwordPane.classList.add('hidden');
+    smsPane.classList.remove('hidden');
+    setGateStatus('');
+  }
+  function showPassword() {
+    smsPane.classList.add('hidden');
+    passwordPane.classList.remove('hidden');
+    setGateStatus('');
+  }
+
+  fetch('/api/auth/methods', { credentials: 'same-origin' })
+    .then(function (r) { return r.json(); })
+    .then(function (data) {
+      methods = data || methods;
+      if (methods.sms) showSms();
+      else showPassword();
+      if (!methods.sms && !methods.password) {
+        setGateStatus('Login is not configured in Cloudflare yet.', 'err');
+      }
+    })
+    .catch(function () {
+      showPassword();
+    });
+
   try {
-    var saved = localStorage.getItem(STORE);
+    var saved = localStorage.getItem(PASS_STORE);
     if (saved) showApp(saved);
   } catch (e) {}
+
+  document.getElementById('show-password').addEventListener('click', function (ev) {
+    ev.preventDefault();
+    showPassword();
+  });
+  document.getElementById('show-sms').addEventListener('click', function (ev) {
+    ev.preventDefault();
+    showSms();
+  });
+
+  document.getElementById('send-code').addEventListener('click', async function () {
+    var phone = document.getElementById('phone').value.trim();
+    var btn = document.getElementById('send-code');
+    if (!phone) {
+      setGateStatus('Enter your phone number.', 'err');
+      return;
+    }
+    btn.disabled = true;
+    setGateStatus('Sending code…');
+    try {
+      var res = await fetch('/api/auth/send', {
+        method: 'POST',
+        credentials: 'same-origin',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ phone: phone })
+      });
+      var data = await res.json().catch(function () { return {}; });
+      if (!res.ok) throw new Error(data.error || 'Could not send code');
+      setGateStatus(data.message || 'Code sent. Check your texts.', 'ok');
+    } catch (err) {
+      setGateStatus(err.message || String(err), 'err');
+    } finally {
+      btn.disabled = false;
+    }
+  });
+
+  document.getElementById('verify-code').addEventListener('click', async function () {
+    var phone = document.getElementById('phone').value.trim();
+    var code = document.getElementById('code').value.trim();
+    var btn = document.getElementById('verify-code');
+    if (!phone || !code) {
+      setGateStatus('Enter phone and code.', 'err');
+      return;
+    }
+    btn.disabled = true;
+    setGateStatus('Checking code…');
+    try {
+      var res = await fetch('/api/auth/verify', {
+        method: 'POST',
+        credentials: 'same-origin',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ phone: phone, code: code })
+      });
+      var data = await res.json().catch(function () { return {}; });
+      if (!res.ok) throw new Error(data.error || 'Invalid code');
+      showApp('');
+      setStatus('Signed in.', 'ok');
+    } catch (err) {
+      setGateStatus(err.message || String(err), 'err');
+    } finally {
+      btn.disabled = false;
+    }
+  });
 
   document.getElementById('unlock').addEventListener('click', function () {
     var pw = gatePassword.value.trim();
@@ -158,7 +270,10 @@ button.secondary{margin-top:.7rem;border-color:#555;color:#bbb;font-size:.95rem}
     }
   });
 
-  document.getElementById('lock').addEventListener('click', function () {
+  document.getElementById('lock').addEventListener('click', async function () {
+    try {
+      await fetch('/api/auth/logout', { method: 'POST', credentials: 'same-origin' });
+    } catch (e) {}
     showGate();
     setGateStatus('Signed out.');
   });
@@ -171,11 +286,6 @@ button.secondary{margin-top:.7rem;border-color:#555;color:#bbb;font-size:.95rem}
     var category = document.getElementById('category').value;
     var county = document.getElementById('county').value;
 
-    if (!password) {
-      showGate();
-      setGateStatus('Sign in first.', 'err');
-      return;
-    }
     if (!title || !body) {
       setStatus('Title and text are required.', 'err');
       return;
@@ -187,6 +297,7 @@ button.secondary{margin-top:.7rem;border-color:#555;color:#bbb;font-size:.95rem}
     try {
       var res = await fetch('/api/publish', {
         method: 'POST',
+        credentials: 'same-origin',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           title: title,
@@ -202,7 +313,7 @@ button.secondary{margin-top:.7rem;border-color:#555;color:#bbb;font-size:.95rem}
       if (!res.ok) {
         if (res.status === 401) {
           showGate();
-          throw new Error('Wrong password.');
+          throw new Error('Sign in required.');
         }
         throw new Error(data.error || ('Failed (' + res.status + ')'));
       }
@@ -212,7 +323,6 @@ button.secondary{margin-top:.7rem;border-color:#555;color:#bbb;font-size:.95rem}
       if (radio) radio.checked = true;
     } catch (err) {
       setStatus(err.message || String(err), 'err');
-      if (/Wrong password/i.test(err.message || '')) setGateStatus(err.message, 'err');
     } finally {
       submit.disabled = false;
     }

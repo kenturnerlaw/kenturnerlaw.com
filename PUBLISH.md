@@ -1,115 +1,97 @@
 # How to publish (Ken Turner Law)
 
-Use this to put a short legal Q&A or legal update on the site from your iPhone.
+**Login:** https://www.kenturnerlaw.com/publish/
 
-**Login page:** https://www.kenturnerlaw.com/publish/
-
-It looks like a plain login. Sign in with your password, then post. No public menu link. Blocked from search engines. The server rejects posts without the correct password.
+Quiet login page. Not in the public menu. Not indexed by search engines.
 
 ---
 
-## One-time setup (do this once on a computer)
+## Why it asks for a password
 
-### 1. Merge the lock PR (if not already merged)
+Password is the simple private lock so strangers cannot post to your site.
 
-https://github.com/kenturnerlaw/kenturnerlaw.com/pull/19
+You can also use a **text-message code** to your phone (recommended once Twilio is set up). Password remains available as a backup.
 
-### 2. Create a GitHub token
+---
 
-1. Open: https://github.com/settings/personal-access-tokens/new  
-2. Name it something like `kenturnerlaw-publish`  
-3. Repository access: only `kenturnerlaw/kenturnerlaw.com`  
-4. Permissions: **Contents → Read and write**  
-5. Generate and copy the token
+## How to change the password
 
-### 3. Put two secrets in Cloudflare
-
-1. Open: https://dash.cloudflare.com  
-2. **Workers & Pages** → your **kenturnerlaw.com** Pages project  
+1. Open https://dash.cloudflare.com  
+2. **Workers & Pages** → **kenturnerlaw.com**  
 3. **Settings** → **Environment variables** → Production  
-4. Add:
+4. Edit `PUBLISH_PASSWORD`  
+5. Save (redeploy if Cloudflare asks)
+
+That is the new login password immediately after deploy.
+
+---
+
+## Text-message login (phone + code)
+
+### What you do on the phone
+1. Open https://www.kenturnerlaw.com/publish/  
+2. Enter your phone number  
+3. Tap **Text me a code**  
+4. Enter the code from the text  
+5. Tap **Sign in**  
+6. Post your Question or Update  
+
+### One-time Cloudflare setup for SMS
+In Cloudflare Pages → Settings → Environment variables (Production), add:
 
 | Name | Value |
 |---|---|
-| `PUBLISH_PASSWORD` | Any private password you choose |
-| `GITHUB_TOKEN` | The GitHub token from step 2 |
+| `PUBLISH_PHONE` | Your mobile number, like `+12395551212` |
+| `TWILIO_ACCOUNT_SID` | From Twilio |
+| `TWILIO_AUTH_TOKEN` | From Twilio |
+| `TWILIO_VERIFY_SERVICE_SID` | From Twilio Verify service |
+| `GITHUB_TOKEN` | GitHub fine-grained token (Contents: Read and write) |
 
-5. Save. Redeploy if Cloudflare asks.
+Optional but useful: keep `PUBLISH_PASSWORD` too, so you can still sign in if SMS fails.
 
-Until both are set, Publish stays locked.
+### Twilio (one-time)
+1. Create a Twilio account  
+2. Create a **Verify** service  
+3. Copy Account SID, Auth Token, and Verify Service SID into Cloudflare as above  
+
+Until those are set, the login page uses **password** instead.
 
 ---
 
-## Publish from your iPhone
+## Password login (works now)
 
+### One-time Cloudflare setup
+| Name | Value |
+|---|---|
+| `PUBLISH_PASSWORD` | Any private password you choose |
+| `GITHUB_TOKEN` | GitHub fine-grained token (Contents: Read and write) |
+
+### On your iPhone
 1. Open https://www.kenturnerlaw.com/publish/  
-2. Sign in with your password  
-3. Optional: Share → **Add to Home Screen**  
-4. Choose **Question** or **Update**  
-5. Enter title, text, optional category/county  
-6. Tap **Post**
-
-Wait a few minutes for GitHub + Cloudflare to finish. Then open the URL shown.
+2. Sign in with password (or choose **Use password instead**)  
+3. Choose **Question** or **Update**  
+4. Enter title, text, optional category/county  
+5. Tap **Post**
 
 ---
 
 ## Where it publishes
 
-### If you chose Q&A
+### Question
+- Live page: `https://www.kenturnerlaw.com/florida-criminal-defense-answers/{slug}/`  
+- Also listed on the Answers page and Blog  
 
-- **Live page:** `https://www.kenturnerlaw.com/florida-criminal-defense-answers/{slug}/`  
-  Example: title `Should I talk to police?` →  
-  `https://www.kenturnerlaw.com/florida-criminal-defense-answers/should-i-talk-to-police/`
-- **Also listed on:**
-  - https://www.kenturnerlaw.com/florida-criminal-defense-answers/ (Recently published answers)
-  - https://www.kenturnerlaw.com/blog/ (when new answers exist)
-  - Sitemap, search index, and `llms.txt`
+### Update
+- Live page: `https://www.kenturnerlaw.com/updates/{slug}/`  
+- Also listed on `/updates/` and Blog  
 
-### If you chose Update
-
-- **Live page:** `https://www.kenturnerlaw.com/updates/{slug}/`
-- **Also listed on:**
-  - https://www.kenturnerlaw.com/updates/
-  - https://www.kenturnerlaw.com/blog/
-  - Sitemap, search index, and `llms.txt`
-
-`{slug}` is made automatically from the title (lowercase, hyphens, no punctuation).
+`{slug}` is made from the title automatically.
 
 ---
 
-## What the system creates for you
+## GitHub token (needed for either login method)
 
-You do **not** edit HTML. On publish, the system:
-
-- Creates a valid AMP page matching the site  
-- Builds the URL slug  
-- Adds title + meta description  
-- Adds canonical URL  
-- Adds structured data + breadcrumbs  
-- Adds the page to the correct index/feed  
-- Updates the XML sitemap  
-- Updates search data  
-- Adds related internal links  
-- Records published and modified dates  
-
----
-
-## Tips
-
-- **Dictate:** tap the mic on the keyboard in the text box  
-- **Paste from Notes:** copy in Notes → paste into the text box  
-- **Longer material:** start with a short opening paragraph, then use lines like `## Heading` for sections (those become tap-to-expand accordions)  
-- **County:** optional note on that one page only — it does **not** create duplicate county pages  
-- **Sign out** when finished on a shared device
-
----
-
-## Desktop alternative (optional)
-
-From the repo on a computer:
-
-```bash
-npm run publish -- --title "Your title" --body "Your text" --type answer --category "DUI" --county Collier
-```
-
-Use `--type update` for a legal update.
+1. https://github.com/settings/personal-access-tokens/new  
+2. Only repo: `kenturnerlaw/kenturnerlaw.com`  
+3. Permission: **Contents → Read and write**  
+4. Paste into Cloudflare as `GITHUB_TOKEN`
