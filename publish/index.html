@@ -4,107 +4,100 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="robots" content="noindex,nofollow,noarchive">
-<meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="theme-color" content="#000000">
-<title>Sign in to Publish | Ken Turner Law</title>
+<title>Login</title>
 <style>
 *{box-sizing:border-box}
 body{
-  margin:0;min-height:100vh;padding:max(12px,env(safe-area-inset-top)) 16px 40px;
+  margin:0;min-height:100vh;padding:max(16px,env(safe-area-inset-top)) 18px 40px;
   background:#050505 url('/dark-leather.webp');color:#fff;
   font-family:Georgia,"Times New Roman",serif;line-height:1.45
 }
-h1{color:#e4c36a;font-size:1.55rem;margin:.4rem 0 .35rem;text-transform:uppercase;letter-spacing:.03em}
-.sub{color:#fff;font-size:.95rem;margin:0 0 1rem;opacity:.95}
-.warn{border:1px solid #8b6b2e;background:rgba(0,0,0,.8);padding:12px;margin:0 0 1rem;font-size:.92rem}
-label{display:block;margin:1rem 0 .35rem;color:#e4c36a;font-size:.95rem}
+h1{color:#e4c36a;font-size:1.4rem;margin:1.5rem 0 1rem;font-weight:400;letter-spacing:.04em}
+label{display:block;margin:1rem 0 .35rem;color:#cfcfcf;font-size:.95rem}
 input[type=text],input[type=password],textarea,select{
   width:100%;font:inherit;font-size:1.05rem;line-height:1.4;
-  padding:14px 12px;border:1px solid #8b6b2e;border-radius:4px;
+  padding:14px 12px;border:1px solid #5a5a5a;border-radius:3px;
   background:#111;color:#fff;-webkit-appearance:none;appearance:none
 }
 textarea{min-height:220px;resize:vertical}
 .row{display:flex;gap:10px}
 .row>div{flex:1}
-.type-row{display:flex;gap:12px;margin-top:.35rem}
+.type-row{display:flex;gap:14px;margin:.35rem 0 0}
 .type-row label{display:flex;align-items:center;gap:.45rem;margin:0;color:#fff;font-size:1rem}
 button{
-  display:block;width:100%;margin-top:1.35rem;padding:16px 14px;
+  display:block;width:100%;margin-top:1.25rem;padding:14px;
   border:1px solid #e4c36a;background:#000;color:#e4c36a;
-  font:inherit;font-size:1.15rem;font-weight:700;cursor:pointer
+  font:inherit;font-size:1.05rem;cursor:pointer
 }
 button:disabled{opacity:.55;cursor:wait}
-button.secondary{margin-top:.75rem;font-size:1rem;font-weight:400;border-color:#6f5526;color:#ddd}
-.status{margin-top:1rem;padding:12px;border:1px solid #6f5526;background:rgba(0,0,0,.75);min-height:1.2em}
-.status.ok{border-color:#3d7a4a}
-.status.err{border-color:#a33}
-.hint{font-size:.88rem;color:#ddd;margin:.25rem 0 0}
+button.secondary{margin-top:.7rem;border-color:#555;color:#bbb;font-size:.95rem}
+.status{margin-top:1rem;min-height:1.2em;font-size:.92rem;color:#ddd}
+.status.ok{color:#8dca9a}
+.status.err{color:#e89a9a}
+.hint{font-size:.85rem;color:#aaa;margin:.35rem 0 0}
 .hidden{display:none}
-code{color:#efd98c}
+.wrap{max-width:420px;margin:0 auto}
 </style>
 </head>
 <body>
-<h1>Sign in to Publish</h1>
-<p class="warn">Private. Not for the public. You must sign in with your password before you can publish. Without the password, the server rejects every publish request.</p>
+<div class="wrap">
+  <section id="gate">
+    <h1>Login</h1>
+    <label for="gate-password">Password</label>
+    <input id="gate-password" type="password" autocomplete="current-password">
+    <button type="button" id="unlock">Sign in</button>
+    <div id="gate-status" class="status" aria-live="polite"></div>
+  </section>
 
-<section id="gate">
-  <p class="sub">Sign in with the password you stored in Cloudflare as <code>PUBLISH_PASSWORD</code>.</p>
-  <label for="gate-password">Password</label>
-  <input id="gate-password" type="password" autocomplete="current-password" placeholder="Your private password" required>
-  <button type="button" id="unlock">Sign in</button>
-  <p class="hint">One-time setup: Cloudflare Pages → Settings → Environment variables → add <code>PUBLISH_PASSWORD</code> and <code>GITHUB_TOKEN</code>.</p>
-  <p class="hint">Directions: <a href="/PUBLISH.md">PUBLISH.md</a></p>
-</section>
-
-<section id="app" class="hidden">
-  <p class="sub">Dictate or paste from Notes. Title, text, optional category/county, then Publish.</p>
-  <form id="publish-form" autocomplete="on">
-    <div class="type-row" role="radiogroup" aria-label="Content type">
-      <label><input type="radio" name="type" value="answer" checked> Q&amp;A</label>
-      <label><input type="radio" name="type" value="update"> Update</label>
-    </div>
-
-    <label for="title">Title or question</label>
-    <input id="title" name="title" type="text" required maxlength="180" placeholder="Should I talk to police?" enterkeyhint="next">
-
-    <label for="body">Answer or update text</label>
-    <textarea id="body" name="body" required placeholder="Paste from Apple Notes or tap the mic to dictate."></textarea>
-    <p class="hint">Blank lines become paragraphs. Optional ## Heading lines create accordion sections.</p>
-
-    <div class="row">
-      <div>
-        <label for="category">Category (optional)</label>
-        <select id="category" name="category">
-          <option value="">—</option>
-          <option>Police encounters</option>
-          <option>Searches</option>
-          <option>Arrest and court</option>
-          <option>DUI</option>
-          <option>Drug charges</option>
-          <option>Domestic violence</option>
-          <option>Traffic</option>
-          <option>Family law</option>
-          <option>General</option>
-        </select>
+  <section id="app" class="hidden">
+    <h1>New post</h1>
+    <form id="publish-form" autocomplete="on">
+      <div class="type-row" role="radiogroup" aria-label="Type">
+        <label><input type="radio" name="type" value="answer" checked> Question</label>
+        <label><input type="radio" name="type" value="update"> Update</label>
       </div>
-      <div>
-        <label for="county">County (optional)</label>
-        <select id="county" name="county">
-          <option value="">—</option>
-          <option>Collier</option>
-          <option>Lee</option>
-          <option>Hendry</option>
-          <option>Miami-Dade</option>
-        </select>
+
+      <label for="title">Title</label>
+      <input id="title" name="title" type="text" required maxlength="180" enterkeyhint="next">
+
+      <label for="body">Text</label>
+      <textarea id="body" name="body" required placeholder="Dictate or paste from Notes"></textarea>
+
+      <div class="row">
+        <div>
+          <label for="category">Category</label>
+          <select id="category" name="category">
+            <option value="">—</option>
+            <option>Police encounters</option>
+            <option>Searches</option>
+            <option>Arrest and court</option>
+            <option>DUI</option>
+            <option>Drug charges</option>
+            <option>Domestic violence</option>
+            <option>Traffic</option>
+            <option>Family law</option>
+            <option>General</option>
+          </select>
+        </div>
+        <div>
+          <label for="county">County</label>
+          <select id="county" name="county">
+            <option value="">—</option>
+            <option>Collier</option>
+            <option>Lee</option>
+            <option>Hendry</option>
+            <option>Miami-Dade</option>
+          </select>
+        </div>
       </div>
-    </div>
 
-    <button type="submit" id="submit">Publish</button>
-    <button type="button" class="secondary" id="lock">Sign out</button>
-  </form>
-</section>
-
-<div id="status" class="status" aria-live="polite"></div>
+      <button type="submit" id="submit">Post</button>
+      <button type="button" class="secondary" id="lock">Sign out</button>
+    </form>
+    <div id="status" class="status" aria-live="polite"></div>
+  </section>
+</div>
 
 <script>
 (function () {
@@ -112,13 +105,18 @@ code{color:#efd98c}
   var gate = document.getElementById('gate');
   var app = document.getElementById('app');
   var gatePassword = document.getElementById('gate-password');
+  var gateStatus = document.getElementById('gate-status');
   var form = document.getElementById('publish-form');
   var statusEl = document.getElementById('status');
   var submit = document.getElementById('submit');
   var password = '';
 
+  function setGateStatus(msg, cls) {
+    gateStatus.textContent = msg || '';
+    gateStatus.className = 'status' + (cls ? ' ' + cls : '');
+  }
   function setStatus(msg, cls) {
-    statusEl.textContent = msg;
+    statusEl.textContent = msg || '';
     statusEl.className = 'status' + (cls ? ' ' + cls : '');
   }
 
@@ -127,6 +125,7 @@ code{color:#efd98c}
     try { localStorage.setItem(STORE, pw); } catch (e) {}
     gate.classList.add('hidden');
     app.classList.remove('hidden');
+    setGateStatus('');
     setStatus('');
   }
 
@@ -146,7 +145,7 @@ code{color:#efd98c}
   document.getElementById('unlock').addEventListener('click', function () {
     var pw = gatePassword.value.trim();
     if (!pw) {
-      setStatus('Enter your password.', 'err');
+      setGateStatus('Enter your password.', 'err');
       return;
     }
     showApp(pw);
@@ -161,7 +160,7 @@ code{color:#efd98c}
 
   document.getElementById('lock').addEventListener('click', function () {
     showGate();
-    setStatus('Signed out on this phone.');
+    setGateStatus('Signed out.');
   });
 
   form.addEventListener('submit', async function (ev) {
@@ -174,7 +173,7 @@ code{color:#efd98c}
 
     if (!password) {
       showGate();
-      setStatus('Enter your password first.', 'err');
+      setGateStatus('Sign in first.', 'err');
       return;
     }
     if (!title || !body) {
@@ -183,7 +182,7 @@ code{color:#efd98c}
     }
 
     submit.disabled = true;
-    setStatus('Publishing…');
+    setStatus('Posting…');
 
     try {
       var res = await fetch('/api/publish', {
@@ -203,16 +202,17 @@ code{color:#efd98c}
       if (!res.ok) {
         if (res.status === 401) {
           showGate();
-          throw new Error('Wrong password. Publishing blocked.');
+          throw new Error('Wrong password.');
         }
-        throw new Error(data.error || ('Publish failed (' + res.status + ')'));
+        throw new Error(data.error || ('Failed (' + res.status + ')'));
       }
-      setStatus('Published. Live after deploy: ' + (data.url || data.path), 'ok');
+      setStatus('Posted: ' + (data.url || data.path), 'ok');
       form.reset();
       var radio = form.querySelector('input[name="type"][value="' + type + '"]');
       if (radio) radio.checked = true;
     } catch (err) {
       setStatus(err.message || String(err), 'err');
+      if (/Wrong password/i.test(err.message || '')) setGateStatus(err.message, 'err');
     } finally {
       submit.disabled = false;
     }
