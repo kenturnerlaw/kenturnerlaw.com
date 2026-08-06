@@ -7,7 +7,7 @@
 No separate site username or password.
 
 ## First time only
-The first tap sets up sign-in for this site on GitHub. Stay in the same Safari window. When you return and see setup saved, wait about one minute, then tap **Sign in with GitHub** again.
+Tap **Sign in with GitHub**, finish the GitHub screens for this site (create + install on the private repo), come back. When it says Connected, tap **Sign in with GitHub** again — that second tap must open GitHub’s normal login/authorize page.
 
 ## Every time after that
 1. Sign in with GitHub  

@@ -1,9 +1,10 @@
 /**
  * GET /api/setup/github-app?code=...
- * Exchange manifest code, stash creds in localStorage (Safari-safe), go to Install.
+ * Exchange manifest code, store OAuth credentials on the server, then Install.
  */
 
 import { siteOrigin } from '../auth/_shared.js';
+import { saveOAuthCredentials } from '../../lib/oauth-store.js';
 
 function html(body) {
   return new Response(body, {
@@ -50,6 +51,20 @@ export async function onRequestGet(context) {
     return Response.redirect(`${origin}/publish/?error=setup_incomplete`, 302);
   }
 
+  // Save OAuth keys on the server now — do not wait for a git commit.
+  try {
+    await saveOAuthCredentials({
+      appId,
+      slug,
+      privateKey: pem,
+      clientId,
+      clientSecret,
+      installationId: '',
+    });
+  } catch (_) {
+    return Response.redirect(`${origin}/publish/?error=setup_store`, 302);
+  }
+
   const pending = {
     appId,
     slug,
@@ -58,7 +73,7 @@ export async function onRequestGet(context) {
     clientSecret,
   };
 
-  // localStorage survives GitHub redirects on iPhone Safari; cookies often do not.
+  // localStorage backup if install lands on a different edge without cache.
   return html(`<!doctype html>
 <html lang="en"><head>
 <meta charset="utf-8">

@@ -6,7 +6,7 @@ import { oauthCredentials, siteOrigin } from './_shared.js';
  */
 export async function onRequestGet(context) {
   const { request, env } = context;
-  const { clientId, configured } = oauthCredentials(env);
+  const { clientId, configured } = await oauthCredentials(env);
   const origin = siteOrigin(request, env);
 
   if (!configured || !clientId) {
