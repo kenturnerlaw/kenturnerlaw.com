@@ -14,7 +14,8 @@
 3. Wait about one minute for deploy
 4. Tap **Sign in with GitHub**
 
-If connect fails, tap Connect again from the start (same Safari).
+If connect fails, tap Connect again from the start (same Safari).  
+Old unused apps from failed attempts: GitHub → Settings → Developer settings → GitHub Apps → delete.
 
 ## Every time after that
 1. Sign in with GitHub  

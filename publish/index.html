@@ -125,7 +125,8 @@ button.secondary,a.btn.secondary{margin-top:.7rem;border-color:#555;color:#bbb;f
       signin.classList.add('hidden');
       setupForm.classList.remove('hidden');
       document.getElementById('manifest').value = JSON.stringify({
-        name: 'Ken Turner Publish',
+        // Unique name each attempt — failed connects leave behind old app names.
+        name: 'KTL Publish ' + Date.now().toString(36),
         url: SITE + '/publish/',
         hook_attributes: { url: SITE + '/api/setup/github-app-install', active: false },
         redirect_url: SITE + '/api/setup/github-app',
