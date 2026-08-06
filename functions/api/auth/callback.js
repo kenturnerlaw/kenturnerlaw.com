@@ -57,16 +57,11 @@ export async function onRequestGet(context) {
       exp: Math.floor(Date.now() / 1000) + 60 * 60 * 12,
     });
 
-    return new Response(null, {
-      status: 302,
-      headers: {
-        Location: `${origin}/publish/`,
-        'Set-Cookie': [
-          sessionCookie(sealed),
-          'kt_oauth_state=; Path=/; HttpOnly; Secure; SameSite=Lax; Max-Age=0',
-        ].join(', '),
-      },
-    });
+    const headers = new Headers();
+    headers.set('Location', `${origin}/publish/`);
+    headers.append('Set-Cookie', sessionCookie(sealed));
+    headers.append('Set-Cookie', 'kt_oauth_state=; Path=/; HttpOnly; Secure; SameSite=Lax; Max-Age=0');
+    return new Response(null, { status: 302, headers });
   } catch (_) {
     return Response.redirect(`${origin}/publish/?error=forbidden`, 302);
   }
