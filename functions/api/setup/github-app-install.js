@@ -1,12 +1,11 @@
 /**
  * GET /api/setup/github-app-install?installation_id=...
- * After Install, persist App credentials into the private repo and finish.
+ * Saves OAuth + App credentials to the private repo, then starts Sign in.
  */
 
-import { json, readCookie, openSession } from '../auth/_shared.js';
 import { installationAccessToken, githubFetch } from '../../lib/github-app-auth.js';
+import { siteOrigin } from '../auth/_shared.js';
 
-const SITE = 'https://www.kenturnerlaw.com';
 const REPO = 'kenturnerlaw/kenturnerlaw.com';
 const BRANCH = 'main';
 const CRED_PATH = 'functions/github-app-credentials.js';
@@ -26,15 +25,28 @@ function clearCookie(name) {
   return `${name}=; Path=/; HttpOnly; Secure; SameSite=Lax; Max-Age=0`;
 }
 
-function credentialsFile({ appId, installationId, privateKey, slug }) {
+function credentialsFile({
+  appId,
+  installationId,
+  privateKey,
+  slug,
+  clientId,
+  clientSecret,
+}) {
   return `/**
- * Auto-written by /publish Enable publishing (GitHub App).
+ * Auto-written on first Sign in with GitHub for /publish.
  * Private repo only.
  */
 export const APP_ID = ${JSON.stringify(String(appId))};
 export const INSTALLATION_ID = ${JSON.stringify(String(installationId))};
 export const APP_SLUG = ${JSON.stringify(String(slug || ''))};
 export const PRIVATE_KEY = ${JSON.stringify(String(privateKey))};
+export const CLIENT_ID = ${JSON.stringify(String(clientId))};
+export const CLIENT_SECRET = ${JSON.stringify(String(clientSecret))};
+
+export function isOAuthConfigured() {
+  return Boolean(CLIENT_ID && CLIENT_SECRET);
+}
 
 export function isGitHubAppConfigured() {
   return Boolean(APP_ID && INSTALLATION_ID && PRIVATE_KEY);
@@ -43,22 +55,21 @@ export function isGitHubAppConfigured() {
 }
 
 export async function onRequestGet(context) {
-  const { request } = context;
+  const { request, env } = context;
+  const origin = siteOrigin(request, env);
   const headersOut = new Headers();
-
-  if (!(await openSession(readCookie(request)))) {
-    return Response.redirect(`${SITE}/publish/`, 302);
-  }
 
   const url = new URL(request.url);
   const installationId = url.searchParams.get('installation_id');
   if (!installationId) {
-    return json(400, { error: 'Missing installation_id.' });
+    return Response.redirect(`${origin}/publish/?error=setup_install`, 302);
   }
 
   const cookies = readAllCookies(request);
   const appId = cookies.ktl_app_id || '';
   const slug = cookies.ktl_app_slug || '';
+  const clientId = cookies.ktl_client_id || '';
+  const clientSecret = cookies.ktl_client_secret || '';
   const n = Number(cookies.ktl_app_pem_n || '0');
   let privateKey = '';
   if (n > 0) {
@@ -71,20 +82,20 @@ export async function onRequestGet(context) {
     }
   }
 
-  // Clear setup cookies either way
-  ['ktl_app_id', 'ktl_app_slug', 'ktl_app_pem_n'].forEach((name) => {
-    headersOut.append('Set-Cookie', clearCookie(name));
-  });
+  [
+    'ktl_app_id',
+    'ktl_app_slug',
+    'ktl_client_id',
+    'ktl_client_secret',
+    'ktl_app_pem_n',
+  ].forEach((name) => headersOut.append('Set-Cookie', clearCookie(name)));
   for (let i = 0; i < Math.max(n, 8); i += 1) {
     headersOut.append('Set-Cookie', clearCookie(`ktl_app_pem_${i}`));
   }
 
-  if (!appId || !privateKey) {
-    headersOut.set('Content-Type', 'application/json; charset=utf-8');
-    return new Response(JSON.stringify({ error: 'Setup expired. Tap Enable publishing again.' }), {
-      status: 400,
-      headers: headersOut,
-    });
+  if (!appId || !privateKey || !clientId || !clientSecret) {
+    headersOut.set('Location', `${origin}/publish/?error=setup_expired`);
+    return new Response(null, { status: 302, headers: headersOut });
   }
 
   try {
@@ -99,6 +110,8 @@ export async function onRequestGet(context) {
       installationId,
       privateKey,
       slug,
+      clientId,
+      clientSecret,
     });
     const encoded = btoa(unescape(encodeURIComponent(content)));
 
@@ -115,19 +128,18 @@ export async function onRequestGet(context) {
     }
 
     await githubFetch(token, 'PUT', `/repos/${REPO}/contents/${CRED_PATH}`, {
-      message: 'Enable phone publishing (GitHub App credentials)',
+      message: 'Connect Sign in with GitHub for /publish',
       content: encoded,
       branch: BRANCH,
       ...(sha ? { sha } : {}),
     });
-  } catch (err) {
-    headersOut.set('Content-Type', 'application/json; charset=utf-8');
-    return new Response(JSON.stringify({ error: err.message || 'Failed to save GitHub App credentials.' }), {
-      status: 502,
-      headers: headersOut,
-    });
+  } catch (_) {
+    headersOut.set('Location', `${origin}/publish/?error=setup_save`);
+    return new Response(null, { status: 302, headers: headersOut });
   }
 
-  headersOut.set('Location', `${SITE}/publish/?enabled=1`);
+  // After Cloudflare deploys credentials, Sign in with GitHub works.
+  // Send user to login now; if deploy is still propagating they can tap again.
+  headersOut.set('Location', `${origin}/api/auth/login`);
   return new Response(null, { status: 302, headers: headersOut });
 }

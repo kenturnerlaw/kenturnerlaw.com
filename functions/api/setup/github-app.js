@@ -3,25 +3,20 @@
  * Completes GitHub App Manifest conversion, then sends user to Install.
  */
 
-import { json, readCookie, openSession } from '../auth/_shared.js';
-
-const SITE = 'https://www.kenturnerlaw.com';
-const REPO = 'kenturnerlaw/kenturnerlaw.com';
+import { siteOrigin } from '../auth/_shared.js';
 
 function cookie(name, value, maxAge = 3600) {
   return `${name}=${encodeURIComponent(value)}; Path=/; HttpOnly; Secure; SameSite=Lax; Max-Age=${maxAge}`;
 }
 
 export async function onRequestGet(context) {
-  const { request } = context;
-  if (!(await openSession(readCookie(request)))) {
-    return Response.redirect(`${SITE}/publish/`, 302);
-  }
+  const { request, env } = context;
+  const origin = siteOrigin(request, env);
 
   const url = new URL(request.url);
   const code = url.searchParams.get('code');
   if (!code) {
-    return json(400, { error: 'Missing code from GitHub.' });
+    return Response.redirect(`${origin}/publish/?error=setup_code`, 302);
   }
 
   const res = await fetch(`https://api.github.com/app-manifests/${code}/conversions`, {
@@ -34,22 +29,26 @@ export async function onRequestGet(context) {
   });
   const data = await res.json().catch(() => ({}));
   if (!res.ok) {
-    return json(502, { error: data.message || 'GitHub App conversion failed.' });
+    return Response.redirect(`${origin}/publish/?error=setup_convert`, 302);
   }
 
   const appId = String(data.id || '');
   const slug = String(data.slug || '');
   const pem = String(data.pem || '');
-  if (!appId || !pem || !slug) {
-    return json(502, { error: 'GitHub App response incomplete.' });
+  const clientId = String(data.client_id || '');
+  const clientSecret = String(data.client_secret || '');
+  if (!appId || !pem || !slug || !clientId || !clientSecret) {
+    return Response.redirect(`${origin}/publish/?error=setup_incomplete`, 302);
   }
 
   const headers = new Headers({
-    Location: `https://github.com/apps/${slug}/installations/new?state=ktl`,
+    Location: `https://github.com/apps/${slug}/installations/new`,
   });
   headers.append('Set-Cookie', cookie('ktl_app_id', appId));
   headers.append('Set-Cookie', cookie('ktl_app_slug', slug));
-  // Store PEM as base64 chunks (cookie-safe).
+  headers.append('Set-Cookie', cookie('ktl_client_id', clientId));
+  headers.append('Set-Cookie', cookie('ktl_client_secret', clientSecret));
+
   const pemB64 = btoa(unescape(encodeURIComponent(pem)));
   const pemParts = pemB64.match(/.{1,1800}/g) || [pemB64];
   headers.append('Set-Cookie', cookie('ktl_app_pem_n', String(pemParts.length)));

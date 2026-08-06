@@ -2,21 +2,22 @@
 
 **Page:** https://www.kenturnerlaw.com/publish/
 
-## Every time
-1. Open the page  
-2. Password: `4Y3asSIIVLgK7y`  
-3. Title / question  
-4. Answer / update text  
-5. Optional category / county  
-6. **Post**
+## Login
+**Sign in with GitHub** — same style of login as Cursor / GitHub / Vercel.
 
-That’s the whole workflow.
+- Use your GitHub account that owns `kenturnerlaw/kenturnerlaw.com`
+- Change your password in GitHub → Settings (normal account password change)
 
-## One time (first use only)
-After login, if you see **Enable publishing**, tap it and approve on GitHub for `kenturnerlaw/kenturnerlaw.com`. Then Post works.
+## First time only
+If the page says connect sign-in, tap **Connect Sign in with GitHub** and approve once. After Cloudflare finishes deploying (about a minute), tap **Sign in with GitHub**.
+
+## Every time after that
+1. Sign in with GitHub  
+2. Title / question  
+3. Answer / update text  
+4. Optional category / county  
+5. **Post**
 
 ## Where it goes
 - Question → `/florida-criminal-defense-answers/...`  
 - Update → `/updates/...`  
-
-Password lives in `functions/publish-config.js` (private repo). Tell Cursor to change it anytime.
