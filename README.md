@@ -119,23 +119,27 @@ Do not mark a checklist item complete merely because a file was edited. Mark it 
 
 Publish short legal answers or updates from an iPhone without editing HTML.
 
-`/publish/` is a discreet login page (unlisted, `noindex`). After sign-in you can post. Without the correct `PUBLISH_PASSWORD`, the API rejects the request.
+`/publish/` is a discreet login page (unlisted, `noindex`). Sign in with a password or a text-message code, then post.
 
 ### One-time Cloudflare setup
 
-In Cloudflare Pages → Settings → Environment variables (Production), set both:
+In Cloudflare Pages → Settings → Environment variables (Production):
 
-1. `PUBLISH_PASSWORD` — any private password you choose  
-2. `GITHUB_TOKEN` — fine-grained GitHub PAT with **Contents: Read and write** on `kenturnerlaw/kenturnerlaw.com`
+**Required**
+- `GITHUB_TOKEN` — fine-grained GitHub PAT with **Contents: Read and write**
 
-If either is missing, publishing stays locked.
+**Password login**
+- `PUBLISH_PASSWORD` — change anytime by editing this variable
+
+**Text-message login (optional)**
+- `PUBLISH_PHONE` — your mobile in E.164 form (`+12395551212`)
+- `TWILIO_ACCOUNT_SID`, `TWILIO_AUTH_TOKEN`, `TWILIO_VERIFY_SERVICE_SID`
 
 ### Publish from iPhone Safari
 
 1. Open `https://www.kenturnerlaw.com/publish/`
-2. Enter your `PUBLISH_PASSWORD` once (saved on that phone) → Unlock  
-3. Add to Home Screen  
-4. Enter title/question, text, optional category/county → **Publish**
+2. Sign in (text code or password)
+3. Enter title/text → **Post**
 
 The API writes `content/posts/{slug}.json`. GitHub Action `Publish content pages` builds the AMP page, updates the answers/blog indexes, sitemap, `search/index.json`, and `llms.txt`, then Cloudflare deploys.
 
