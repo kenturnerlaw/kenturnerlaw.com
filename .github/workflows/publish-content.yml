@@ -4,6 +4,7 @@ on:
   push:
     branches: [main]
     paths:
+      - '**/*.html'
       - 'content/posts/**'
       - 'tools/publish/**'
       - 'package.json'
@@ -40,6 +41,7 @@ jobs:
           node --check tools/publish/build-v2.js
           node --check tools/publish/enhance-seo.js
           node --check tools/publish/update-answer-menus.js
+          node --check tools/publish/repair-sitewide-amp.js
           node --check tools/publish/validate-amp.js
           node --check functions/api/publish.js
 
@@ -49,30 +51,20 @@ jobs:
       - name: Update article hub menus
         run: node tools/publish/update-answer-menus.js
 
-      - name: Validate generated AMP pages and SEO
+      - name: Repair AMP markup sitewide
+        run: npm run repair:amp
+
+      - name: Validate every AMP page sitewide
         run: npm run validate:amp
 
-      - name: Commit generated site files
+      - name: Commit repaired and generated site files
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add \
-            index.html \
-            practice-areas/index.html \
-            blog/index.html \
-            florida-criminal-defense-answers \
-            florida-family-law-answers \
-            florida-traffic-ticket-answers \
-            florida-legal-answers \
-            updates \
-            sitemap.xml \
-            sitemap.txt \
-            search/published.json \
-            content/posts \
-            package-lock.json || true
+          git add -A -- ':(glob)**/index.html' sitemap.xml sitemap.txt search/published.json content/posts package-lock.json || true
           if git diff --cached --quiet; then
-            echo "No generated changes to commit."
+            echo "No generated or repaired changes to commit."
           else
-            git commit -m "Publish AMP articles with automatic SEO and menus"
+            git commit -m "Repair and validate AMP pages sitewide"
             git push
           fi
