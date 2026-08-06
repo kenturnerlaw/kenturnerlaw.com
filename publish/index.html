@@ -36,7 +36,8 @@ button.secondary,a.btn.secondary{margin-top:.7rem;border-color:#555;color:#bbb;f
 .status.ok{color:#8dca9a}
 .status.err{color:#e89a9a}
 .hint{font-size:.88rem;color:#aaa;margin:.5rem 0 0;line-height:1.35}
-.hidden{display:none}
+/* Must beat button,a.btn { display:block } or both Sign in controls show at once */
+.hidden{display:none!important}
 .wrap{max-width:420px;margin:0 auto}
 </style>
 </head>
@@ -45,10 +46,9 @@ button.secondary,a.btn.secondary{margin-top:.7rem;border-color:#555;color:#bbb;f
   <section id="gate">
     <h1>Login</h1>
     <p class="hint">Use your existing GitHub account. No separate site username or password.</p>
-    <a class="btn" id="signin" href="/api/auth/login">Sign in with GitHub</a>
+    <button type="button" class="btn" id="signin">Sign in with GitHub</button>
     <form id="setup-form" class="hidden" action="https://github.com/settings/apps/new" method="post">
       <input type="hidden" name="manifest" id="manifest">
-      <button type="submit">Sign in with GitHub</button>
     </form>
     <div id="gate-status" class="status" aria-live="polite"></div>
   </section>
@@ -118,28 +118,30 @@ button.secondary,a.btn.secondary{margin-top:.7rem;border-color:#555;color:#bbb;f
     statusEl.textContent = msg || '';
     statusEl.className = 'status' + (cls ? ' ' + cls : '');
   }
+  var needsSetupNow = false;
+  function fillManifest() {
+    document.getElementById('manifest').value = JSON.stringify({
+      name: 'KTL Publish ' + Date.now().toString(36),
+      url: SITE + '/publish/',
+      hook_attributes: { url: SITE + '/api/setup/github-app-install', active: false },
+      redirect_url: SITE + '/api/setup/github-app',
+      setup_url: SITE + '/api/setup/github-app-install',
+      callback_urls: [SITE + '/api/auth/callback'],
+      request_oauth_on_install: false,
+      description: 'Sign in to publish on Ken Turner Law.',
+      public: false,
+      default_permissions: { contents: 'write', metadata: 'read' }
+    });
+  }
   function showGate(needsSetup) {
+    needsSetupNow = !!needsSetup;
     app.classList.add('hidden');
     gate.classList.remove('hidden');
+    signin.classList.remove('hidden');
+    setupForm.classList.add('hidden');
     if (needsSetup) {
-      signin.classList.add('hidden');
-      setupForm.classList.remove('hidden');
-      document.getElementById('manifest').value = JSON.stringify({
-        name: 'KTL Publish ' + Date.now().toString(36),
-        url: SITE + '/publish/',
-        hook_attributes: { url: SITE + '/api/setup/github-app-install', active: false },
-        redirect_url: SITE + '/api/setup/github-app',
-        setup_url: SITE + '/api/setup/github-app-install',
-        callback_urls: [SITE + '/api/auth/callback'],
-        request_oauth_on_install: false,
-        description: 'Sign in to publish on Ken Turner Law.',
-        public: false,
-        default_permissions: { contents: 'write', metadata: 'read' }
-      });
+      fillManifest();
       setGate('First time: continue on GitHub (create + install for this repo). Then Sign in with GitHub again.', '');
-    } else {
-      signin.classList.remove('hidden');
-      setupForm.classList.add('hidden');
     }
   }
   function showApp(login) {
@@ -191,22 +193,26 @@ button.secondary,a.btn.secondary{margin-top:.7rem;border-color:#555;color:#bbb;f
 
   refresh().catch(function () { showGate(false); });
 
-  // Avoid the old dead loop: login → setup → same page with no GitHub window.
-  signin.addEventListener('click', function (ev) {
-    ev.preventDefault();
+  // One button: first time posts the GitHub App manifest; after that opens OAuth.
+  signin.addEventListener('click', function () {
     setGate('Opening GitHub…');
     fetch('/api/publish/status', { credentials: 'same-origin' })
       .then(function (r) { return r.json(); })
       .then(function (d) {
-        if (!d.oauthConfigured) {
-          showGate(true);
-          setGate('Sign in is not connected yet. Use the button below once, finish on GitHub, then come back.', 'err');
+        if (d.oauthConfigured && !needsSetupNow) {
+          window.location.href = '/api/auth/login';
           return;
         }
-        window.location.href = '/api/auth/login';
+        fillManifest();
+        setupForm.submit();
       })
       .catch(function () {
-        window.location.href = '/api/auth/login';
+        if (needsSetupNow) {
+          fillManifest();
+          setupForm.submit();
+        } else {
+          window.location.href = '/api/auth/login';
+        }
       });
   });
 
