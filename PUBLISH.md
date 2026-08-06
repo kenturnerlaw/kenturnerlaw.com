@@ -3,19 +3,18 @@
 **Page:** https://www.kenturnerlaw.com/publish/
 
 ## Login
-- Username: `ken`
-- Password: `AmCRmDF4xy2F`
+**Sign in with GitHub** — your existing GitHub account.  
+No separate site username or password.
 
-To change the password: tell Cursor, or edit `functions/publish-users.js`.
+## First time only
+The first tap sets up sign-in for this site on GitHub. Stay in the same Safari window. When you return and see setup saved, wait about one minute, then tap **Sign in with GitHub** again.
 
-## Post
-1. Sign in  
+## Every time after that
+1. Sign in with GitHub  
 2. Title / question  
 3. Answer / update text  
 4. Optional category / county  
-5. **Post** → on GitHub tap **Submit new issue** once  
-
-No GitHub App to create. An Action publishes the page (about 1–2 minutes).
+5. **Post**
 
 ## Where it goes
 - Question → `/florida-criminal-defense-answers/...`  

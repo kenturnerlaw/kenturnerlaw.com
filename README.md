@@ -119,15 +119,15 @@ Do not mark a checklist item complete merely because a file was edited. Mark it 
 
 Publish short legal answers or updates from an iPhone without editing HTML.
 
-`/publish/` is a private login page (unlisted, `noindex`). Password is in [PUBLISH.md](./PUBLISH.md) / `functions/publish-config.js`. No OAuth App.
+`/publish/` is a private login page (unlisted, `noindex`). Sign in with your existing GitHub account — no separate site password.
 
 ### Publish from iPhone
 
 1. Open `https://www.kenturnerlaw.com/publish/`
-2. Username + password → Sign in  
-3. Title/text → **Post** → on GitHub tap **Submit new issue** once  
+2. **Sign in with GitHub** (your existing GitHub account)
+3. Title/text → optional category/county → **Post**
 
-No GitHub App. Details: [PUBLISH.md](./PUBLISH.md).
+Details: [PUBLISH.md](./PUBLISH.md).
 
 - Q&A URLs: `/florida-criminal-defense-answers/{slug}/`
 - Updates URLs: `/updates/{slug}/`
