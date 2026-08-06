@@ -7,9 +7,13 @@
     "build:content": "node tools/publish/build.js",
     "publish": "node tools/publish/add.js",
     "test:publish": "node tools/publish/test.js",
-    "validate:amp": "node tools/publish/validate-amp.js"
+    "validate:amp": "node tools/publish/validate-amp.js",
+    "dev": "wrangler pages dev . --ip 0.0.0.0 --port 8788 --compatibility-date=2024-11-01"
   },
   "engines": {
     "node": ">=18"
+  },
+  "devDependencies": {
+    "wrangler": "^3.114.14"
   }
 }

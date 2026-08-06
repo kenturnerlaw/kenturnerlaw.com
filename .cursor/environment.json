@@ -1,0 +1,10 @@
+{
+  "name": "Ken Turner Law (kenturnerlaw.com)",
+  "install": "npm install",
+  "terminals": [
+    {
+      "name": "pages-dev",
+      "command": "npm run dev"
+    }
+  ]
+}
