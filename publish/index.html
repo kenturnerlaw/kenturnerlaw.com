@@ -25,10 +25,10 @@ textarea{min-height:220px;resize:vertical}
 .row>div{flex:1}
 .type-row{display:flex;gap:14px;margin:.35rem 0 0}
 .type-row label{display:flex;align-items:center;gap:.45rem;margin:0;color:#fff;font-size:1rem}
-button,a.btn{
+button{
   display:block;width:100%;margin-top:1.25rem;padding:14px;
   border:1px solid #e4c36a;background:#000;color:#e4c36a;
-  font:inherit;font-size:1.05rem;cursor:pointer;text-align:center;text-decoration:none
+  font:inherit;font-size:1.05rem;cursor:pointer
 }
 button:disabled{opacity:.55;cursor:wait}
 button.secondary{margin-top:.7rem;border-color:#555;color:#bbb;font-size:.95rem}
@@ -52,20 +52,9 @@ button.secondary{margin-top:.7rem;border-color:#555;color:#bbb;font-size:.95rem}
     <div id="gate-status" class="status" aria-live="polite"></div>
   </section>
 
-  <section id="enable" class="hidden">
-    <h1>Allow posting</h1>
-    <p class="hint">One time so this page can save posts to the site. Use this button (not GitHub Settings). On the next screens: choose your account, choose the repository for this site, then Install.</p>
-    <form id="enable-form" action="https://github.com/settings/apps/new" method="post">
-      <input type="hidden" name="manifest" id="manifest">
-      <button type="submit">Allow posting</button>
-    </form>
-    <button type="button" class="secondary" id="enable-signout">Sign out</button>
-    <div id="enable-status" class="status" aria-live="polite"></div>
-  </section>
-
   <section id="app" class="hidden">
     <h1>New post</h1>
-    <p class="hint" id="who"></p>
+    <p class="hint">Post opens GitHub once. Tap <strong>Submit new issue</strong>. No app to create.</p>
     <form id="publish-form">
       <div class="type-row">
         <label><input type="radio" name="type" value="answer" checked> Question</label>
@@ -103,16 +92,7 @@ button.secondary{margin-top:.7rem;border-color:#555;color:#bbb;font-size:.95rem}
         </div>
       </div>
       <button type="submit" id="submit">Post</button>
-      <button type="button" class="secondary" id="changepw-toggle">Change password</button>
       <button type="button" class="secondary" id="signout">Sign out</button>
-    </form>
-    <form id="pw-form" class="hidden">
-      <label for="currentPassword">Current password</label>
-      <input id="currentPassword" type="password" autocomplete="current-password">
-      <label for="newPassword">New password</label>
-      <input id="newPassword" type="password" autocomplete="new-password">
-      <button type="submit">Save password</button>
-      <button type="button" class="secondary" id="pw-cancel">Cancel</button>
     </form>
     <div id="status" class="status" aria-live="polite"></div>
   </section>
@@ -120,71 +100,42 @@ button.secondary{margin-top:.7rem;border-color:#555;color:#bbb;font-size:.95rem}
 <script>
 (function () {
   var gate = document.getElementById('gate');
-  var enable = document.getElementById('enable');
   var app = document.getElementById('app');
   var gateStatus = document.getElementById('gate-status');
-  var enableStatus = document.getElementById('enable-status');
   var statusEl = document.getElementById('status');
   var form = document.getElementById('publish-form');
-  var pwForm = document.getElementById('pw-form');
   var submit = document.getElementById('submit');
-  var SITE = 'https://www.kenturnerlaw.com';
+  var ISSUE_NEW = 'https://github.com/kenturnerlaw/kenturnerlaw.com/issues/new';
 
   function setGate(msg, cls) {
     gateStatus.textContent = msg || '';
     gateStatus.className = 'status' + (cls ? ' ' + cls : '');
   }
-  function setEnable(msg, cls) {
-    enableStatus.textContent = msg || '';
-    enableStatus.className = 'status' + (cls ? ' ' + cls : '');
-  }
   function setStatus(msg, cls) {
     statusEl.textContent = msg || '';
     statusEl.className = 'status' + (cls ? ' ' + cls : '');
   }
-  function hideAll() {
-    gate.classList.add('hidden');
-    enable.classList.add('hidden');
-    app.classList.add('hidden');
-  }
   function showGate() {
-    hideAll();
+    app.classList.add('hidden');
     gate.classList.remove('hidden');
   }
-  function showEnable() {
-    hideAll();
-    enable.classList.remove('hidden');
-    document.getElementById('manifest').value = JSON.stringify({
-      name: 'KTL Publish ' + Date.now().toString(36),
-      url: SITE + '/publish/',
-      hook_attributes: { url: SITE + '/api/setup/github-app-install', active: false },
-      redirect_url: SITE + '/api/setup/github-app',
-      setup_url: SITE + '/api/setup/github-app-install',
-      callback_urls: [SITE + '/api/auth/callback'],
-      request_oauth_on_install: false,
-      description: 'Allow the Ken Turner Law publish page to save posts.',
-      public: false,
-      default_permissions: { contents: 'write', metadata: 'read' }
-    });
-  }
-  function showApp(login) {
-    hideAll();
+  function showApp() {
+    gate.classList.add('hidden');
     app.classList.remove('hidden');
-    document.getElementById('who').textContent = login ? ('Signed in as ' + login) : '';
+  }
+  function slugify(title) {
+    return String(title || '')
+      .toLowerCase()
+      .replace(/['’]/g, '')
+      .replace(/[^a-z0-9]+/g, '-')
+      .replace(/^-+|-+$/g, '')
+      .slice(0, 80);
   }
 
-  var params = new URLSearchParams(location.search);
-  if (params.get('connected') === '1') setStatus('Posting allowed. Wait about one minute, then Post.', 'ok');
-  if (params.get('error')) setEnable('Allow posting did not finish. Tap Allow posting again.', 'err');
-
-  async function refresh() {
-    var res = await fetch('/api/publish/status', { credentials: 'same-origin' });
-    var d = await res.json().catch(function () { return {}; });
-    if (!d.signedIn) { showGate(); return; }
-    if (!d.writeReady) { showEnable(); return; }
-    showApp(d.login);
-  }
-  refresh().catch(function () { showGate(); });
+  fetch('/api/auth/me', { credentials: 'same-origin' })
+    .then(function (r) { return r.json(); })
+    .then(function (d) { if (d.signedIn) showApp(); })
+    .catch(function () {});
 
   document.getElementById('signin').onclick = async function () {
     var username = document.getElementById('username').value;
@@ -200,7 +151,7 @@ button.secondary{margin-top:.7rem;border-color:#555;color:#bbb;font-size:.95rem}
       });
       var data = await res.json().catch(function () { return {}; });
       if (!res.ok) throw new Error(data.error || 'Sign in failed');
-      await refresh();
+      showApp();
     } catch (e) {
       setGate(e.message || String(e), 'err');
     }
@@ -210,44 +161,10 @@ button.secondary{margin-top:.7rem;border-color:#555;color:#bbb;font-size:.95rem}
     if (ev.key === 'Enter') document.getElementById('signin').click();
   });
 
-  async function signOut() {
+  document.getElementById('signout').onclick = async function () {
     await fetch('/api/auth/logout', { method: 'POST', credentials: 'same-origin' });
     showGate();
     setGate('Signed out.');
-  }
-  document.getElementById('signout').onclick = signOut;
-  document.getElementById('enable-signout').onclick = signOut;
-
-  document.getElementById('changepw-toggle').onclick = function () {
-    form.classList.add('hidden');
-    pwForm.classList.remove('hidden');
-  };
-  document.getElementById('pw-cancel').onclick = function () {
-    pwForm.classList.add('hidden');
-    form.classList.remove('hidden');
-  };
-  pwForm.onsubmit = async function (ev) {
-    ev.preventDefault();
-    setStatus('Saving password…');
-    try {
-      var res = await fetch('/api/auth/password', {
-        method: 'POST',
-        credentials: 'same-origin',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          currentPassword: document.getElementById('currentPassword').value,
-          newPassword: document.getElementById('newPassword').value
-        })
-      });
-      var data = await res.json().catch(function () { return {}; });
-      if (!res.ok) throw new Error(data.error || 'Failed');
-      setStatus('Password updated. Wait about one minute, then use the new password.', 'ok');
-      pwForm.reset();
-      pwForm.classList.add('hidden');
-      form.classList.remove('hidden');
-    } catch (e) {
-      setStatus(e.message || String(e), 'err');
-    }
   };
 
   form.onsubmit = async function (ev) {
@@ -256,30 +173,46 @@ button.secondary{margin-top:.7rem;border-color:#555;color:#bbb;font-size:.95rem}
     var body = document.getElementById('body').value.trim();
     var type = (form.querySelector('input[name="type"]:checked') || {}).value || 'answer';
     if (!title || !body) { setStatus('Title and text required.', 'err'); return; }
-    submit.disabled = true;
-    setStatus('Posting…');
+
+    // Confirm still signed in
     try {
-      var res = await fetch('/api/publish', {
-        method: 'POST',
-        credentials: 'same-origin',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          title: title,
-          body: body,
-          type: type,
-          category: document.getElementById('category').value,
-          county: document.getElementById('county').value
-        })
-      });
-      var data = await res.json().catch(function () { return {}; });
-      if (res.status === 401) { showGate(); throw new Error('Sign in required.'); }
-      if (data.needsEnable) { showEnable(); throw new Error(data.error || 'Allow posting first.'); }
-      if (!res.ok) throw new Error(data.error || 'Failed');
-      setStatus('Posted: ' + (data.url || data.path), 'ok');
-      form.reset();
+      var me = await fetch('/api/auth/me', { credentials: 'same-origin' }).then(function (r) { return r.json(); });
+      if (!me.signedIn) { showGate(); setGate('Sign in required.', 'err'); return; }
+    } catch (e) {}
+
+    var payload = {
+      type: type,
+      title: title,
+      body: body,
+      category: document.getElementById('category').value,
+      county: document.getElementById('county').value,
+      slug: slugify(title)
+    };
+    var marker =
+      '<!-- ktl-publish\n' +
+      JSON.stringify(payload, null, 2) +
+      '\n-->\n\n' +
+      title + '\n\n' + body;
+    var issueTitle = 'publish: ' + title;
+    var fullUrl =
+      ISSUE_NEW +
+      '?title=' + encodeURIComponent(issueTitle) +
+      '&body=' + encodeURIComponent(marker);
+
+    submit.disabled = true;
+    try {
+      if (fullUrl.length > 7500) {
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+          await navigator.clipboard.writeText(marker);
+        }
+        setStatus('Long post: body copied. Paste into the GitHub issue, then tap Submit new issue.', 'ok');
+        window.location.href = ISSUE_NEW + '?title=' + encodeURIComponent(issueTitle);
+        return;
+      }
+      setStatus('Opening GitHub — tap Submit new issue.', 'ok');
+      window.location.href = fullUrl;
     } catch (e) {
       setStatus(e.message || String(e), 'err');
-    } finally {
       submit.disabled = false;
     }
   };

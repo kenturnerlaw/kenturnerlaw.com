@@ -6,17 +6,16 @@
 - Username: `ken`
 - Password: `AmCRmDF4xy2F`
 
-Change the password on the publish page after sign-in (**Change password**), once posting is allowed.
+To change the password: tell Cursor, or edit `functions/publish-users.js`.
 
-## First time after login
-If asked, tap **Allow posting** and complete the GitHub screens that appear (same Safari window). Wait about one minute.
-
-## Every time
+## Post
 1. Sign in  
 2. Title / question  
 3. Answer / update text  
 4. Optional category / county  
-5. **Post**
+5. **Post** → on GitHub tap **Submit new issue** once  
+
+No GitHub App to create. An Action publishes the page (about 1–2 minutes).
 
 ## Where it goes
 - Question → `/florida-criminal-defense-answers/...`  
