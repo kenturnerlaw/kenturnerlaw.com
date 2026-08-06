@@ -1,12 +1,18 @@
 /**
  * GET /api/setup/github-app?code=...
- * Completes GitHub App Manifest conversion, then sends user to Install.
+ * Exchange manifest code, stash creds in localStorage (Safari-safe), go to Install.
  */
 
 import { siteOrigin } from '../auth/_shared.js';
 
-function cookie(name, value, maxAge = 3600) {
-  return `${name}=${encodeURIComponent(value)}; Path=/; HttpOnly; Secure; SameSite=Lax; Max-Age=${maxAge}`;
+function html(body) {
+  return new Response(body, {
+    status: 200,
+    headers: {
+      'Content-Type': 'text/html; charset=utf-8',
+      'Cache-Control': 'no-store',
+    },
+  });
 }
 
 export async function onRequestGet(context) {
@@ -29,7 +35,10 @@ export async function onRequestGet(context) {
   });
   const data = await res.json().catch(() => ({}));
   if (!res.ok) {
-    return Response.redirect(`${origin}/publish/?error=setup_convert`, 302);
+    return Response.redirect(
+      `${origin}/publish/?error=setup_convert&detail=${encodeURIComponent(data.message || res.status)}`,
+      302,
+    );
   }
 
   const appId = String(data.id || '');
@@ -41,20 +50,27 @@ export async function onRequestGet(context) {
     return Response.redirect(`${origin}/publish/?error=setup_incomplete`, 302);
   }
 
-  const headers = new Headers({
-    Location: `https://github.com/apps/${slug}/installations/new`,
-  });
-  headers.append('Set-Cookie', cookie('ktl_app_id', appId));
-  headers.append('Set-Cookie', cookie('ktl_app_slug', slug));
-  headers.append('Set-Cookie', cookie('ktl_client_id', clientId));
-  headers.append('Set-Cookie', cookie('ktl_client_secret', clientSecret));
+  const pending = {
+    appId,
+    slug,
+    privateKey: pem,
+    clientId,
+    clientSecret,
+  };
 
-  const pemB64 = btoa(unescape(encodeURIComponent(pem)));
-  const pemParts = pemB64.match(/.{1,1800}/g) || [pemB64];
-  headers.append('Set-Cookie', cookie('ktl_app_pem_n', String(pemParts.length)));
-  pemParts.forEach((part, i) => {
-    headers.append('Set-Cookie', cookie(`ktl_app_pem_${i}`, part));
-  });
-
-  return new Response(null, { status: 302, headers });
+  // localStorage survives GitHub redirects on iPhone Safari; cookies often do not.
+  return html(`<!doctype html>
+<html lang="en"><head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Connecting…</title>
+</head><body style="font-family:Georgia,serif;background:#050505;color:#fff;padding:24px">
+<p>Connecting publish… continue on the next GitHub screen.</p>
+<script>
+try {
+  localStorage.setItem('ktl_pending_app', ${JSON.stringify(JSON.stringify(pending))});
+} catch (e) {}
+location.replace(${JSON.stringify(`https://github.com/apps/${slug}/installations/new`)});
+</script>
+</body></html>`);
 }

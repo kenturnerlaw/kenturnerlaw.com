@@ -9,7 +9,12 @@
 - Change your password in GitHub → Settings (normal account password change)
 
 ## First time only
-If the page says connect sign-in, tap **Connect Sign in with GitHub** and approve once. After Cloudflare finishes deploying (about a minute), tap **Sign in with GitHub**.
+1. Tap **Connect Sign in with GitHub**
+2. Approve / install on GitHub (stay in the same Safari window)
+3. Wait about one minute for deploy
+4. Tap **Sign in with GitHub**
+
+If connect fails, tap Connect again from the start (same Safari).
 
 ## Every time after that
 1. Sign in with GitHub  
