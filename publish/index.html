@@ -170,20 +170,6 @@ button.secondary{margin-top:.7rem;border-color:#555;color:#bbb;font-size:.95rem}
       'Publish this on kenturnerlaw.com:',
       '',
       'Type: ' + (type === 'update' ? 'Update' : 'Question'),
-      'Title: ' + title,
-      category ? 'Category: ' + category : '',
-      county ? 'County: ' + county : '',
-      '',
-      body
-    ].filter(function (line, i, arr) {
-      // keep blank line before body; drop empty optional fields
-      return line !== '' || (i > 0 && arr[i - 1].indexOf(':') === 0) || i === arr.length - 2;
-    });
-    // Simpler join without fancy filter:
-    lines = [
-      'Publish this on kenturnerlaw.com:',
-      '',
-      'Type: ' + (type === 'update' ? 'Update' : 'Question'),
       'Title: ' + title
     ];
     if (category) lines.push('Category: ' + category);
