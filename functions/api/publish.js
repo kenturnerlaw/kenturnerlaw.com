@@ -1,17 +1,9 @@
 /**
  * POST /api/publish
- * Requires login session. Writes content/posts via GitHub App (or env token).
+ * Requires Sign in with GitHub session. Uses the signed-in user's token.
  */
 
-import { GITHUB_TOKEN as CONFIG_TOKEN } from '../publish-config.js';
-import {
-  APP_ID,
-  INSTALLATION_ID,
-  PRIVATE_KEY,
-  isGitHubAppConfigured,
-} from '../github-app-credentials.js';
-import { installationAccessToken } from '../lib/github-app-auth.js';
-import { json, readCookie, openSession } from './auth/_shared.js';
+import { json, readCookie, openSession, oauthCredentials, github, DEFAULT_REPO } from './auth/_shared.js';
 
 const CATEGORIES = new Set([
   'Police encounters',
@@ -26,7 +18,6 @@ const CATEGORIES = new Set([
 ]);
 
 const COUNTIES = new Set(['Collier', 'Lee', 'Hendry', 'Miami-Dade']);
-const DEFAULT_REPO = 'kenturnerlaw/kenturnerlaw.com';
 
 function slugify(title) {
   return String(title || '')
@@ -43,67 +34,23 @@ function todayISO() {
   return new Date().toISOString().slice(0, 10);
 }
 
-async function github(token, method, apiPath, body) {
-  const res = await fetch(`https://api.github.com${apiPath}`, {
-    method,
-    headers: {
-      Accept: 'application/vnd.github+json',
-      Authorization: `Bearer ${token}`,
-      'User-Agent': 'kenturnerlaw-publish',
-      'X-GitHub-Api-Version': '2022-11-28',
-      ...(body ? { 'Content-Type': 'application/json' } : {}),
-    },
-    body: body ? JSON.stringify(body) : undefined,
-  });
-  const text = await res.text();
-  let data = {};
-  try {
-    data = text ? JSON.parse(text) : {};
-  } catch (_) {
-    data = { message: text };
-  }
-  if (!res.ok) {
-    const err = new Error(data.message || `GitHub API ${res.status}`);
-    err.status = res.status;
-    throw err;
-  }
-  return data;
-}
-
-async function resolveWriteToken(env) {
-  if (isGitHubAppConfigured()) {
-    return installationAccessToken({
-      appId: APP_ID,
-      privateKey: PRIVATE_KEY,
-      installationId: INSTALLATION_ID,
-    });
-  }
-  return String(env.GITHUB_TOKEN || CONFIG_TOKEN || '').trim();
-}
-
 export async function onRequestPost(context) {
   const { request, env } = context;
+  const { clientSecret, configured } = oauthCredentials(env);
 
-  if (!(await openSession(readCookie(request)))) {
+  if (!configured) {
+    return json(503, {
+      error: 'Sign in is not connected yet. Tap Sign in with GitHub once to connect.',
+      needsSetup: true,
+    });
+  }
+
+  const session = await openSession(clientSecret, readCookie(request));
+  if (!session) {
     return json(401, { error: 'Sign in required.' });
   }
 
-  let token = '';
-  try {
-    token = await resolveWriteToken(env);
-  } catch (err) {
-    return json(503, {
-      error: `Publishing is not enabled yet. Tap Enable publishing once. (${err.message})`,
-      needsEnable: true,
-    });
-  }
-
-  if (!token) {
-    return json(503, {
-      error: 'Publishing is not enabled yet. Tap Enable publishing once.',
-      needsEnable: true,
-    });
-  }
+  const token = session.accessToken;
 
   let payload;
   try {

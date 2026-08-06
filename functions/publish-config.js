@@ -1,8 +1,5 @@
 /**
- * Private publish settings (this repo is private).
- * Change the password anytime by editing this file (or ask Cursor to change it).
+ * Legacy file. Login is Sign in with GitHub now (see github-app-credentials.js).
  */
-export const PUBLISH_PASSWORD = '4Y3asSIIVLgK7y';
-
-// Optional fallback. Prefer Enable publishing (GitHub App) on /publish.
+export const PUBLISH_PASSWORD = '';
 export const GITHUB_TOKEN = '';

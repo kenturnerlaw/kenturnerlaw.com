@@ -15,7 +15,7 @@ body{
 }
 h1{color:#e4c36a;font-size:1.4rem;margin:1.5rem 0 1rem;font-weight:400;letter-spacing:.04em}
 label{display:block;margin:1rem 0 .35rem;color:#cfcfcf;font-size:.95rem}
-input[type=text],input[type=password],textarea,select{
+input[type=text],textarea,select{
   width:100%;font:inherit;font-size:1.05rem;line-height:1.4;
   padding:14px 12px;border:1px solid #5a5a5a;border-radius:3px;
   background:#111;color:#fff;-webkit-appearance:none;appearance:none
@@ -25,44 +25,37 @@ textarea{min-height:220px;resize:vertical}
 .row>div{flex:1}
 .type-row{display:flex;gap:14px;margin:.35rem 0 0}
 .type-row label{display:flex;align-items:center;gap:.45rem;margin:0;color:#fff;font-size:1rem}
-button{
+button,a.btn{
   display:block;width:100%;margin-top:1.25rem;padding:14px;
   border:1px solid #e4c36a;background:#000;color:#e4c36a;
-  font:inherit;font-size:1.05rem;cursor:pointer
+  font:inherit;font-size:1.05rem;cursor:pointer;text-align:center;text-decoration:none
 }
 button:disabled{opacity:.55;cursor:wait}
-button.secondary{margin-top:.7rem;border-color:#555;color:#bbb;font-size:.95rem}
+button.secondary,a.btn.secondary{margin-top:.7rem;border-color:#555;color:#bbb;font-size:.95rem}
 .status{margin-top:1rem;min-height:1.2em;font-size:.92rem;color:#ddd}
 .status.ok{color:#8dca9a}
 .status.err{color:#e89a9a}
+.hint{font-size:.88rem;color:#aaa;margin:.5rem 0 0;line-height:1.35}
 .hidden{display:none}
 .wrap{max-width:420px;margin:0 auto}
-.hint{color:#aaa;font-size:.88rem;margin:.5rem 0 0;line-height:1.35}
 </style>
 </head>
 <body>
 <div class="wrap">
   <section id="gate">
     <h1>Login</h1>
-    <label for="password">Password</label>
-    <input id="password" type="password" autocomplete="current-password">
-    <button type="button" id="signin">Sign in</button>
-    <div id="gate-status" class="status" aria-live="polite"></div>
-  </section>
-
-  <section id="enable" class="hidden">
-    <h1>Enable publishing</h1>
-    <p class="hint">One time. Approve on GitHub, then this page is just title → text → Post.</p>
-    <form id="enable-form" action="https://github.com/settings/apps/new" method="post">
+    <p class="hint">Sign in with your GitHub account — same kind of login as Cursor, Vercel, and GitHub itself. Change your password in GitHub account settings.</p>
+    <a class="btn" id="signin" href="/api/auth/login">Sign in with GitHub</a>
+    <form id="setup-form" class="hidden" action="https://github.com/settings/apps/new" method="post">
       <input type="hidden" name="manifest" id="manifest">
-      <button type="submit">Enable publishing</button>
+      <button type="submit">Connect Sign in with GitHub</button>
     </form>
-    <button type="button" class="secondary" id="enable-signout">Sign out</button>
-    <div id="enable-status" class="status" aria-live="polite"></div>
+    <div id="gate-status" class="status" aria-live="polite"></div>
   </section>
 
   <section id="app" class="hidden">
     <h1>New post</h1>
+    <p class="hint" id="who"></p>
     <form id="publish-form">
       <div class="type-row">
         <label><input type="radio" name="type" value="answer" checked> Question</label>
@@ -108,100 +101,74 @@ button.secondary{margin-top:.7rem;border-color:#555;color:#bbb;font-size:.95rem}
 <script>
 (function () {
   var gate = document.getElementById('gate');
-  var enable = document.getElementById('enable');
   var app = document.getElementById('app');
   var gateStatus = document.getElementById('gate-status');
-  var enableStatus = document.getElementById('enable-status');
   var statusEl = document.getElementById('status');
   var form = document.getElementById('publish-form');
   var submit = document.getElementById('submit');
+  var signin = document.getElementById('signin');
+  var setupForm = document.getElementById('setup-form');
   var SITE = 'https://www.kenturnerlaw.com';
 
   function setGate(msg, cls) {
     gateStatus.textContent = msg || '';
     gateStatus.className = 'status' + (cls ? ' ' + cls : '');
   }
-  function setEnable(msg, cls) {
-    enableStatus.textContent = msg || '';
-    enableStatus.className = 'status' + (cls ? ' ' + cls : '');
-  }
   function setStatus(msg, cls) {
     statusEl.textContent = msg || '';
     statusEl.className = 'status' + (cls ? ' ' + cls : '');
   }
-  function hideAll() {
-    gate.classList.add('hidden');
-    enable.classList.add('hidden');
+  function showGate(needsSetup) {
     app.classList.add('hidden');
-  }
-  function showGate() {
-    hideAll();
     gate.classList.remove('hidden');
-    document.getElementById('password').value = '';
-  }
-  function showEnable() {
-    hideAll();
-    enable.classList.remove('hidden');
-    document.getElementById('manifest').value = JSON.stringify({
-      name: 'Ken Turner Publish',
-      url: SITE + '/publish/',
-      hook_attributes: { url: SITE + '/api/setup/github-app-install', active: false },
-      redirect_url: SITE + '/api/setup/github-app',
-      setup_url: SITE + '/api/setup/github-app-install',
-      description: 'Lets the Ken Turner Law phone publish page post Q&A and updates.',
-      public: false,
-      default_permissions: { contents: 'write', metadata: 'read' }
-    });
-  }
-  function showApp() {
-    hideAll();
-    app.classList.remove('hidden');
-  }
-
-  async function refresh() {
-    var res = await fetch('/api/publish/status', { credentials: 'same-origin' });
-    var d = await res.json().catch(function () { return {}; });
-    if (!d.signedIn) { showGate(); return; }
-    if (!d.writeReady) { showEnable(); return; }
-    showApp();
-  }
-
-  if (new URLSearchParams(location.search).get('enabled') === '1') {
-    setStatus('Publishing enabled. You can post now.', 'ok');
-  }
-
-  refresh().catch(function () {});
-
-  document.getElementById('signin').onclick = async function () {
-    var password = document.getElementById('password').value;
-    if (!password) { setGate('Enter password.', 'err'); return; }
-    setGate('Signing in…');
-    try {
-      var res = await fetch('/api/auth/login', {
-        method: 'POST',
-        credentials: 'same-origin',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ password: password })
+    if (needsSetup) {
+      signin.classList.add('hidden');
+      setupForm.classList.remove('hidden');
+      document.getElementById('manifest').value = JSON.stringify({
+        name: 'Ken Turner Publish',
+        url: SITE + '/publish/',
+        hook_attributes: { url: SITE + '/api/setup/github-app-install', active: false },
+        redirect_url: SITE + '/api/setup/github-app',
+        setup_url: SITE + '/api/setup/github-app-install',
+        callback_urls: [SITE + '/api/auth/callback'],
+        request_oauth_on_install: true,
+        description: 'Sign in and publish for Ken Turner Law.',
+        public: false,
+        default_permissions: { contents: 'write', metadata: 'read' }
       });
-      var data = await res.json().catch(function () { return {}; });
-      if (!res.ok) throw new Error(data.error || 'Sign in failed');
-      await refresh();
-    } catch (e) {
-      setGate(e.message || String(e), 'err');
+      setGate('First time: connect Sign in with GitHub, then you sign in normally forever.', '');
+    } else {
+      signin.classList.remove('hidden');
+      setupForm.classList.add('hidden');
     }
-  };
-
-  document.getElementById('password').addEventListener('keydown', function (ev) {
-    if (ev.key === 'Enter') document.getElementById('signin').click();
-  });
-
-  async function signOut() {
-    await fetch('/api/auth/logout', { method: 'POST', credentials: 'same-origin' });
-    showGate();
-    setGate('Signed out.');
   }
-  document.getElementById('signout').onclick = signOut;
-  document.getElementById('enable-signout').onclick = signOut;
+  function showApp(login) {
+    gate.classList.add('hidden');
+    app.classList.remove('hidden');
+    document.getElementById('who').textContent = login ? ('Signed in as ' + login) : '';
+  }
+
+  var params = new URLSearchParams(location.search);
+  if (params.get('error')) {
+    setGate('Sign in failed. Try again.', 'err');
+  }
+  if (params.get('connected') === '1') {
+    setGate('Connected. Wait about one minute, then tap Sign in with GitHub.', 'ok');
+  }
+
+  fetch('/api/publish/status', { credentials: 'same-origin' })
+    .then(function (r) { return r.json(); })
+    .then(function (d) {
+      if (d.signedIn) showApp(d.login);
+      else showGate(!d.oauthConfigured || params.get('setup') === '1');
+    })
+    .catch(function () { showGate(false); });
+
+  document.getElementById('signout').onclick = async function () {
+    await fetch('/api/auth/logout', { method: 'POST', credentials: 'same-origin' });
+    showGate(false);
+    setGate('Signed out.');
+  };
 
   form.onsubmit = async function (ev) {
     ev.preventDefault();
@@ -225,8 +192,8 @@ button.secondary{margin-top:.7rem;border-color:#555;color:#bbb;font-size:.95rem}
         })
       });
       var data = await res.json().catch(function () { return {}; });
-      if (res.status === 401) { showGate(); throw new Error('Sign in required.'); }
-      if (data.needsEnable) { showEnable(); throw new Error(data.error || 'Enable publishing first.'); }
+      if (res.status === 401) { showGate(false); throw new Error('Sign in required.'); }
+      if (data.needsSetup) { showGate(true); throw new Error(data.error || 'Connect sign-in first.'); }
       if (!res.ok) throw new Error(data.error || 'Failed');
       setStatus('Posted: ' + (data.url || data.path), 'ok');
       form.reset();

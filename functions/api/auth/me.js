@@ -1,7 +1,12 @@
-import { json, readCookie, openSession } from './_shared.js';
+import { json, readCookie, openSession, oauthCredentials } from './_shared.js';
 
 export async function onRequestGet(context) {
-  const { request } = context;
-  const signedIn = await openSession(readCookie(request));
-  return json(200, { signedIn: Boolean(signedIn) });
+  const { request, env } = context;
+  const { clientSecret, configured } = oauthCredentials(env);
+  const session = configured ? await openSession(clientSecret, readCookie(request)) : null;
+  return json(200, {
+    signedIn: Boolean(session),
+    login: session ? session.login : '',
+    oauthConfigured: configured,
+  });
 }
