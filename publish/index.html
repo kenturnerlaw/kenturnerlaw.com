@@ -37,7 +37,6 @@ button.secondary{margin-top:.7rem;border-color:#555;color:#bbb;font-size:.95rem}
 .status.err{color:#e89a9a}
 .hidden{display:none}
 .wrap{max-width:420px;margin:0 auto}
-.hint{color:#aaa;font-size:.88rem;margin:.5rem 0 0;line-height:1.35}
 </style>
 </head>
 <body>
@@ -52,7 +51,6 @@ button.secondary{margin-top:.7rem;border-color:#555;color:#bbb;font-size:.95rem}
 
   <section id="app" class="hidden">
     <h1>New post</h1>
-    <p class="hint">Write here, tap <strong>Copy for Cursor</strong>, paste into your Ken Turner Law Cursor chat, send. Cursor publishes it. Nothing to open on GitHub.</p>
     <form id="publish-form">
       <div class="type-row">
         <label><input type="radio" name="type" value="answer" checked> Question</label>
@@ -89,7 +87,7 @@ button.secondary{margin-top:.7rem;border-color:#555;color:#bbb;font-size:.95rem}
           </select>
         </div>
       </div>
-      <button type="submit" id="submit">Copy for Cursor</button>
+      <button type="submit" id="submit">Post</button>
       <button type="button" class="secondary" id="signout">Sign out</button>
     </form>
     <div id="status" class="status" aria-live="polite"></div>
@@ -162,38 +160,29 @@ button.secondary{margin-top:.7rem;border-color:#555;color:#bbb;font-size:.95rem}
     var title = document.getElementById('title').value.trim();
     var body = document.getElementById('body').value.trim();
     var type = (form.querySelector('input[name="type"]:checked') || {}).value || 'answer';
-    var category = document.getElementById('category').value;
-    var county = document.getElementById('county').value;
     if (!title || !body) { setStatus('Title and text required.', 'err'); return; }
-
-    var lines = [
-      'Publish this on kenturnerlaw.com:',
-      '',
-      'Type: ' + (type === 'update' ? 'Update' : 'Question'),
-      'Title: ' + title
-    ];
-    if (category) lines.push('Category: ' + category);
-    if (county) lines.push('County: ' + county);
-    lines.push('', body);
-
-    var text = lines.join('\n');
     submit.disabled = true;
+    setStatus('Posting…');
     try {
-      if (navigator.clipboard && navigator.clipboard.writeText) {
-        await navigator.clipboard.writeText(text);
-        setStatus('Copied. Paste into your Cursor Ken Turner Law chat and send.', 'ok');
-      } else {
-        // Fallback select
-        var ta = document.createElement('textarea');
-        ta.value = text;
-        document.body.appendChild(ta);
-        ta.select();
-        document.execCommand('copy');
-        document.body.removeChild(ta);
-        setStatus('Copied. Paste into your Cursor Ken Turner Law chat and send.', 'ok');
-      }
+      var res = await fetch('/api/publish', {
+        method: 'POST',
+        credentials: 'same-origin',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          title: title,
+          body: body,
+          type: type,
+          category: document.getElementById('category').value,
+          county: document.getElementById('county').value
+        })
+      });
+      var data = await res.json().catch(function () { return {}; });
+      if (res.status === 401) { showGate(); throw new Error('Sign in required.'); }
+      if (!res.ok) throw new Error(data.error || 'Failed');
+      setStatus('Posted: ' + (data.url || data.path), 'ok');
+      form.reset();
     } catch (e) {
-      setStatus('Could not copy. Select and copy from your Notes, then paste in Cursor.', 'err');
+      setStatus(e.message || String(e), 'err');
     } finally {
       submit.disabled = false;
     }
