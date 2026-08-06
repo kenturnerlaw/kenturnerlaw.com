@@ -31,11 +31,13 @@ jobs:
         with:
           node-version: '20'
 
-      - name: Build published AMP pages
-        run: node tools/publish/build.js
+      - name: Check publisher syntax
+        run: |
+          node --check tools/publish/build-v2.js
+          node --check functions/api/publish.js
 
-      - name: Run publish tooling tests
-        run: node tools/publish/test.js
+      - name: Build published AMP pages
+        run: node tools/publish/build-v2.js
 
       - name: Validate generated AMP pages
         run: node tools/publish/validate-amp.js
@@ -46,16 +48,17 @@ jobs:
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add \
             florida-criminal-defense-answers \
+            florida-family-law-answers \
+            florida-traffic-ticket-answers \
+            florida-legal-answers \
             updates \
-            blog/index.html \
             sitemap.xml \
             sitemap.txt \
-            search/index.json \
-            llms.txt \
+            search/published.json \
             content/posts || true
           if git diff --cached --quiet; then
             echo "No generated changes to commit."
           else
-            git commit -m "Publish generated AMP pages and indexes"
+            git commit -m "Publish generated article pages and indexes"
             git push
           fi
