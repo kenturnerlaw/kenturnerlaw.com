@@ -1,9 +1,16 @@
 /**
  * POST /api/publish
- * Requires login session cookie from /api/auth/login.
+ * Requires login session. Writes content/posts via GitHub App (or env token).
  */
 
 import { GITHUB_TOKEN as CONFIG_TOKEN } from '../publish-config.js';
+import {
+  APP_ID,
+  INSTALLATION_ID,
+  PRIVATE_KEY,
+  isGitHubAppConfigured,
+} from '../github-app-credentials.js';
+import { installationAccessToken } from '../lib/github-app-auth.js';
 import { json, readCookie, openSession } from './auth/_shared.js';
 
 const CATEGORIES = new Set([
@@ -63,6 +70,17 @@ async function github(token, method, apiPath, body) {
   return data;
 }
 
+async function resolveWriteToken(env) {
+  if (isGitHubAppConfigured()) {
+    return installationAccessToken({
+      appId: APP_ID,
+      privateKey: PRIVATE_KEY,
+      installationId: INSTALLATION_ID,
+    });
+  }
+  return String(env.GITHUB_TOKEN || CONFIG_TOKEN || '').trim();
+}
+
 export async function onRequestPost(context) {
   const { request, env } = context;
 
@@ -70,11 +88,20 @@ export async function onRequestPost(context) {
     return json(401, { error: 'Sign in required.' });
   }
 
-  const token = String(env.GITHUB_TOKEN || CONFIG_TOKEN || '').trim();
+  let token = '';
+  try {
+    token = await resolveWriteToken(env);
+  } catch (err) {
+    return json(503, {
+      error: `Publishing is not enabled yet. Tap Enable publishing once. (${err.message})`,
+      needsEnable: true,
+    });
+  }
+
   if (!token) {
     return json(503, {
-      error:
-        'Publish is locked until GITHUB_TOKEN is set once in Cloudflare Pages (Production env). Chat cannot receive tokens.',
+      error: 'Publishing is not enabled yet. Tap Enable publishing once.',
+      needsEnable: true,
     });
   }
 
@@ -139,15 +166,6 @@ export async function onRequestPost(context) {
     });
   } catch (err) {
     return json(502, { error: `GitHub write failed: ${err.message}` });
-  }
-
-  try {
-    await github(token, 'POST', `/repos/${repo}/actions/workflows/publish-content.yml/dispatches`, {
-      ref: branch,
-      inputs: { reason: `publish:${slug}` },
-    });
-  } catch (_) {
-    /* push may already trigger workflow */
   }
 
   const path =

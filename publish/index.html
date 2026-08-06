@@ -37,6 +37,7 @@ button.secondary{margin-top:.7rem;border-color:#555;color:#bbb;font-size:.95rem}
 .status.err{color:#e89a9a}
 .hidden{display:none}
 .wrap{max-width:420px;margin:0 auto}
+.hint{color:#aaa;font-size:.88rem;margin:.5rem 0 0;line-height:1.35}
 </style>
 </head>
 <body>
@@ -47,6 +48,17 @@ button.secondary{margin-top:.7rem;border-color:#555;color:#bbb;font-size:.95rem}
     <input id="password" type="password" autocomplete="current-password">
     <button type="button" id="signin">Sign in</button>
     <div id="gate-status" class="status" aria-live="polite"></div>
+  </section>
+
+  <section id="enable" class="hidden">
+    <h1>Enable publishing</h1>
+    <p class="hint">One time. Approve on GitHub, then this page is just title → text → Post.</p>
+    <form id="enable-form" action="https://github.com/settings/apps/new" method="post">
+      <input type="hidden" name="manifest" id="manifest">
+      <button type="submit">Enable publishing</button>
+    </form>
+    <button type="button" class="secondary" id="enable-signout">Sign out</button>
+    <div id="enable-status" class="status" aria-live="polite"></div>
   </section>
 
   <section id="app" class="hidden">
@@ -96,35 +108,69 @@ button.secondary{margin-top:.7rem;border-color:#555;color:#bbb;font-size:.95rem}
 <script>
 (function () {
   var gate = document.getElementById('gate');
+  var enable = document.getElementById('enable');
   var app = document.getElementById('app');
   var gateStatus = document.getElementById('gate-status');
+  var enableStatus = document.getElementById('enable-status');
   var statusEl = document.getElementById('status');
   var form = document.getElementById('publish-form');
   var submit = document.getElementById('submit');
+  var SITE = 'https://www.kenturnerlaw.com';
 
   function setGate(msg, cls) {
     gateStatus.textContent = msg || '';
     gateStatus.className = 'status' + (cls ? ' ' + cls : '');
   }
+  function setEnable(msg, cls) {
+    enableStatus.textContent = msg || '';
+    enableStatus.className = 'status' + (cls ? ' ' + cls : '');
+  }
   function setStatus(msg, cls) {
     statusEl.textContent = msg || '';
     statusEl.className = 'status' + (cls ? ' ' + cls : '');
   }
-  function showApp() {
+  function hideAll() {
     gate.classList.add('hidden');
-    app.classList.remove('hidden');
-    setGate('');
+    enable.classList.add('hidden');
+    app.classList.add('hidden');
   }
   function showGate() {
-    app.classList.add('hidden');
+    hideAll();
     gate.classList.remove('hidden');
     document.getElementById('password').value = '';
   }
+  function showEnable() {
+    hideAll();
+    enable.classList.remove('hidden');
+    document.getElementById('manifest').value = JSON.stringify({
+      name: 'Ken Turner Publish',
+      url: SITE + '/publish/',
+      hook_attributes: { url: SITE + '/api/setup/github-app-install', active: false },
+      redirect_url: SITE + '/api/setup/github-app',
+      setup_url: SITE + '/api/setup/github-app-install',
+      description: 'Lets the Ken Turner Law phone publish page post Q&A and updates.',
+      public: false,
+      default_permissions: { contents: 'write', metadata: 'read' }
+    });
+  }
+  function showApp() {
+    hideAll();
+    app.classList.remove('hidden');
+  }
 
-  fetch('/api/auth/me', { credentials: 'same-origin' })
-    .then(function (r) { return r.json(); })
-    .then(function (d) { if (d.signedIn) showApp(); })
-    .catch(function () {});
+  async function refresh() {
+    var res = await fetch('/api/publish/status', { credentials: 'same-origin' });
+    var d = await res.json().catch(function () { return {}; });
+    if (!d.signedIn) { showGate(); return; }
+    if (!d.writeReady) { showEnable(); return; }
+    showApp();
+  }
+
+  if (new URLSearchParams(location.search).get('enabled') === '1') {
+    setStatus('Publishing enabled. You can post now.', 'ok');
+  }
+
+  refresh().catch(function () {});
 
   document.getElementById('signin').onclick = async function () {
     var password = document.getElementById('password').value;
@@ -139,7 +185,7 @@ button.secondary{margin-top:.7rem;border-color:#555;color:#bbb;font-size:.95rem}
       });
       var data = await res.json().catch(function () { return {}; });
       if (!res.ok) throw new Error(data.error || 'Sign in failed');
-      showApp();
+      await refresh();
     } catch (e) {
       setGate(e.message || String(e), 'err');
     }
@@ -149,11 +195,13 @@ button.secondary{margin-top:.7rem;border-color:#555;color:#bbb;font-size:.95rem}
     if (ev.key === 'Enter') document.getElementById('signin').click();
   });
 
-  document.getElementById('signout').onclick = async function () {
+  async function signOut() {
     await fetch('/api/auth/logout', { method: 'POST', credentials: 'same-origin' });
     showGate();
     setGate('Signed out.');
-  };
+  }
+  document.getElementById('signout').onclick = signOut;
+  document.getElementById('enable-signout').onclick = signOut;
 
   form.onsubmit = async function (ev) {
     ev.preventDefault();
@@ -178,6 +226,7 @@ button.secondary{margin-top:.7rem;border-color:#555;color:#bbb;font-size:.95rem}
       });
       var data = await res.json().catch(function () { return {}; });
       if (res.status === 401) { showGate(); throw new Error('Sign in required.'); }
+      if (data.needsEnable) { showEnable(); throw new Error(data.error || 'Enable publishing first.'); }
       if (!res.ok) throw new Error(data.error || 'Failed');
       setStatus('Posted: ' + (data.url || data.path), 'ok');
       form.reset();

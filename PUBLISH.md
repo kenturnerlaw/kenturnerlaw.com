@@ -1,24 +1,22 @@
-# How to publish from your phone
+# Publish from iPhone
 
 **Page:** https://www.kenturnerlaw.com/publish/
 
 ## Every time
-1. Open https://www.kenturnerlaw.com/publish/
-2. Password: `4Y3asSIIVLgK7y`
-3. Title → text → **Post**
-4. Done. Page goes live after the content build (about 1–2 minutes).
+1. Open the page  
+2. Password: `4Y3asSIIVLgK7y`  
+3. Title / question  
+4. Answer / update text  
+5. Optional category / county  
+6. **Post**
 
-## One-time setup (required once)
-The public site needs write access to this private repo. Cursor chat deletes GitHub tokens, so set it in Cloudflare:
+That’s the whole workflow.
 
-1. Create a fine-grained token: https://github.com/settings/personal-access-tokens/new  
-   - Name: `publish`  
-   - Only repository: `kenturnerlaw/kenturnerlaw.com`  
-   - Contents: **Read and write**
-2. Cloudflare → Pages → **kenturnerlaw** → Settings → Environment variables  
-   - Name: `GITHUB_TOKEN`  
-   - Value: (the token)  
-   - Environment: **Production**  
-   - Save / redeploy if asked
+## One time (first use only)
+After login, if you see **Enable publishing**, tap it and approve on GitHub for `kenturnerlaw/kenturnerlaw.com`. Then Post works.
 
-No OAuth. No Client ID. No pasting posts into Cursor.
+## Where it goes
+- Question → `/florida-criminal-defense-answers/...`  
+- Update → `/updates/...`  
+
+Password lives in `functions/publish-config.js` (private repo). Tell Cursor to change it anytime.
