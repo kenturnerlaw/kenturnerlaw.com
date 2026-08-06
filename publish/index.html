@@ -37,6 +37,7 @@ button.secondary{margin-top:.7rem;border-color:#555;color:#bbb;font-size:.95rem}
 .status.err{color:#e89a9a}
 .hidden{display:none}
 .wrap{max-width:420px;margin:0 auto}
+.hint{color:#aaa;font-size:.88rem;margin:.5rem 0 0;line-height:1.35}
 </style>
 </head>
 <body>
@@ -51,6 +52,7 @@ button.secondary{margin-top:.7rem;border-color:#555;color:#bbb;font-size:.95rem}
 
   <section id="app" class="hidden">
     <h1>New post</h1>
+    <p class="hint">Post opens GitHub. Tap <strong>Submit new issue</strong> once (stay logged into GitHub on this phone). No token setup.</p>
     <form id="publish-form">
       <div class="type-row">
         <label><input type="radio" name="type" value="answer" checked> Question</label>
@@ -101,6 +103,7 @@ button.secondary{margin-top:.7rem;border-color:#555;color:#bbb;font-size:.95rem}
   var statusEl = document.getElementById('status');
   var form = document.getElementById('publish-form');
   var submit = document.getElementById('submit');
+  var ISSUE_NEW = 'https://github.com/kenturnerlaw/kenturnerlaw.com/issues/new';
 
   function setGate(msg, cls) {
     gateStatus.textContent = msg || '';
@@ -119,6 +122,14 @@ button.secondary{margin-top:.7rem;border-color:#555;color:#bbb;font-size:.95rem}
     app.classList.add('hidden');
     gate.classList.remove('hidden');
     document.getElementById('password').value = '';
+  }
+  function slugify(title) {
+    return String(title || '')
+      .toLowerCase()
+      .replace(/['’]/g, '')
+      .replace(/[^a-z0-9]+/g, '-')
+      .replace(/^-+|-+$/g, '')
+      .slice(0, 80);
   }
 
   fetch('/api/auth/me', { credentials: 'same-origin' })
@@ -161,29 +172,40 @@ button.secondary{margin-top:.7rem;border-color:#555;color:#bbb;font-size:.95rem}
     var body = document.getElementById('body').value.trim();
     var type = (form.querySelector('input[name="type"]:checked') || {}).value || 'answer';
     if (!title || !body) { setStatus('Title and text required.', 'err'); return; }
+
+    var payload = {
+      type: type,
+      title: title,
+      body: body,
+      category: document.getElementById('category').value,
+      county: document.getElementById('county').value,
+      slug: slugify(title)
+    };
+    var marker =
+      '<!-- ktl-publish\n' +
+      JSON.stringify(payload, null, 2) +
+      '\n-->\n\n' +
+      title + '\n\n' + body;
+    var issueTitle = 'publish: ' + title;
+    var fullUrl =
+      ISSUE_NEW +
+      '?title=' + encodeURIComponent(issueTitle) +
+      '&body=' + encodeURIComponent(marker);
+
     submit.disabled = true;
-    setStatus('Posting…');
     try {
-      var res = await fetch('/api/publish', {
-        method: 'POST',
-        credentials: 'same-origin',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          title: title,
-          body: body,
-          type: type,
-          category: document.getElementById('category').value,
-          county: document.getElementById('county').value
-        })
-      });
-      var data = await res.json().catch(function () { return {}; });
-      if (res.status === 401) { showGate(); throw new Error('Sign in required.'); }
-      if (!res.ok) throw new Error(data.error || 'Failed');
-      setStatus('Posted: ' + (data.url || data.path), 'ok');
-      form.reset();
+      if (fullUrl.length > 7500) {
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+          await navigator.clipboard.writeText(marker);
+        }
+        setStatus('Long post: body copied. Paste into the GitHub issue, then tap Submit new issue.', 'ok');
+        window.location.href = ISSUE_NEW + '?title=' + encodeURIComponent(issueTitle);
+        return;
+      }
+      setStatus('Opening GitHub — tap Submit new issue.', 'ok');
+      window.location.href = fullUrl;
     } catch (e) {
       setStatus(e.message || String(e), 'err');
-    } finally {
       submit.disabled = false;
     }
   };

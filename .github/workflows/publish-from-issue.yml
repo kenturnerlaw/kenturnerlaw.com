@@ -1,0 +1,61 @@
+name: Publish from issue
+
+# /publish opens a GitHub issue with a <!-- ktl-publish --> payload.
+# This workflow writes content/posts/{slug}.json using the Actions token.
+# No personal GitHub token / Cloudflare secret required.
+
+on:
+  issues:
+    types: [opened]
+
+permissions:
+  contents: write
+  issues: write
+
+jobs:
+  publish:
+    if: startsWith(github.event.issue.title, 'publish:')
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Write post JSON from issue
+        env:
+          ISSUE_BODY: ${{ github.event.issue.body }}
+          ISSUE_NUMBER: ${{ github.event.issue.number }}
+        run: node tools/publish/from-issue.js
+
+      - name: Commit post
+        id: commit
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add content/posts
+          if git diff --cached --quiet; then
+            echo "changed=false" >> "$GITHUB_OUTPUT"
+            echo "No content changes."
+          else
+            SLUG=$(node -e "console.log(require('./publish-issue-result.json').slug)")
+            git commit -m "Publish from issue #${{ github.event.issue.number }}: ${SLUG}"
+            git push
+            echo "changed=true" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Close issue with result
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          if [ -f publish-issue-result.json ]; then
+            URL=$(node -e "console.log(require('./publish-issue-result.json').url)")
+            PATH_URL=$(node -e "console.log(require('./publish-issue-result.json').path)")
+            gh issue close "${{ github.event.issue.number }}" --comment "Published. Page will appear at ${URL} after the content build finishes (usually 1–2 minutes). Path: \`${PATH_URL}\`"
+          else
+            gh issue close "${{ github.event.issue.number }}" --comment "Publish failed: no result file."
+            exit 1
+          fi

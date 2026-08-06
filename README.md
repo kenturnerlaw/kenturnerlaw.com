@@ -123,11 +123,12 @@ Publish short legal answers or updates from an iPhone without editing HTML.
 
 ### Publish from iPhone Safari
 
-1. Open `https://www.kenturnerlaw.com/publish/`
-2. Enter password → Sign in
-3. Title/text → **Post**
+1. Stay logged into GitHub.com on the phone
+2. Open `https://www.kenturnerlaw.com/publish/`
+3. Enter password → Sign in
+4. Title/text → **Post** → on GitHub tap **Submit new issue**
 
-Needs a GitHub write token in `functions/publish-config.js` or Cloudflare `GITHUB_TOKEN`. Details: [PUBLISH.md](./PUBLISH.md).
+No personal GitHub token. An Action turns the issue into the live AMP page. Details: [PUBLISH.md](./PUBLISH.md).
 
 - Q&A URLs: `/florida-criminal-defense-answers/{slug}/`
 - Updates URLs: `/updates/{slug}/`

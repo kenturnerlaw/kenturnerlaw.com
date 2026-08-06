@@ -9,21 +9,20 @@ Password:
 4Y3asSIIVLgK7y
 ```
 
-That password is stored in this private repo (`functions/publish-config.js`).  
-To change it: edit that file, or tell Cursor to change it.
+Stored in this private repo: `functions/publish-config.js`.  
+Change it anytime (or tell Cursor).
 
-## Post
-1. Open https://www.kenturnerlaw.com/publish/  
-2. Enter password → Sign in  
-3. Question or Update → title → text → Post  
+## Post (no GitHub token needed)
+1. Stay logged into GitHub.com on your phone (same account that owns this repo).
+2. Open https://www.kenturnerlaw.com/publish/
+3. Password → Sign in
+4. Question or Update → title → text → **Post**
+5. GitHub opens → tap **Submit new issue** once
+6. An Action publishes the page (usually 1–2 minutes)
 
 ## Where it goes
-- Question → `/florida-criminal-defense-answers/...`  
-- Update → `/updates/...`  
+- Question → `/florida-criminal-defense-answers/...`
+- Update → `/updates/...`
 
-## One GitHub token (for posting to work)
-The site needs a GitHub token that can write this repo. Easiest: tell Cursor  
-“put my GitHub token in publish-config”  
-and paste the token in chat.  
-Or set `GITHUB_TOKEN` once in Cloudflare.  
-No OAuth App. No Client ID.
+## Or skip the form
+Paste the title/text in Cursor chat and ask to publish — same result.
