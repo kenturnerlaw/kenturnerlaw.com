@@ -55,4 +55,7 @@
 This site provides Florida-specific legal information in plain English. Verify legal summaries against current Florida statutes, court rules, and published opinions. The content is general legal information, not individualized legal advice, and no result is guaranteed.
 
 <!-- kt-managed-posts:start -->
+## Recently published answers
+
+- [Hello](https://www.kenturnerlaw.com/florida-criminal-defense-answers/hello/)
 <!-- kt-managed-posts:end -->
