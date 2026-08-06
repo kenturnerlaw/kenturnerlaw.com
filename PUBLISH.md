@@ -9,13 +9,16 @@
 - Change your password in GitHub → Settings (normal account password change)
 
 ## First time only
-1. Tap **Connect Sign in with GitHub**
-2. Approve / install on GitHub (stay in the same Safari window)
-3. Wait about one minute for deploy
-4. Tap **Sign in with GitHub**
+Use the **Connect** button on the publish page — do not create an app yourself in GitHub Settings.
 
-If connect fails, tap Connect again from the start (same Safari).  
-Old unused apps from failed attempts: GitHub → Settings → Developer settings → GitHub Apps → delete.
+1. Tap **Connect Sign in with GitHub**
+2. On GitHub: create/install for `kenturnerlaw/kenturnerlaw.com` (same Safari window)
+3. You should land back on publish with **Connected**
+4. Wait about one minute
+5. Tap **Sign in with GitHub**
+
+If it fails, tap Connect again.  
+Delete leftover apps anytime: GitHub → Settings → Developer settings → GitHub Apps.
 
 ## Every time after that
 1. Sign in with GitHub  

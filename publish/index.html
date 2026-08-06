@@ -132,12 +132,13 @@ button.secondary,a.btn.secondary{margin-top:.7rem;border-color:#555;color:#bbb;f
         redirect_url: SITE + '/api/setup/github-app',
         setup_url: SITE + '/api/setup/github-app-install',
         callback_urls: [SITE + '/api/auth/callback'],
-        request_oauth_on_install: true,
+        // Must be false: if true, GitHub skips our save step and login never connects.
+        request_oauth_on_install: false,
         description: 'Sign in and publish for Ken Turner Law.',
         public: false,
         default_permissions: { contents: 'write', metadata: 'read' }
       });
-      setGate('First time: connect Sign in with GitHub, then you sign in normally forever.', '');
+      setGate('Use the Connect button below (not GitHub Settings). Approve install, wait for “Connected”, then Sign in.', '');
     } else {
       signin.classList.remove('hidden');
       setupForm.classList.add('hidden');
