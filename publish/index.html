@@ -152,6 +152,9 @@ button.secondary,a.btn.secondary{margin-top:.7rem;border-color:#555;color:#bbb;f
   if (params.get('error')) {
     setGate('Sign in failed. Try again.', 'err');
   }
+  if (params.get('connected') === '1') {
+    setGate('Connected. Wait about one minute, then tap Sign in with GitHub.', 'ok');
+  }
 
   fetch('/api/publish/status', { credentials: 'same-origin' })
     .then(function (r) { return r.json(); })

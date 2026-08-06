@@ -138,8 +138,7 @@ export async function onRequestGet(context) {
     return new Response(null, { status: 302, headers: headersOut });
   }
 
-  // After Cloudflare deploys credentials, Sign in with GitHub works.
-  // Send user to login now; if deploy is still propagating they can tap again.
-  headersOut.set('Location', `${origin}/api/auth/login`);
+  // Credentials are committed; Cloudflare needs a minute to deploy them.
+  headersOut.set('Location', `${origin}/publish/?connected=1`);
   return new Response(null, { status: 302, headers: headersOut });
 }
