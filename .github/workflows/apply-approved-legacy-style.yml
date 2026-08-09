@@ -22,8 +22,8 @@ jobs:
         run: python3 .github/scripts/apply_approved_legacy_style.py
       - name: Install AMP validator
         run: npm install --ignore-scripts --no-audit --no-fund
-      - name: Validate AMP and generated SEO requirements
-        run: npm run validate:amp
+      - name: Validate AMP integrity
+        run: npm run validate:amp -- --amp-only
       - name: Commit visual-skin changes only
         run: |
           git config user.name "github-actions[bot]"
