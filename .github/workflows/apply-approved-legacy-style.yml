@@ -20,6 +20,10 @@ jobs:
           fetch-depth: 0
       - name: Apply styling only to public AMP pages
         run: python3 .github/scripts/apply_approved_legacy_style.py
+      - name: Install AMP validator
+        run: npm install --ignore-scripts --no-audit --no-fund
+      - name: Validate AMP and generated SEO requirements
+        run: npm run validate:amp
       - name: Commit visual-skin changes only
         run: |
           git config user.name "github-actions[bot]"
