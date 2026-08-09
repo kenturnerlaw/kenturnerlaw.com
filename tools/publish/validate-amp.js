@@ -7,6 +7,7 @@ const amphtmlValidator = require('amphtml-validator');
 const ROOT = path.resolve(__dirname, '../..');
 const SKIP_DIRS = new Set(['.git', '.github', 'node_modules', 'functions', 'tools', 'publish', 'content']);
 const GENERATED_MARKERS = ['kt-generated-v2', 'kt-generated'];
+const AMP_ONLY = process.argv.includes('--amp-only') || process.env.AMP_ONLY === '1';
 
 function walk(dir, files = []) {
   for (const entry of fs.readdirSync(dir, { withFileTypes: true })) {
@@ -24,6 +25,7 @@ function isAmp(html) {
 }
 
 function seoErrors(html) {
+  if (AMP_ONLY) return [];
   if (!GENERATED_MARKERS.some((marker) => html.includes(marker))) return [];
   const required = [
     ['canonical', /<link\s+rel="canonical"\s+href="https:\/\/www\.kenturnerlaw\.com\//i],
@@ -68,7 +70,7 @@ async function main() {
     console.error(`${failed} AMP page(s) failed validation.`);
     process.exit(1);
   }
-  console.log(`Validated ${files.length} AMP page(s) sitewide.`);
+  console.log(`Validated ${files.length} AMP page(s) sitewide${AMP_ONLY ? ' (AMP only)' : ''}.`);
 }
 
 main().catch((error) => {
