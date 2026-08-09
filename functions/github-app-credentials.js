@@ -1,18 +1,6 @@
 /**
- * Auto-written on Connect for /publish.
- * Private repo only.
+ * Credentials are intentionally not stored in the repository.
+ * Configure GITHUB_OAUTH_CLIENT_ID and GITHUB_OAUTH_CLIENT_SECRET as
+ * encrypted Cloudflare Pages secrets.
  */
-export const APP_ID = "4503023";
-export const INSTALLATION_ID = "151619168";
-export const APP_SLUG = "ktl-publish-msh2xpa0";
-export const PRIVATE_KEY = "-----BEGIN RSA PRIVATE KEY-----\nMIIEpQIBAAKCAQEA0ZIjLiOWasIoR/XyJSRmMM/z1DgoA+RSrqfGYGBBEW1wXMBw\ny/X2JZT+4kEWlZdu9ZK5z6nwPsYtZQiFSFkQ/bpe0HbwjKYOrQsYoH+BeQ8ulru7\nUswYSzkiLkIphSTyLWHjg4nB+2KG96oEtKy2/BS0oG+jcEis9yn7HpK6pGxxE2dq\ndzfJVKsdLG4AWmErSnLNEFHQC9IAViKJtAPOc6OqGUGGD8fMJavUOhgThATMZ0Ip\nT6i3XJhv0zCS6u3zmKArMqcUGbd97NvUyqnOQ11ODqeO3WmOghoKyd6oS5ESng1S\nO6CZCHegh7lVthJoWv2jZrvWabbcXhpQlQIflwIDAQABAoIBAFeeSacYqeKomj67\nzSlKNo9h4gdwEwrNguQSsRXKKGoo3zloG8CqbOb5jDb8D30revChD56K5i7YnFIJ\nZfABjOEH8mwlzhx/sNMYOIuhw3fhqRDMHF1Zhy6sDGZasxE/iSEANCbiiX+YieUx\n6BXBwB9UaNBK3IItYGNV4e++WNo02izO/8PBG7ap71BNOpJDwSHI+OB7h5NI5CYm\nfvIlJRGwO6YSWXwg1jzxVfgqY6YgEFPfxSxd/IRXjoaJa+13arvCDxU3Db2m5TDG\nubarCapnsav1i6KzNT2syEY/Rj/J4rmbmGdpGE8pUMS+BHhwtYTi6ys1x/u/ebIe\npXI99IECgYEA+mfNMMNY+QoNzdd0hIL/H2FYsmrk2DYK9ZZI6L3L2h5AVcS6lCGK\nCpIFcu94ycRpxnOOBMJvM1KbPlqI5kDO0FFE3ehr+Y1iW8Z35It96CjGJ5SZVSeu\nY+IJ1P2/jALUJoX9CfHPxeN21hwX6NJQ+0P1Jq0+vjf/Lf8m7DR+yXkCgYEA1kDI\nE2hex/84H+xKLlYED5iVG9QZjXwUaGnLYTLfdtkwFF1dnY7rlv49VjccTM7kvF3X\nCedpazO7sLRNNefnc4ZSTlfaDsTyEgIaSrZFFapPuy8rOudMK+M9X//sd2gN/x8H\n0URYafoCgq8PvKgPoMLKv2oGvnyKtXTsJVvr/Y8CgYEA9Sy9U4lxjCWz7l+OzlAU\ny/zcg5T2DFydzmgfawKqnh4Qj+nXZUKRjlf6zdZ7RdLyXkS2QSK/DllLd3ndoNTD\nqmRoMX5oeidcrs9chIGv/agunIJ6v03jChk/1zO8YLJEVpPKdfo1nWRh7rIDFwsW\nD28ykXP/gvABAmBZE90yZsECgYEA0DcAuauygNaM6qktpj49kBKOxg6oDpHJG3fF\nCN7xwIRtbz0VH2unlIPbhA/m1tYyAMWJl7xm/KG4A5AVgQ+wJNsi3bQO3E+VmN6m\nQnlERjvPZHAAqSvjILukB8mlOp3LDGZRqJOtAMDQ88PBnWwOVAM6Gi+mAjTycEoC\nvIPKog0CgYEA3KSJ+4sAthNLwykOCwZEA0QNT4j3/o2A6fWVECyAi7+GU2idr6jJ\nK1fzzgz6UfRNTrItZ4JE1oHWqMb9RW8OS1jiJFBmsf7atNxOecrKEBrPJSr6FgG9\ngcbjaak6mLoEtXF2B2VUVSm7z3sslwpvTi0jj41tbqZrSFGVLoK9Og0=\n-----END RSA PRIVATE KEY-----\n";
-export const CLIENT_ID = "Iv23liJL4wXTWNfLYqCw";
-export const CLIENT_SECRET = "541e31be721124c531f7edb987908767368ef213";
-
-export function isOAuthConfigured() {
-  return Boolean(CLIENT_ID && CLIENT_SECRET);
-}
-
-export function isGitHubAppConfigured() {
-  return Boolean(APP_ID && INSTALLATION_ID && PRIVATE_KEY);
-}
+export {};

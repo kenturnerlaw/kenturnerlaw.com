@@ -1,91 +1,10 @@
-/**
- * GET /api/setup/github-app?code=...
- * Exchange manifest code, store OAuth credentials on the server, then Install.
- */
-
 import { siteOrigin } from '../auth/_shared.js';
-import { saveOAuthCredentials } from '../../lib/oauth-store.js';
 
-function html(body) {
-  return new Response(body, {
-    status: 200,
-    headers: {
-      'Content-Type': 'text/html; charset=utf-8',
-      'Cache-Control': 'no-store',
-    },
-  });
-}
-
+/**
+ * Self-service GitHub App creation is disabled. App credentials must be
+ * configured by an administrator as encrypted Cloudflare Pages secrets.
+ */
 export async function onRequestGet(context) {
-  const { request, env } = context;
-  const origin = siteOrigin(request, env);
-
-  const url = new URL(request.url);
-  const code = url.searchParams.get('code');
-  if (!code) {
-    return Response.redirect(`${origin}/publish/?error=setup_code`, 302);
-  }
-
-  const res = await fetch(`https://api.github.com/app-manifests/${code}/conversions`, {
-    method: 'POST',
-    headers: {
-      Accept: 'application/vnd.github+json',
-      'User-Agent': 'kenturnerlaw-publish',
-      'X-GitHub-Api-Version': '2022-11-28',
-    },
-  });
-  const data = await res.json().catch(() => ({}));
-  if (!res.ok) {
-    return Response.redirect(
-      `${origin}/publish/?error=setup_convert&detail=${encodeURIComponent(data.message || res.status)}`,
-      302,
-    );
-  }
-
-  const appId = String(data.id || '');
-  const slug = String(data.slug || '');
-  const pem = String(data.pem || '');
-  const clientId = String(data.client_id || '');
-  const clientSecret = String(data.client_secret || '');
-  if (!appId || !pem || !slug || !clientId || !clientSecret) {
-    return Response.redirect(`${origin}/publish/?error=setup_incomplete`, 302);
-  }
-
-  // Save OAuth keys on the server now — do not wait for a git commit.
-  try {
-    await saveOAuthCredentials({
-      appId,
-      slug,
-      privateKey: pem,
-      clientId,
-      clientSecret,
-      installationId: '',
-    });
-  } catch (_) {
-    return Response.redirect(`${origin}/publish/?error=setup_store`, 302);
-  }
-
-  const pending = {
-    appId,
-    slug,
-    privateKey: pem,
-    clientId,
-    clientSecret,
-  };
-
-  // localStorage backup if install lands on a different edge without cache.
-  return html(`<!doctype html>
-<html lang="en"><head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Connecting…</title>
-</head><body style="font-family:Georgia,serif;background:#050505;color:#fff;padding:24px">
-<p>Connecting publish… continue on the next GitHub screen.</p>
-<script>
-try {
-  localStorage.setItem('ktl_pending_app', ${JSON.stringify(JSON.stringify(pending))});
-} catch (e) {}
-location.replace(${JSON.stringify(`https://github.com/apps/${slug}/installations/new`)});
-</script>
-</body></html>`);
+  const origin = siteOrigin(context.request, context.env);
+  return Response.redirect(`${origin}/publish/?error=admin_configuration_required`, 302);
 }
