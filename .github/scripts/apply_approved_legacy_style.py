@@ -91,7 +91,7 @@ def remove_facebook(html: str) -> str:
 def add_sidebar_script(html: str) -> str:
     if 'custom-element="amp-sidebar"' in html:
         return html
-    amp_runtime = re.search(r'<script\s+async\s+src=["\']https://cdn\.ampproject\.org/v0\.js["\']\s*></script>', html, flags=re.I)
+    amp_runtime = re.search(r'<script\s+async\s+src=(?:["\'])?https://cdn\.ampproject\.org/v0\.js(?:["\'])?\s*></script>', html, flags=re.I)
     if not amp_runtime:
         raise ValueError("AMP runtime script not found")
     return html[:amp_runtime.end()] + '\n' + SIDEBAR_SCRIPT + html[amp_runtime.end():]
