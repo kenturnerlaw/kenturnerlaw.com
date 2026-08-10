@@ -21,7 +21,7 @@ jobs:
       - name: Apply styling only to public AMP pages
         run: python3 .github/scripts/apply_approved_legacy_style.py
       - name: Install AMP validator
-        run: npm install --ignore-scripts --no-audit --no-fund
+        run: npm ci --ignore-scripts --no-audit --no-fund
       - name: Validate AMP integrity
         run: npm run validate:amp -- --amp-only
       - name: Commit visual-skin changes only
