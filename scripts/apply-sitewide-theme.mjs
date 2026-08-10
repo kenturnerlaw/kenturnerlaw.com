@@ -5,7 +5,7 @@ const START = "/* KT-LEATHER-STAMPED-THEME-V2-START */";
 const END = "/* KT-LEATHER-STAMPED-THEME-V2-END */";
 
 const theme = `${START}
-:root{--kt-v2-leather:url('/img/dark-pebbled-leather-v2.jpg');--kt-v2-gold:#c99537;--kt-v2-gold-light:#f7dea0;--kt-v2-gold-edge:#65400e;--kt-v2-shadow:#2a1603}
+:root{--kt-v2-leather:url('/img/dark-pebbled-leather-v2.webp');--kt-v2-gold:#c99537;--kt-v2-gold-light:#f7dea0;--kt-v2-gold-edge:#65400e;--kt-v2-shadow:#2a1603}
 html{background:#020202}
 body{color:#f7f1e4;background-color:#030303;background-image:linear-gradient(rgba(0,0,0,.08),rgba(0,0,0,.14)),var(--kt-v2-leather);background-size:auto,520px 520px;background-repeat:repeat;background-attachment:fixed}
 p,li,dd,blockquote,main article{color:#f7f1e4}
