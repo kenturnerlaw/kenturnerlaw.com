@@ -41,13 +41,16 @@ function repair(file) {
 
   html = html.replace(/\s*!important\b/gi, '');
 
-  html = html.replace(/<style\b[^>]*amp-boilerplate[^>]*>[\s\S]*?<\/style>/gi, '');
   html = html.replace(/<noscript>\s*<style\b[^>]*amp-boilerplate[^>]*>[\s\S]*?<\/style>\s*<\/noscript>/gi, '');
+  html = html.replace(/<style\b[^>]*amp-boilerplate[^>]*>[\s\S]*?<\/style>/gi, '');
 
-  const headClose = html.search(/<\/head>/i);
-  if (headClose >= 0) html = `${html.slice(0, headClose)}${BOILERPLATE}\n${html.slice(headClose)}`;
+  html = html.replace(/\s*<\/head>/i, `\n${BOILERPLATE}\n</head>`);
 
-  html = html.replace(/<script\b(?![^>]*type=["']application\/(?:ld\+json|json)["'])(?![^>]*src=["']https:\/\/cdn\.ampproject\.org\/)[^>]*>[\s\S]*?<\/script>/gi, '');
+  html = html.replace(/<script\b[^>]*>[\s\S]*?<\/script>/gi, (script) => {
+    if (/\btype\s*=\s*["']application\/(?:ld\+json|json)["']/i.test(script)) return script;
+    if (/\bsrc\s*=\s*(?:["']https:\/\/cdn\.ampproject\.org\/|https:\/\/cdn\.ampproject\.org\/)/i.test(script)) return script;
+    return '';
+  });
 
   if (html !== before) {
     fs.writeFileSync(file, html, 'utf8');

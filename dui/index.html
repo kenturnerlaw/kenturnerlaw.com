@@ -440,6 +440,50 @@ hr{border-color:rgba(201,149,55,.45)}
 blockquote{border-left-color:#9b7326}
 .ampstart-footer{border-top:1px solid #8f6b1f;background-color:rgba(0,0,0,.42)}
 /* KT-LEATHER-STAMPED-THEME-V2-END */
+/* KT-HOMEPAGE-LEGACY-ALIGNMENT-START */
+/* Bring legacy disclosure pages into the same leather, stamped-gold system as the home page. */
+body:not(.kt-home-rebuild){background-color:#030303;background-image:linear-gradient(rgba(0,0,0,.10),rgba(0,0,0,.17)),var(--kt-v2-leather);background-size:auto,520px 520px}
+body:not(.kt-home-rebuild)>.center{padding:0 18px}
+body:not(.kt-home-rebuild) .ampstart-image-fullpage-hero{max-width:1060px;margin:18px auto 28px;border:1px solid #9b7326;box-shadow:0 18px 40px rgba(0,0,0,.72),inset 0 0 0 1px rgba(255,224,125,.10);overflow:hidden;background:#030303}
+body:not(.kt-home-rebuild) .ampstart-image-fullpage-hero:after{content:"";position:absolute;inset:0;pointer-events:none;background:linear-gradient(180deg,rgba(0,0,0,.08),rgba(0,0,0,.28));box-shadow:inset 0 0 55px rgba(0,0,0,.55)}
+body:not(.kt-home-rebuild) .ampstart-image-fullpage-hero>figcaption{z-index:2}
+body:not(.kt-home-rebuild) .ampstart-fullpage-hero-heading{max-width:820px;margin-left:auto;margin-right:auto}
+body:not(.kt-home-rebuild) .ampstart-fullpage-hero-heading .h1{font-size:clamp(2rem,5vw,4.5rem);line-height:1.05;letter-spacing:.08em}
+body:not(.kt-home-rebuild) .ampstart-fullpage-hero-heading h1,
+body:not(.kt-home-rebuild) .ampstart-fullpage-hero-heading .h2{font-size:clamp(1.25rem,3vw,2.35rem);line-height:1.2}
+body:not(.kt-home-rebuild) .ampstart-fullpage-hero-cta{display:block;max-width:620px;margin:28px auto 0;padding:16px 22px;border:2px solid #b8892f;background-color:#050505;background-image:linear-gradient(rgba(0,0,0,.08),rgba(0,0,0,.24)),var(--kt-v2-leather);background-size:auto,380px 380px;box-shadow:inset 0 0 0 1px rgba(255,224,125,.16),0 8px 20px rgba(0,0,0,.65)}
+body:not(.kt-home-rebuild) main{max-width:980px;margin:0 auto;padding:0 18px 38px}
+body:not(.kt-home-rebuild) main>article.px3{padding:0}
+body:not(.kt-home-rebuild) .kt-acc-hint{text-align:center;color:#e8cd78;font-weight:700;letter-spacing:.05em;margin:8px 0 18px}
+body:not(.kt-home-rebuild) details.kt-acc{margin:0 0 15px;border:1px solid #987126;background-color:#040404;background-image:linear-gradient(rgba(0,0,0,.15),rgba(0,0,0,.28)),var(--kt-v2-leather);background-size:auto,460px 460px;box-shadow:0 8px 22px rgba(0,0,0,.58),inset 0 0 0 1px rgba(255,222,118,.07);overflow:hidden}
+body:not(.kt-home-rebuild) details.kt-acc>summary{display:flex;align-items:center;min-height:112px;margin:0;padding:20px 62px 20px clamp(155px,34vw,350px);font-size:clamp(1rem,2.25vw,1.35rem);line-height:1.28;letter-spacing:.075em;text-align:left;color:var(--kt-v2-gold);-webkit-text-fill-color:var(--kt-v2-gold);background-color:#050505;background-image:linear-gradient(90deg,rgba(0,0,0,.02) 0,rgba(0,0,0,.18) 23%,rgba(2,2,2,.88) 55%,rgba(2,2,2,.96) 100%),url('/img/old-hero.jpg'),var(--kt-v2-leather);background-repeat:no-repeat,no-repeat,repeat;background-position:center,left center,center;background-size:100% 100%,auto 100%,460px 460px;border:0;text-shadow:0 -1px 0 var(--kt-v2-shadow),0 1px 0 var(--kt-v2-gold-light),1px 2px 0 var(--kt-v2-gold-edge),0 4px 4px #000}
+body:not(.kt-home-rebuild) details.kt-acc>summary:after{right:22px;top:50%;transform:translateY(-50%);color:#f0d36f}
+body:not(.kt-home-rebuild) details.kt-acc[open]>summary:after{transform:translateY(-50%) rotate(90deg)}
+body:not(.kt-home-rebuild) details.kt-acc>article,
+body:not(.kt-home-rebuild) details.kt-acc>div{padding:22px 26px;background:rgba(2,2,2,.74);border-top:1px solid rgba(201,149,55,.42)}
+body:not(.kt-home-rebuild) details.kt-acc p{font-family:Arial,Helvetica,sans-serif;font-size:1rem;line-height:1.7;color:#f7f1e4;text-transform:none;letter-spacing:normal}
+body:not(.kt-home-rebuild) details.kt-acc a{color:#efd078;font-weight:700}
+.kt-home-rebuild details.kt-acc{overflow:hidden}
+.kt-home-rebuild details.kt-acc>summary{display:flex;align-items:center;min-height:112px;padding:20px 62px 20px clamp(155px,34vw,350px);text-align:left;background-color:#050505;background-image:linear-gradient(90deg,rgba(0,0,0,.02) 0,rgba(0,0,0,.18) 23%,rgba(2,2,2,.88) 55%,rgba(2,2,2,.96) 100%),url('/img/old-hero.jpg'),var(--kt-v2-leather);background-repeat:no-repeat,no-repeat,repeat;background-position:center,left center,center;background-size:100% 100%,auto 100%,460px 460px}
+.kt-home-rebuild details.kt-acc>summary:after{right:22px;top:50%;transform:translateY(-50%)}
+.kt-home-rebuild details.kt-acc[open]>summary:after{transform:translateY(-50%) rotate(90deg)}
+@media(max-width:600px){
+  body:not(.kt-home-rebuild)>.center{padding:0 8px}
+  body:not(.kt-home-rebuild) .ampstart-image-fullpage-hero{margin-top:9px}
+  body:not(.kt-home-rebuild) .ampstart-fullpage-hero-heading .h1{font-size:2rem}
+  body:not(.kt-home-rebuild) .ampstart-fullpage-hero-heading h1,
+  body:not(.kt-home-rebuild) .ampstart-fullpage-hero-heading .h2{font-size:1.2rem}
+  body:not(.kt-home-rebuild) .ampstart-fullpage-hero-heading .h5,
+  body:not(.kt-home-rebuild) .ampstart-fullpage-hero-heading .h6{font-size:.72rem;line-height:1.45}
+  body:not(.kt-home-rebuild) main{padding-left:10px;padding-right:10px}
+  body:not(.kt-home-rebuild) details.kt-acc>summary{min-height:104px;padding:17px 48px 17px 132px;font-size:.98rem;background-position:center,-24px center,center;background-size:100% 100%,auto 100%,420px 420px}
+  body:not(.kt-home-rebuild) details.kt-acc>summary:after{right:15px}
+  body:not(.kt-home-rebuild) details.kt-acc>article,
+  body:not(.kt-home-rebuild) details.kt-acc>div{padding:18px}
+  .kt-home-rebuild details.kt-acc>summary{min-height:104px;padding:17px 48px 17px 132px;background-position:center,-24px center,center;background-size:100% 100%,auto 100%,420px 420px}
+  .kt-home-rebuild details.kt-acc>summary:after{right:15px}
+}
+/* KT-HOMEPAGE-LEGACY-ALIGNMENT-END */
 </style>
 
 
@@ -565,8 +609,7 @@ blockquote{border-left-color:#9b7326}
    <main id="content" role="main">
         <article class="px3">
             <p class="kt-acc-hint" role="note">Tap a heading to expand it.</p>
-<details class="kt-acc"><summary class="ampstart-title-sm">
-                    <amp-img class="align-middle" height="98" src="../img/rendered1.jpg" width="1920" layout="responsive" alt="DUI Attorney"></amp-img>&nbsp;&nbsp;DUI DEFENSE
+<details class="kt-acc"><summary class="ampstart-title-sm">DUI DEFENSE
                 </summary>
 <article class="px1">
                     <p class="indented">A DUI arrest can create two separate problems: the criminal case and the driver license consequences. Deadlines and early decisions can matter, especially when a person faces suspension, refusal allegations, or prior DUI history.</p>
@@ -574,24 +617,21 @@ blockquote{border-left-color:#9b7326}
                     <p><a href="https://kenturnerlaw.as.me/" target="_blank" rel="noopener">Book Phone Appointment</a></p>
                 </article>
 </details>
-<details class="kt-acc"><summary class="ampstart-title-sm">
-                    <amp-img class="align-middle" height="98" src="../img/rendered2.jpg" width="1920" layout="responsive" alt="Dui Issues Reviewed"></amp-img>&nbsp;&nbsp;DUI ISSUES REVIEWED
+<details class="kt-acc"><summary class="ampstart-title-sm">DUI ISSUES REVIEWED
                 </summary>
 <article class="px1">
                     <p class="indented">Common issues include the legality of the stop, probable cause for arrest, breath test reliability, refusal allegations, accident-related DUI, license suspension, and whether evidence should be challenged before trial.</p>
                     <p><a href="https://kenturnerlaw.as.me/" target="_blank" rel="noopener">Book Phone Appointment</a></p>
                 </article>
 </details>
-<details class="kt-acc"><summary class="ampstart-title-sm">
-                    <amp-img class="align-middle" height="98" src="../img/rendered3.jpg" width="1920" layout="responsive" alt="Areas Served"></amp-img>&nbsp;&nbsp;AREAS SERVED
+<details class="kt-acc"><summary class="ampstart-title-sm">AREAS SERVED
                 </summary>
 <article class="px1">
                     <p class="indented">DUI representation is available in Collier County, Lee County, Hendry County, and Miami-Dade County.</p>
                     <p><a href="https://kenturnerlaw.as.me/" target="_blank" rel="noopener">Book Phone Appointment</a></p>
                 </article>
 </details>
-<details class="kt-acc"><summary class="ampstart-title-sm">
-                    <amp-img class="align-middle" height="51" src="../img/rendered4.jpg" width="1002" layout="responsive" alt="Probable Cause"></amp-img>&nbsp;&nbsp;PROBABLE CAUSE
+<details class="kt-acc"><summary class="ampstart-title-sm">PROBABLE CAUSE
                 </summary>
 <article class="px1">
                     <p class="indented">Police cannot legally arrest someone based on a guess or suspicion alone. Officers must have enough facts to reasonably believe a crime was committed and that a particular person was involved.</p>
@@ -599,8 +639,7 @@ blockquote{border-left-color:#9b7326}
                     <p><a href="https://kenturnerlaw.as.me/" target="_blank" rel="noopener">Book Phone Appointment</a></p>
                 </article>
 </details>
-<details class="kt-acc"><summary class="ampstart-title-sm">
-                    <amp-img class="align-middle" height="51" src="../img/rendered5.jpg" width="1002" layout="responsive" alt="Miranda Rights?"></amp-img>&nbsp;&nbsp;MIRANDA RIGHTS?
+<details class="kt-acc"><summary class="ampstart-title-sm">MIRANDA RIGHTS?
                 </summary>
 <article class="px1">
                     <p class="indented">No. Police do not have to read Miranda rights every time they stop someone or every time they make an arrest. Miranda usually applies when a person is in custody and police are questioning the person about a crime.</p>
@@ -608,8 +647,7 @@ blockquote{border-left-color:#9b7326}
                     <p><a href="https://kenturnerlaw.as.me/" target="_blank" rel="noopener">Book Phone Appointment</a></p>
                 </article>
 </details>
-<details class="kt-acc"><summary class="ampstart-title-sm">
-                    <amp-img class="align-middle" height="98" src="../img/rendered7.jpg" width="1920" layout="responsive" alt="Should I Explain to Police?"></amp-img>&nbsp;&nbsp;SHOULD I EXPLAIN TO POLICE?
+<details class="kt-acc"><summary class="ampstart-title-sm">SHOULD I EXPLAIN TO POLICE?
                 </summary>
 <article class="px1">
                     <p class="indented">Many people believe that if they are innocent, they can simply explain what happened and clear things up. In reality, that is often a mistake.</p>
@@ -619,8 +657,7 @@ blockquote{border-left-color:#9b7326}
                     <p><a href="https://kenturnerlaw.as.me/" target="_blank" rel="noopener">Book Phone Appointment</a></p>
                 </article>
 </details>
-<details class="kt-acc"><summary class="ampstart-title-sm">
-                    <amp-img class="align-middle" height="98px" src="../img/rendered9.jpg" width="1920px" layout="responsive" alt="Getting Out of Jail"></amp-img>&nbsp;&nbsp;GETTING OUT OF JAIL
+<details class="kt-acc"><summary class="ampstart-title-sm">GETTING OUT OF JAIL
                 </summary>
 <article class="px1">
                     <p class="indented">In many cases, a person can get out of jail while the case is pending. After an arrest, a judge usually reviews the case and decides whether release is allowed and what conditions apply.</p>
@@ -628,8 +665,7 @@ blockquote{border-left-color:#9b7326}
                     <p><a href="https://kenturnerlaw.as.me/" target="_blank" rel="noopener">Book Phone Appointment</a></p>
                 </article>
 </details>
-<details class="kt-acc"><summary class="ampstart-title-sm">
-                    <amp-img class="align-middle" height="98px" src="../img/rendered11.jpg" width="1920px" layout="responsive" alt="Can Bond Be Reduced?"></amp-img>&nbsp;&nbsp;CAN BOND BE REDUCED?
+<details class="kt-acc"><summary class="ampstart-title-sm">CAN BOND BE REDUCED?
                 </summary>
 <article class="px1">
                     <p class="indented">Yes. In some cases, a judge may lower the bond amount or change release conditions. The court may look at employment, family support, financial resources, criminal history, and the facts of the case.</p>

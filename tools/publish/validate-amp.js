@@ -27,10 +27,13 @@ function isAmp(html) {
 function seoErrors(html) {
   if (AMP_ONLY) return [];
   if (!GENERATED_MARKERS.some((marker) => html.includes(marker))) return [];
+  const intentionallyNoIndex = /<meta\s+name="robots"\s+content="noindex,follow"/i.test(html);
   const required = [
     ['canonical', /<link\s+rel="canonical"\s+href="https:\/\/www\.kenturnerlaw\.com\//i],
     ['meta description', /<meta\s+name="description"\s+content="[^"]+"/i],
-    ['robots index', /<meta\s+name="robots"\s+content="index,follow"/i],
+    ['robots directive', intentionallyNoIndex
+      ? /<meta\s+name="robots"\s+content="noindex,follow"/i
+      : /<meta\s+name="robots"\s+content="index,follow"/i],
     ['Open Graph title', /<meta\s+property="og:title"\s+content="[^"]+"/i],
     ['Open Graph description', /<meta\s+property="og:description"\s+content="[^"]+"/i],
     ['Open Graph URL', /<meta\s+property="og:url"\s+content="https:\/\/www\.kenturnerlaw\.com\//i],
