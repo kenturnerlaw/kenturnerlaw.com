@@ -1,0 +1,37 @@
+name: Darken homepage header once
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/darken-home-header-once.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  apply:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+      - name: Darken only homepage header leather
+        shell: python
+        run: |
+          from pathlib import Path
+          path = Path('index.html')
+          text = path.read_text()
+          old = ".kt-home-rebuild .kt-home-header{height:4.25rem;padding:0 .8rem;display:grid;grid-template-columns:3rem 1fr auto;gap:.5rem;align-items:center;background-color:transparent;background-image:var(--kt-leather-v2);background-size:cover;background-repeat:no-repeat;background-position:center;border-bottom:1px solid rgba(255,255,255,.08);box-shadow:none}"
+          new = ".kt-home-rebuild .kt-home-header{height:4.25rem;padding:0 .8rem;display:grid;grid-template-columns:3rem 1fr auto;gap:.5rem;align-items:center;background-color:#020202;background-image:linear-gradient(rgba(0,0,0,.42),rgba(0,0,0,.58)),var(--kt-leather-v2);background-size:auto,cover;background-repeat:repeat,no-repeat;background-position:center;border-bottom:1px solid rgba(255,255,255,.08);box-shadow:none}"
+          if old not in text:
+              raise SystemExit('Expected homepage header rule not found; refusing to alter anything else.')
+          path.write_text(text.replace(old, new, 1))
+      - name: Commit change and remove one-time workflow
+        run: |
+          git rm .github/workflows/darken-home-header-once.yml
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add index.html
+          git commit -m "Darken homepage header leather"
+          git push origin main
