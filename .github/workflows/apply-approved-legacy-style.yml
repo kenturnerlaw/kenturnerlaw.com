@@ -1,4 +1,4 @@
-name: Apply sitewide leather and metallic gold visual skin
+name: Sync accordion pages from homepage template
 
 on:
   push:
@@ -18,22 +18,22 @@ jobs:
         with:
           ref: main
           fetch-depth: 0
-      - name: Apply canonical site header menu and accordion styling
-        run: python3 .github/scripts/apply_approved_legacy_style.py
+      - name: Sync homepage header menu theme and accordions
+        run: node scripts/sync-home-template.mjs
       - name: Install AMP validator
         run: npm ci --ignore-scripts --no-audit --no-fund
       - name: Normalize AMP boilerplate and markup
         run: npm run repair:amp
       - name: Validate AMP integrity
         run: npm run validate:amp -- --amp-only
-      - name: Commit validated sitewide changes
+      - name: Commit validated homepage-template sync
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add -- '*.html' ':(glob)**/*.html'
           if git diff --cached --quiet; then
-            echo "No public AMP styling changes were necessary"
+            echo "No homepage-template sync changes were necessary"
             exit 0
           fi
-          git commit -m "Unify sitewide header menu and accordions"
+          git commit -m "Sync accordion pages to homepage template"
           git push origin main
