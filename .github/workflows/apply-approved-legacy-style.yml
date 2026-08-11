@@ -18,10 +18,6 @@ jobs:
         with:
           ref: main
           fetch-depth: 0
-      - name: Migrate template to cushioned leather controls
-        run: node scripts/migrate-cushioned-leather-accordions.mjs
-      - name: Make homepage cleaner idempotent
-        run: node scripts/make-home-cleaner-idempotent.mjs
       - name: Consolidate homepage CSS into one template
         run: node scripts/clean-home-template.mjs
       - name: Sync exact homepage header menu CSS and accordions
@@ -36,10 +32,10 @@ jobs:
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add -- scripts/clean-home-template.mjs '*.html' ':(glob)**/*.html'
+          git add -- '*.html' ':(glob)**/*.html'
           if git diff --cached --quiet; then
             echo "No homepage-template sync changes were necessary"
             exit 0
           fi
-          git commit -m "Use cushioned leather accordion buttons"
+          git commit -m "Sync accordion pages to homepage template"
           git push origin main
