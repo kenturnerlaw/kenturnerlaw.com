@@ -30,13 +30,6 @@ function extractAmpCustom(source) {
   return match[1];
 }
 
-function deriveInteriorCss(homeCss) {
-  return homeCss
-    .replace(/body:not\(\.kt-home-rebuild\)/g, 'body')
-    .replace(/\.kt-home-rebuild\{/g, 'body{')
-    .replace(/\.kt-home-rebuild\s+/g, '');
-}
-
 function replaceAmpCustom(source, css) {
   const re = /(<style\s+amp-custom(?:=["'][^"']*["'])?\s*>)[\s\S]*?(<\/style>)/i;
   if (!re.test(source)) throw new Error('Target amp-custom CSS not found');
@@ -65,15 +58,14 @@ function removeSummaryImages(source) {
 
 const home = fs.readFileSync(homePath, 'utf8');
 const homeCss = extractAmpCustom(home);
-const interiorCss = deriveInteriorCss(homeCss);
 const { header, sidebar } = extractHomeMarkup(home);
 
 for (const relative of targets) {
   const file = path.join(root, relative);
   let html = fs.readFileSync(file, 'utf8');
-  html = replaceAmpCustom(html, interiorCss);
+  html = replaceAmpCustom(html, homeCss);
   html = replaceHeaderAndSidebar(html, header, sidebar);
   html = removeSummaryImages(html);
   fs.writeFileSync(file, html);
-  console.log(`Synced complete homepage CSS/header/menu to ${relative}`);
+  console.log(`Synced exact homepage CSS/header/menu to ${relative}`);
 }
