@@ -20,6 +20,8 @@ jobs:
           fetch-depth: 0
       - name: Migrate template to cushioned leather controls
         run: node scripts/migrate-cushioned-leather-accordions.mjs
+      - name: Make homepage cleaner idempotent
+        run: node scripts/make-home-cleaner-idempotent.mjs
       - name: Consolidate homepage CSS into one template
         run: node scripts/clean-home-template.mjs
       - name: Sync exact homepage header menu CSS and accordions
