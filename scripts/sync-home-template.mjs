@@ -4,7 +4,6 @@ import path from 'node:path';
 const root = process.cwd();
 const homePath = path.join(root, 'index.html');
 const targets = [
-  'index.html',
   'arrested/index.html',
   'child-custody/index.html',
   'clients/index.html',
@@ -25,45 +24,23 @@ const targets = [
   'violation-of-probation/index.html',
 ];
 
-const escapeRe = (s) => s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-
-function extractBlock(source, start, end) {
-  const match = source.match(new RegExp(`${escapeRe(start)}[\\s\\S]*?${escapeRe(end)}`));
-  if (!match) throw new Error(`Missing source block ${start}`);
-  return match[0];
+function extractAmpCustom(source) {
+  const match = source.match(/<style\s+amp-custom(?:=["'][^"']*["'])?\s*>([\s\S]*?)<\/style>/i);
+  if (!match) throw new Error('Homepage amp-custom CSS not found');
+  return match[1];
 }
 
-function replaceBlock(source, start, end, replacement) {
-  const re = new RegExp(`${escapeRe(start)}[\\s\\S]*?${escapeRe(end)}`);
-  if (re.test(source)) return source.replace(re, replacement);
-  const style = source.match(/<style\s+amp-custom(?:=["'][^"']*["'])?\s*>/i);
-  if (!style) throw new Error('Missing amp-custom style');
-  const close = source.indexOf('</style>', style.index + style[0].length);
-  if (close < 0) throw new Error('Missing amp-custom closing tag');
-  return source.slice(0, close) + '\n' + replacement + '\n' + source.slice(close);
+function deriveInteriorCss(homeCss) {
+  return homeCss
+    .replace(/body:not\(\.kt-home-rebuild\)/g, 'body')
+    .replace(/\.kt-home-rebuild\{/g, 'body{')
+    .replace(/\.kt-home-rebuild\s+/g, '');
 }
 
-function homepageAccordionChrome(chrome) {
-  return chrome
-    .replace('min-height:92px;margin:0;padding:18px 58px 18px 24px', 'min-height:112px;margin:0;padding:20px 62px 20px 26px')
-    .replace('font-size:clamp(1rem,2vw,1.22rem)', 'font-size:clamp(1rem,2.25vw,1.35rem)')
-    .replace("right:20px;top:50%;transform:translateY(-52%)", "right:22px;top:50%;transform:translateY(-50%)")
-    .replace("transform:translateY(-52%) rotate(90deg)", "transform:translateY(-50%) rotate(90deg)")
-    .replace('min-height:82px;padding:15px 46px 15px 18px;font-size:.98rem', 'min-height:104px;padding:17px 48px 17px 20px;font-size:.98rem')
-    .replace('details.kt-acc>summary:after,details[class*=\'kt-acc\']>summary:after{right:14px}', 'details.kt-acc>summary:after,details[class*=\'kt-acc\']>summary:after{right:15px}');
-}
-
-function stripAccordionOverridesFromAlignment(source) {
-  const start = '/* KT-HOMEPAGE-LEGACY-ALIGNMENT-START */';
-  const end = '/* KT-HOMEPAGE-LEGACY-ALIGNMENT-END */';
-  const re = new RegExp(`${escapeRe(start)}([\\s\\S]*?)${escapeRe(end)}`);
-  const match = source.match(re);
-  if (!match) return source;
-  const cleaned = match[1]
-    .split('\n')
-    .filter((line) => !line.includes('details.kt-acc') && !line.includes('.kt-acc-hint'))
-    .join('\n');
-  return source.replace(re, `${start}${cleaned}${end}`);
+function replaceAmpCustom(source, css) {
+  const re = /(<style\s+amp-custom(?:=["'][^"']*["'])?\s*>)[\s\S]*?(<\/style>)/i;
+  if (!re.test(source)) throw new Error('Target amp-custom CSS not found');
+  return source.replace(re, `$1\n${css}\n$2`);
 }
 
 function extractHomeMarkup(home) {
@@ -77,8 +54,7 @@ function replaceHeaderAndSidebar(source, header, sidebar) {
   source = source.replace(/<amp-sidebar\b[^>]*id="header-sidebar"[^>]*>[\s\S]*?<\/amp-sidebar>/i, '');
   const currentHeader = /<header\b[^>]*class="[^"]*ampstart-headerbar[^"]*"[^>]*>[\s\S]*?<\/header>/i;
   if (!currentHeader.test(source)) throw new Error('Expected site header not found');
-  source = source.replace(currentHeader, `${header}\n${sidebar}`);
-  return source;
+  return source.replace(currentHeader, `${header}\n${sidebar}`);
 }
 
 function removeSummaryImages(source) {
@@ -87,24 +63,17 @@ function removeSummaryImages(source) {
     .replace(/>\s*(?:&nbsp;\s*)+/i, '>'));
 }
 
-let home = fs.readFileSync(homePath, 'utf8');
-home = stripAccordionOverridesFromAlignment(home);
+const home = fs.readFileSync(homePath, 'utf8');
+const homeCss = extractAmpCustom(home);
+const interiorCss = deriveInteriorCss(homeCss);
 const { header, sidebar } = extractHomeMarkup(home);
-const themeStart = '/* KT-LEATHER-STAMPED-THEME-V2-START */';
-const themeEnd = '/* KT-LEATHER-STAMPED-THEME-V2-END */';
-const chromeStart = '/* KT-CANONICAL-SITE-CHROME-START */';
-const chromeEnd = '/* KT-CANONICAL-SITE-CHROME-END */';
-const theme = extractBlock(home, themeStart, themeEnd);
-const chrome = homepageAccordionChrome(extractBlock(home, chromeStart, chromeEnd));
 
 for (const relative of targets) {
   const file = path.join(root, relative);
   let html = fs.readFileSync(file, 'utf8');
-  html = stripAccordionOverridesFromAlignment(html);
-  html = replaceBlock(html, themeStart, themeEnd, theme);
-  html = replaceBlock(html, chromeStart, chromeEnd, chrome);
+  html = replaceAmpCustom(html, interiorCss);
   html = replaceHeaderAndSidebar(html, header, sidebar);
   html = removeSummaryImages(html);
   fs.writeFileSync(file, html);
-  console.log(`Synced homepage template to ${relative}`);
+  console.log(`Synced complete homepage CSS/header/menu to ${relative}`);
 }
