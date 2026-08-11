@@ -18,7 +18,9 @@ jobs:
         with:
           ref: main
           fetch-depth: 0
-      - name: Sync homepage header menu theme and accordions
+      - name: Consolidate homepage CSS into one template
+        run: node scripts/clean-home-template.mjs
+      - name: Sync exact homepage header menu CSS and accordions
         run: node scripts/sync-home-template.mjs
       - name: Install AMP validator
         run: npm ci --ignore-scripts --no-audit --no-fund
@@ -35,5 +37,5 @@ jobs:
             echo "No homepage-template sync changes were necessary"
             exit 0
           fi
-          git commit -m "Sync accordion pages to homepage template"
+          git commit -m "Consolidate homepage template and sync accordion pages"
           git push origin main
