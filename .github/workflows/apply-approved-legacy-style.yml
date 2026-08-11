@@ -18,13 +18,15 @@ jobs:
         with:
           ref: main
           fetch-depth: 0
-      - name: Apply styling only to public AMP pages
+      - name: Apply canonical site header menu and accordion styling
         run: python3 .github/scripts/apply_approved_legacy_style.py
       - name: Install AMP validator
         run: npm ci --ignore-scripts --no-audit --no-fund
+      - name: Normalize AMP boilerplate and markup
+        run: npm run repair:amp
       - name: Validate AMP integrity
         run: npm run validate:amp -- --amp-only
-      - name: Commit visual-skin changes only
+      - name: Commit validated sitewide changes
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
@@ -33,5 +35,5 @@ jobs:
             echo "No public AMP styling changes were necessary"
             exit 0
           fi
-          git commit -m "Apply sitewide black leather and metallic gold visual skin"
+          git commit -m "Unify sitewide header menu and accordions"
           git push origin main
