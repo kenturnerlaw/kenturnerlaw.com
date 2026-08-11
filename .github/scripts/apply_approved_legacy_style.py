@@ -5,45 +5,50 @@ ROOT = Path(__file__).resolve().parents[2]
 EXCLUDED_PREFIXES = ("publish/", "test/", "handbook/")
 EXCLUDED_FILES = {"test.html", "coms.html"}
 
-STYLE_OVERRIDE = '''
-/* KT-SITEWIDE-METALLIC-LEATHER-START */
-:root{--kt-black:#050505;--kt-gold:#d7b85a;--kt-gold-light:#f5e4a1;--kt-gold-dark:#8f6b1f;--kt-cream:#f4efe2;--kt-leather:url('/img/leather-macro-shot.svg')}
-html{background:#000}
-body{font-family:'Playfair Display SC',Georgia,serif;line-height:1.6;color:#f7f3e8;-webkit-font-smoothing:antialiased;background-color:#050505;background-image:linear-gradient(115deg,rgba(255,255,255,.025),transparent 34%),linear-gradient(rgba(0,0,0,.12),rgba(0,0,0,.22)),var(--kt-leather);background-size:auto,auto,420px auto;background-repeat:repeat;background-attachment:fixed}
-p,li,div{color:#f7f3e8}a{color:#e7ca71}a:hover,a:focus{color:#fff1b8}h1,h2,h3,h4,h5,h6{font-family:'Playfair Display SC',Georgia,serif}h2,h3{color:#d7b85a;line-height:1.25;text-shadow:0 1px 0 #000,0 0 12px rgba(215,184,90,.12)}
-.ampstart-headerbar{min-height:58px;background-color:#050505;background-image:linear-gradient(rgba(0,0,0,.16),rgba(0,0,0,.25)),var(--kt-leather);background-size:auto,420px auto;color:#fff;border-bottom:1px solid #8f6b1f;box-shadow:0 3px 12px rgba(0,0,0,.78),inset 0 1px 0 rgba(255,255,255,.05)}
-.ampstart-navbar-trigger{color:#d7b85a;text-shadow:0 1px 0 #000,0 0 7px rgba(215,184,90,.15)}
-.kt-upper-brand{color:#e4c36a;font-family:'Playfair Display SC',Georgia,serif;font-weight:400;text-transform:uppercase;letter-spacing:.18em;text-decoration:none;font-size:.92rem;background:linear-gradient(180deg,#fff4bd 0%,#e4c36a 32%,#9a6f19 60%,#f2dc8a 82%,#b98725 100%);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;text-shadow:0 1px 0 rgba(255,255,255,.16),0 2px 4px rgba(0,0,0,.5)}
-.ampstart-headerbar-home-link{color:#e3c665;background:none;-webkit-text-fill-color:currentColor;border:1px solid #9a6f19;padding:.48rem .65rem;box-shadow:inset 0 1px 0 rgba(255,244,188,.15),inset 0 -1px 0 rgba(62,38,4,.85),0 3px 8px rgba(0,0,0,.45);text-shadow:0 1px 0 #000;font-size:.78rem}
-.ampstart-sidebar{background-color:#050505;background-image:linear-gradient(rgba(4,4,4,.68),rgba(4,4,4,.76)),var(--kt-leather);background-size:auto,420px auto;color:#fff;border-right:1px solid #8f6b1f;box-shadow:10px 0 30px rgba(0,0,0,.65)}
-.kt-sidebar-parent{color:#e6c869;text-shadow:0 1px 0 #000}.kt-sidebar-sub{border-left-color:rgba(215,184,90,.35)}.kt-sidebar-sub a{color:#f2eee4}.kt-sidebar-sub a:hover,.kt-sidebar-sub a:focus,.kt-sidebar-parent:hover,.kt-sidebar-parent:focus{color:#fff1b8}
-body.kt-home .ampstart-image-fullpage-hero{min-height:0;margin:58px 0 1.4rem;background:none;overflow:visible}body.kt-home .ampstart-image-fullpage-hero>amp-img{display:none}body.kt-home .ampstart-image-fullpage-hero>figcaption.absolute{position:relative;top:auto;right:auto;bottom:auto;left:auto}body.kt-home .ampstart-image-fullpage-hero>figcaption>header{padding:2.5rem 1rem 2.65rem;text-align:center;border-bottom:1px solid #9a6f19;background-color:#050505;background-image:linear-gradient(115deg,rgba(255,255,255,.025),transparent 34%),linear-gradient(rgba(0,0,0,.12),rgba(0,0,0,.22)),var(--kt-leather);background-size:auto,auto,420px auto;box-shadow:0 8px 22px rgba(0,0,0,.48)}
-body.kt-home .ampstart-fullpage-hero-heading{margin:0 auto;max-width:760px}body.kt-home .ampstart-fullpage-hero-heading>amp-img{display:none}body.kt-home .ampstart-fullpage-hero-heading>span.h1{display:block;color:#e4c36a;font-size:clamp(2.35rem,8vw,4.6rem);font-weight:400;line-height:1.06;margin:.35rem 0 1rem;text-transform:uppercase;letter-spacing:.12em;background:linear-gradient(180deg,#fff4bd 0%,#e4c36a 32%,#9a6f19 60%,#f2dc8a 82%,#b98725 100%);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;text-shadow:0 1px 0 rgba(255,255,255,.22),0 2px 5px rgba(0,0,0,.55)}
-.kt-crisis-copy{display:block;color:#f4efe2;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;font-size:1rem;letter-spacing:.02em;margin:0 auto 1.35rem;text-transform:none}.kt-crisis-call,.ampstart-fullpage-hero-cta{display:block;max-width:430px;margin:.85rem auto;padding:.95rem 1rem;text-decoration:none;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;font-weight:800;letter-spacing:.06em}.kt-crisis-call{color:#090703;border:1px solid #68440f;background:linear-gradient(180deg,#fff0a3 0%,#e6c45e 15%,#b98525 47%,#e4c15d 66%,#8b5f18 100%);box-shadow:0 7px 15px rgba(0,0,0,.65),inset 0 1px 0 rgba(255,255,221,.78),inset 0 -2px 0 rgba(73,44,5,.58)}body.kt-home .ampstart-fullpage-hero-cta{color:#e4c36a;border:1px solid #a67824;background-color:#050505;background-image:linear-gradient(180deg,rgba(255,231,142,.035),rgba(0,0,0,.15)),var(--kt-leather);background-size:auto,420px auto;box-shadow:0 7px 15px rgba(0,0,0,.58),inset 0 0 0 1px rgba(255,224,125,.16),inset 0 1px 0 rgba(255,245,196,.13)}
-details.kt-acc,details[class*='acc']{margin:0 0 .9rem;background:#060606;border:1px solid #8e651e;box-shadow:0 5px 13px rgba(0,0,0,.58),inset 0 0 0 1px rgba(255,222,118,.08)}details.kt-acc>summary,details[class*='acc']>summary{position:relative;display:flex;align-items:center;min-height:58px;padding:1rem 1.05rem;color:#e4c36a;font-family:'Playfair Display SC',Georgia,serif;font-size:1.08rem;line-height:1.35;letter-spacing:.075em;background-color:#050505;background-image:linear-gradient(rgba(0,0,0,.14),rgba(0,0,0,.24)),var(--kt-leather);background-size:auto,420px auto;border:0;text-shadow:0 1px 0 #000,0 0 5px rgba(232,198,99,.15);list-style:none}details.kt-acc>summary::-webkit-details-marker,details[class*='acc']>summary::-webkit-details-marker{display:none}details.kt-acc>summary::marker,details[class*='acc']>summary::marker{content:''}details.kt-acc>summary:after,details[class*='acc']>summary:after{content:'';position:absolute;right:1rem;top:50%;width:0;height:0;transform:translateY(-50%);border-top:6px solid transparent;border-bottom:6px solid transparent;border-left:9px solid #d7b85a;filter:drop-shadow(0 1px 0 #000)}details.kt-acc[open]>summary:after,details[class*='acc'][open]>summary:after{transform:translateY(-50%) rotate(90deg)}details.kt-acc>summary amp-img,details[class*='acc']>summary amp-img{display:none}details.kt-acc>article,details[class*='acc']>article{padding:1.2rem 1.35rem;color:#f4efe2;border-top:1px solid rgba(142,101,30,.72);background-color:#050505;background-image:linear-gradient(rgba(0,0,0,.12),rgba(0,0,0,.20)),var(--kt-leather);background-size:auto,420px auto}.kt-acc-hint{color:#d7b85a;text-align:center;margin:.6rem 0 1rem;font-size:.95rem}
-button,.button,.btn,[class*='button'],input[type='submit']{border-color:#a8822e;box-shadow:inset 0 1px 0 rgba(255,245,190,.14),0 2px 7px rgba(0,0,0,.35)}main p,main li,main dd,main blockquote{color:#f4efe2}main h2,main h3,main h4,main dt,main li>strong:first-child{color:#d7b85a}fieldset{border-color:rgba(167,130,46,.55);background:rgba(5,5,5,.72)}hr{border-color:rgba(215,184,90,.3)}blockquote{border-left-color:#a8822e}
-@media(max-width:520px){.ampstart-headerbar{padding-left:.65rem;padding-right:.65rem}.kt-upper-brand{font-size:.78rem;letter-spacing:.12em}.ampstart-headerbar-home-link{font-size:.68rem;padding:.42rem .45rem}body.kt-home .ampstart-image-fullpage-hero>figcaption>header{padding:2rem .85rem 2.25rem}body.kt-home .ampstart-fullpage-hero-heading>span.h1{letter-spacing:.075em}}
-/* KT-SITEWIDE-METALLIC-LEATHER-END */
+START = '/* KT-CANONICAL-SITE-CHROME-START */'
+END = '/* KT-CANONICAL-SITE-CHROME-END */'
+
+STYLE_OVERRIDE = r'''
+/* KT-CANONICAL-SITE-CHROME-START */
+:root{--kt-v2-leather:url('/img/dark-pebbled-leather-v2.webp');--kt-v2-gold:#c99537;--kt-v2-gold-light:#f7dea0;--kt-v2-gold-edge:#65400e;--kt-v2-shadow:#2a1603}
+.fixed{position:fixed}.left-0{left:0}.right-0{right:0}.top-0{top:0}.flex{display:flex}.items-center{align-items:center}.justify-start{justify-content:flex-start}.items-start{align-items:flex-start}.px3{padding-left:1.5rem;padding-right:1.5rem}.m0{margin:0}.p0{padding:0}.list-reset{list-style:none}
+
+/* One canonical top banner on every public AMP page. */
+.ampstart-headerbar.kt-home-header{height:4.25rem;min-height:4.25rem;padding:0 .8rem;display:grid;grid-template-columns:3rem 1fr auto;gap:.5rem;align-items:center;z-index:999;background-color:#020202;background-image:linear-gradient(rgba(0,0,0,.44),rgba(0,0,0,.58)),var(--kt-v2-leather);background-size:auto,cover;background-repeat:no-repeat;background-position:center;border-bottom:1px solid rgba(255,255,255,.08);box-shadow:0 3px 12px rgba(0,0,0,.72)}
+.ampstart-headerbar.kt-home-header .ampstart-navbar-trigger{cursor:pointer;font-size:1.75rem;line-height:1;padding:.65rem .4rem;text-align:center;color:#d8dade;-webkit-text-fill-color:#d8dade;text-shadow:0 -1px 0 rgba(0,0,0,.82),0 1px 0 rgba(255,255,255,.30)}
+.kt-home-brand{min-width:0;text-align:center;text-decoration:none;line-height:1.05;letter-spacing:.1em;text-transform:uppercase}
+.kt-home-brand strong{display:block;font-family:Georgia,'Times New Roman',serif;font-size:1rem;font-weight:700;color:#d7d9dc;background:linear-gradient(180deg,#f4f5f6 0%,#d9dbde 28%,#a9adb2 52%,#eceeef 72%,#b7bbc0 100%);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;-webkit-text-stroke:.2px rgba(76,80,86,.72);filter:none;text-shadow:0 -1px 0 rgba(0,0,0,.58),0 1px 0 rgba(255,255,255,.20)}
+.kt-home-brand small{display:block;margin-top:.22rem;color:#f4efe2;-webkit-text-fill-color:#f4efe2;font-family:Arial,sans-serif;font-size:.56rem;font-weight:400;letter-spacing:.16em;text-shadow:none}
+.kt-header-call{padding:.65rem .85rem;border:1px solid rgba(255,255,255,.24);border-radius:999px;color:#fff;-webkit-text-fill-color:#fff;font-family:Arial,sans-serif;font-size:.72rem;font-weight:700;line-height:1;text-decoration:none;white-space:nowrap;background-color:#080808;background-image:linear-gradient(180deg,rgba(255,255,255,.16),rgba(255,255,255,.04) 28%,rgba(0,0,0,.30)),var(--kt-v2-leather);background-size:auto,cover;background-position:center;text-shadow:none;box-shadow:inset 0 1px 0 rgba(255,255,255,.24),inset 0 -2px 4px rgba(0,0,0,.28),0 4px 10px rgba(0,0,0,.40)}
+.ampstart-headerbar.kt-home-header+amp-sidebar+*,.ampstart-headerbar.kt-home-header+:not(amp-sidebar){margin-top:4.25rem}
+
+/* One canonical menu on every public AMP page. */
+.ampstart-sidebar{background-color:#020202;background-image:linear-gradient(rgba(0,0,0,.46),rgba(0,0,0,.58)),var(--kt-v2-leather);background-size:auto,440px 440px;color:#fff;min-width:300px;width:300px;border-right:1px solid #8f6b1f;box-shadow:10px 0 30px rgba(0,0,0,.72)}
+.ampstart-sidebar-header{line-height:3.5rem;min-height:3.5rem}.kt-sidebar-menu{padding-bottom:1rem}.ampstart-sidebar .kt-sidebar-section{margin:0 0 1.15rem}
+.kt-sidebar-parent{display:block;color:#c99537;-webkit-text-fill-color:#c99537;text-decoration:none;font-weight:700;letter-spacing:.01em;text-shadow:0 -1px 0 #2a1603,0 1px 0 #f7dea0,1px 2px 0 #65400e,0 4px 4px #000}
+.kt-sidebar-sub{list-style:none;margin:.5rem 0 0 .65rem;padding:0 0 0 .75rem;border-left:1px solid rgba(201,149,55,.48)}.kt-sidebar-sub li{margin:0 0 .45rem;padding:0}.kt-sidebar-sub a{color:#f2eee4;-webkit-text-fill-color:#f2eee4;text-decoration:none;font-size:.88rem;line-height:1.3;text-shadow:none}.kt-sidebar-action{margin-top:1.45rem}
+
+/* One canonical accordion system everywhere. */
+.kt-acc-hint{color:#e8cd78;-webkit-text-fill-color:#e8cd78;text-align:center;font-family:Arial,Helvetica,sans-serif;font-size:.92rem;font-weight:700;letter-spacing:.04em;margin:.55rem 0 1rem;text-shadow:none}
+details.kt-acc,details[class*='kt-acc'],amp-accordion>section{margin:0 0 15px;border:1px solid #987126;background-color:#030303;background-image:linear-gradient(rgba(0,0,0,.36),rgba(0,0,0,.46)),var(--kt-v2-leather);background-size:auto,460px 460px;box-shadow:0 8px 22px rgba(0,0,0,.58),inset 0 0 0 1px rgba(255,222,118,.06);overflow:hidden}
+details.kt-acc>summary,details[class*='kt-acc']>summary,amp-accordion>section>header,amp-accordion>section>h2{list-style:none;cursor:pointer;position:relative;display:flex;align-items:center;min-height:92px;margin:0;padding:18px 58px 18px 24px;color:var(--kt-v2-gold);-webkit-text-fill-color:var(--kt-v2-gold);font-family:'Playfair Display SC',Georgia,serif;font-size:clamp(1rem,2vw,1.22rem);font-weight:700;line-height:1.3;letter-spacing:.065em;text-align:left;background-color:#030303;background-image:linear-gradient(90deg,rgba(0,0,0,.32),rgba(0,0,0,.55)),var(--kt-v2-leather);background-repeat:no-repeat,repeat;background-position:center;background-size:100% 100%,460px 460px;border:0;text-shadow:0 -1px 0 var(--kt-v2-shadow),0 1px 0 rgba(247,222,160,.72),1px 2px 0 rgba(101,64,14,.78),0 3px 4px #000}
+details.kt-acc>summary::-webkit-details-marker,details[class*='kt-acc']>summary::-webkit-details-marker{display:none}details.kt-acc>summary::marker,details[class*='kt-acc']>summary::marker{content:''}
+details.kt-acc>summary:after,details[class*='kt-acc']>summary:after{content:'›';position:absolute;right:20px;top:50%;transform:translateY(-52%);color:#f0d36f;-webkit-text-fill-color:#f0d36f;font-family:Georgia,serif;font-size:2rem;font-weight:700;line-height:1;text-shadow:0 -1px 0 #2a1603,0 1px 0 #f7dea0,1px 2px 0 #65400e,0 4px 4px #000}
+details.kt-acc[open]>summary:after,details[class*='kt-acc'][open]>summary:after{transform:translateY(-52%) rotate(90deg)}
+details.kt-acc>summary amp-img,details[class*='kt-acc']>summary amp-img{display:none}
+details.kt-acc>article,details.kt-acc>div,details[class*='kt-acc']>article,details[class*='kt-acc']>div,amp-accordion>section>article,amp-accordion>section>div{padding:22px 26px;color:#f7f1e4;background-color:#030303;background-image:linear-gradient(rgba(0,0,0,.52),rgba(0,0,0,.60)),var(--kt-v2-leather);background-size:auto,460px 460px;border-top:1px solid rgba(201,149,55,.42)}
+details.kt-acc p,details.kt-acc li,details[class*='kt-acc'] p,details[class*='kt-acc'] li{font-family:Arial,Helvetica,sans-serif;font-size:1rem;line-height:1.7;color:#f7f1e4;-webkit-text-fill-color:#f7f1e4;text-transform:none;letter-spacing:normal;text-shadow:none}
+details.kt-acc h2,details.kt-acc h3,details.kt-acc h4,details[class*='kt-acc'] h2,details[class*='kt-acc'] h3,details[class*='kt-acc'] h4{color:#e4c36a;-webkit-text-fill-color:#e4c36a}
+details.kt-acc a,details[class*='kt-acc'] a{color:#efd078;-webkit-text-fill-color:#efd078;font-weight:700}
+
+@media(min-width:48rem){.ampstart-headerbar.kt-home-header{grid-template-columns:4rem 1fr 9rem;padding:0 1.25rem}.kt-home-brand strong{font-size:1.25rem}.kt-header-call{text-align:center;font-size:.8rem}}
+@media(max-width:600px){details.kt-acc>summary,details[class*='kt-acc']>summary,amp-accordion>section>header,amp-accordion>section>h2{min-height:82px;padding:15px 46px 15px 18px;font-size:.98rem;background-size:100% 100%,420px 420px}details.kt-acc>summary:after,details[class*='kt-acc']>summary:after{right:14px}details.kt-acc>article,details.kt-acc>div,details[class*='kt-acc']>article,details[class*='kt-acc']>div,amp-accordion>section>article,amp-accordion>section>div{padding:18px}}
+/* KT-CANONICAL-SITE-CHROME-END */
 '''
-
-HOME_OLD_HERO = '''<span class="h1 block caps my1">Ken Turner Law</span>
-                <span class="block caps h3">Criminal Defense Attorney</span>
-                <span class="block caps h5">DUI | Drug Charges | Traffic Offenses</span>
-                <span class="block caps h5">Suspended License | Violation of Probation</span>
-                <span class="block caps h6">Misdemeanor Charges | Felony Charges | Risk Protection Orders</span>
-                <span class="block caps h3">Family Law Attorney</span>
-                <span class="block caps h5">Divorce | Child Custody | Domestic Violence</span> 
-                
-              <a class="ampstart-btn inline-block ampstart-fullpage-hero-cta h3 m3 text-decoration-none" href="https://kenturnerlaw.as.me/" target=_blank title="Free Consultation Self Scheduler" rel="noopener">BOOK PHONE APPOINTMENT</a>'''
-
-HOME_NEW_HERO = '''<span class="h1 block caps my1">ARRESTED?</span>
-                <span class="kt-crisis-copy">Call immediately. Criminal defense representation available 24/7.</span>
-                <a class="kt-crisis-call" href="tel:+12394003733">CALL (239)400-FREE</a>
-                <a class="ampstart-btn inline-block ampstart-fullpage-hero-cta h3 m3 text-decoration-none" href="https://kenturnerlaw.as.me/" target=_blank title="Free Consultation Self Scheduler" rel="noopener">BOOK PHONE APPOINTMENT</a>'''
 
 
 def public_amp_pages():
-    candidates = [ROOT / "index.html"] + list(ROOT.glob("**/index.html"))
+    candidates = [ROOT / 'index.html'] + list(ROOT.glob('**/index.html'))
     seen = set()
     for path in candidates:
         relative = path.relative_to(ROOT).as_posix()
@@ -52,46 +57,79 @@ def public_amp_pages():
         seen.add(relative)
         if any(relative.startswith(prefix) for prefix in EXCLUDED_PREFIXES):
             continue
-        html = path.read_text(encoding="utf-8")
+        html = path.read_text(encoding='utf-8', errors='ignore')
         if re.search(r'<html\b[^>]*\bamp\b', html, flags=re.I) and re.search(r'<style\s+amp-custom', html, flags=re.I):
             yield path, relative, html
 
 
-def apply_style_only(html: str) -> str:
-    pattern = r'/\* KT-SITEWIDE-METALLIC-LEATHER-START \*/.*?/\* KT-SITEWIDE-METALLIC-LEATHER-END \*/'
-    if re.search(pattern, html, flags=re.S):
-        return re.sub(pattern, STYLE_OVERRIDE.strip(), html, count=1, flags=re.S)
+def replace_or_insert_style(html: str) -> str:
+    # Remove this canonical block if already present.
+    html = re.sub(re.escape(START) + r'.*?' + re.escape(END), '', html, flags=re.S)
+    # Also remove the older sitewide override so it cannot fight the canonical rules.
+    html = re.sub(r'/\* KT-SITEWIDE-METALLIC-LEATHER-START \*/.*?/\* KT-SITEWIDE-METALLIC-LEATHER-END \*/', '', html, flags=re.S)
     match = re.search(r'<style\s+amp-custom(?:=["\'][^"\']*["\'])?\s*>', html, flags=re.I)
     if not match:
         return html
     close = html.find('</style>', match.end())
     if close == -1:
         return html
-    return html[:close] + STYLE_OVERRIDE + html[close:]
+    return html[:close] + '\n' + STYLE_OVERRIDE + '\n' + html[close:]
 
 
-def apply_homepage_only(html: str) -> str:
-    html = re.sub(r'<body(\s*)>', '<body class="kt-home">', html, count=1)
-    trigger = '<div class="ampstart-navbar-trigger pr0" on="tap:header-sidebar.toggle" role="button" tabindex="0">☰</div>'
-    if 'class="kt-upper-brand"' not in html and trigger in html:
-        html = html.replace(trigger, trigger + '\n      <a href="/" class="kt-upper-brand">KEN TURNER LAW</a>', 1)
-    html = html.replace('Call (239) 400-FREE', '(239)400-FREE', 1)
-    html = html.replace('href="tel:239-400-3733"', 'href="tel:+12394003733"', 1)
-    if HOME_OLD_HERO in html:
-        html = html.replace(HOME_OLD_HERO, HOME_NEW_HERO, 1)
+def canonical_sources():
+    home = (ROOT / 'index.html').read_text(encoding='utf-8')
+    header = re.search(r'(<header class="ampstart-headerbar kt-home-header fixed left-0 right-0 top-0">.*?</header>)', home, flags=re.S)
+    sidebar = re.search(r'(<amp-sidebar\b[^>]*id="header-sidebar"[^>]*>.*?</amp-sidebar>)', home, flags=re.S)
+    if not header or not sidebar:
+        raise RuntimeError('Canonical homepage header/sidebar could not be located')
+    menu = sidebar.group(1)
+    menu = menu.replace('<span class="kt-sidebar-parent">Traffic Tickets</span>', '<a href="/traffic-tickets/" class="ampstart-nav-link kt-sidebar-parent">Traffic Tickets</a>')
+    menu = menu.replace('>Phone Appointment</a>', '>Call Scheduling Tool</a>')
+    menu = menu.replace('>Schedule a Call</a>', '>Call Scheduling Tool</a>')
+    return header.group(1), menu
+
+
+def ensure_sidebar_script(html: str) -> str:
+    if 'custom-element="amp-sidebar"' in html:
+        return html
+    amp = re.search(r'<script\s+async\s+src=["\']?https://cdn\.ampproject\.org/v0\.js["\']?\s*></script>', html, flags=re.I)
+    if amp:
+        insert = '\n<script async custom-element="amp-sidebar" src="https://cdn.ampproject.org/v0/amp-sidebar-0.1.js"></script>'
+        return html[:amp.end()] + insert + html[amp.end():]
     return html
 
 
+def standardize_markup(html: str, header: str, sidebar: str) -> str:
+    html = ensure_sidebar_script(html)
+    # Remove any existing sidebar before reinserting it directly after the canonical header.
+    html = re.sub(r'<amp-sidebar\b[^>]*id="header-sidebar"[^>]*>.*?</amp-sidebar>', '', html, count=1, flags=re.S | re.I)
+    # Replace the first site header, whether legacy or current.
+    pattern = r'<header\b[^>]*class="[^"]*ampstart-headerbar[^"]*"[^>]*>.*?</header>'
+    if re.search(pattern, html, flags=re.S | re.I):
+        html = re.sub(pattern, header, html, count=1, flags=re.S | re.I)
+    elif '<body' in html:
+        body_end = html.find('>', html.find('<body'))
+        html = html[:body_end + 1] + '\n' + header + html[body_end + 1:]
+    html = html.replace(header, header + '\n' + sidebar, 1)
+    return html
+
+
+canonical_header, canonical_sidebar = canonical_sources()
 changed = []
 for path, relative, original in public_amp_pages():
-    html = apply_style_only(original)
-    if relative == 'index.html':
-        html = apply_homepage_only(html)
+    html = standardize_markup(original, canonical_header, canonical_sidebar)
+    html = replace_or_insert_style(html)
+    # Sitewide scheduler terminology.
+    html = html.replace('>Phone Appointment</a>', '>Call Scheduling Tool</a>')
+    html = html.replace('>Schedule a Call</a>', '>Call Scheduling Tool</a>')
+    # Keep the traffic-ticket page's body call action exactly as approved.
+    if relative == 'traffic-tickets/index.html':
+        html = html.replace('href="tel:+12394003733">Call (239) 400-FREE</a>', 'href="tel:+12397443434">Call Now (239) 744-3434</a>')
+        html = html.replace('href="tel:+12394003733">Call Now (239) 400-FREE</a>', 'href="tel:+12397443434">Call Now (239) 744-3434</a>')
     if html != original:
         path.write_text(html, encoding='utf-8')
         changed.append(relative)
 
-print(f"Updated approved leather/brass design on {len(changed)} public AMP pages")
-print("Preserved page content, navigation, links, metadata, and AMP behavior; homepage hero intentionally restyled in place")
+print(f'Unified canonical header/menu/accordion styling on {len(changed)} public AMP pages')
 for item in changed:
     print(item)
