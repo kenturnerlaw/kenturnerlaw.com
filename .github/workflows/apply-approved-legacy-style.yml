@@ -1,4 +1,4 @@
-name: Sync accordion pages from homepage template
+name: Sync managed site theme from homepage
 
 on:
   push:
@@ -18,24 +18,20 @@ jobs:
         with:
           ref: main
           fetch-depth: 0
-      - name: Consolidate homepage CSS into one template
-        run: node scripts/clean-home-template.mjs
-      - name: Sync exact homepage header menu CSS and accordions
+      - name: Sync managed homepage theme header and menu
         run: node scripts/sync-home-template.mjs
       - name: Install AMP validator
         run: npm ci --ignore-scripts --no-audit --no-fund
-      - name: Normalize AMP boilerplate and markup
-        run: npm run repair:amp
       - name: Validate AMP integrity
         run: npm run validate:amp -- --amp-only
-      - name: Commit validated homepage-template sync
+      - name: Commit validated managed-theme sync
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add -- '*.html' ':(glob)**/*.html'
           if git diff --cached --quiet; then
-            echo "No homepage-template sync changes were necessary"
+            echo "No managed-theme sync changes were necessary"
             exit 0
           fi
-          git commit -m "Sync accordion pages to homepage template"
+          git commit -m "Sync managed site theme from homepage"
           git push origin main
