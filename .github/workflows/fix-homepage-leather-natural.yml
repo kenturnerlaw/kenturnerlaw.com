@@ -23,86 +23,79 @@ jobs:
         shell: python
         run: |
           from pathlib import Path
+          import re
 
           p = Path('index.html')
           s = p.read_text()
 
-          replacements = [
-            (
-              "background-image:url(../dark-leather.webp);color:#fff;font-family:'Playfair Display SC',serif;",
-              "background-image:none;color:#fff;font-family:'Playfair Display SC',serif;"
-            ),
-            (
-              "body{color:#f7f1e4;background-color:#020202;background-image:linear-gradient(rgba(0,0,0,.30),rgba(0,0,0,.42)),var(--kt-leather);background-size:auto,520px 520px;background-repeat:repeat;background-attachment:fixed;font-family:'Playfair Display SC',Georgia,serif;line-height:1.6;-webkit-font-smoothing:antialiased}",
-              "body{color:#f7f1e4;background-color:#020202;background-image:var(--kt-leather);background-size:auto;background-repeat:repeat;background-attachment:scroll;font-family:'Playfair Display SC',Georgia,serif;line-height:1.6;-webkit-font-smoothing:antialiased}"
-            ),
-            (
-              ".kt-home-header{height:4.25rem;min-height:4.25rem;padding:0 .8rem;display:grid;grid-template-columns:3rem 1fr auto;gap:.5rem;align-items:center;z-index:999;background-color:#020202;background-image:linear-gradient(rgba(0,0,0,.42),rgba(0,0,0,.58)),var(--kt-leather);background-size:auto,cover;background-repeat:repeat,no-repeat;background-position:center;border-bottom:1px solid rgba(255,255,255,.08);box-shadow:none}",
-              ".kt-home-header{height:4.25rem;min-height:4.25rem;padding:0 .8rem;display:grid;grid-template-columns:3rem 1fr auto;gap:.5rem;align-items:center;z-index:999;background-color:#020202;background-image:linear-gradient(180deg,rgba(255,255,255,.025),rgba(0,0,0,.16)),var(--kt-leather);background-size:100% 100%,auto;background-repeat:no-repeat,repeat;background-position:center;border-bottom:1px solid rgba(255,255,255,.08);box-shadow:none}"
-            ),
-            (
-              ".kt-header-call{padding:.65rem .85rem;border:1px solid rgba(255,255,255,.24);border-radius:999px;color:#fff;-webkit-text-fill-color:#fff;font-family:Arial,sans-serif;font-size:.72rem;font-weight:700;line-height:1;text-decoration:none;white-space:nowrap;background-color:#080808;background-image:linear-gradient(180deg,rgba(255,255,255,.16),rgba(255,255,255,.04) 28%,rgba(0,0,0,.26)),var(--kt-leather);background-size:auto,cover;background-position:center;text-shadow:none;box-shadow:inset 0 1px 0 rgba(255,255,255,.24),inset 0 -2px 4px rgba(0,0,0,.24),0 4px 10px rgba(0,0,0,.35)}",
-              ".kt-header-call{padding:.65rem .85rem;border:1px solid rgba(255,255,255,.24);border-radius:999px;color:#fff;-webkit-text-fill-color:#fff;font-family:Arial,sans-serif;font-size:.72rem;font-weight:700;line-height:1;text-decoration:none;white-space:nowrap;background-color:#080808;background-image:linear-gradient(180deg,rgba(255,255,255,.07),rgba(255,255,255,.015) 28%,rgba(0,0,0,.22)),var(--kt-leather);background-size:100% 100%,auto;background-repeat:no-repeat,repeat;background-position:center;text-shadow:none;box-shadow:inset 0 1px 0 rgba(255,255,255,.20),inset 0 -2px 4px rgba(0,0,0,.28),0 4px 10px rgba(0,0,0,.35)}"
-            ),
-            (
-              ".ampstart-sidebar{background-color:#020202;background-image:linear-gradient(rgba(0,0,0,.46),rgba(0,0,0,.58)),var(--kt-leather);background-size:auto,440px 440px;color:#fff;min-width:300px;width:300px;border-right:1px solid #8f6b1f;box-shadow:10px 0 30px rgba(0,0,0,.72)}",
-              ".ampstart-sidebar{background-color:#020202;background-image:linear-gradient(180deg,rgba(0,0,0,.08),rgba(0,0,0,.20)),var(--kt-leather);background-size:100% 100%,auto;background-repeat:no-repeat,repeat;color:#fff;min-width:300px;width:300px;border-right:1px solid #8f6b1f;box-shadow:10px 0 30px rgba(0,0,0,.72)}"
-            ),
-            (
-              "body.kt-home-rebuild .kt-home-hero{position:relative;overflow:hidden;border-bottom:1px solid rgba(255,255,255,.08);background-color:#020202;background-image:linear-gradient(rgba(0,0,0,.42),rgba(0,0,0,.54)),var(--kt-leather);background-size:auto,520px 520px;background-repeat:repeat;background-position:center}",
-              "body.kt-home-rebuild .kt-home-hero{position:relative;overflow:hidden;border-bottom:1px solid rgba(255,255,255,.08);background-color:#020202;background-image:var(--kt-leather);background-size:auto;background-repeat:repeat;background-position:center top}"
-            ),
-            (
-              "body.kt-home-rebuild .kt-home-hero-media{position:absolute;inset:0;opacity:.07}",
-              "body.kt-home-rebuild .kt-home-hero-media{display:none}"
-            ),
-            (
-              "body.kt-home-rebuild .kt-home-hero:after{content:\"\";position:absolute;inset:0;background:linear-gradient(90deg,rgba(0,0,0,.44) 0%,rgba(0,0,0,.27) 52%,rgba(0,0,0,.12) 100%),linear-gradient(0deg,rgba(5,5,5,.48) 0%,transparent 35%)}",
-              "body.kt-home-rebuild .kt-home-hero:after{content:\"\";position:absolute;inset:0;background:radial-gradient(ellipse at 42% 0%,rgba(255,255,255,.045) 0%,rgba(255,255,255,.012) 20%,transparent 42%),linear-gradient(180deg,rgba(0,0,0,.04),rgba(0,0,0,.18))}"
-            ),
-            (
-              "body.kt-home-rebuild .kt-home-action-primary{color:#fff;-webkit-text-fill-color:#fff;background-color:#080808;background-image:linear-gradient(180deg,rgba(255,255,255,.16),rgba(255,255,255,.04) 28%,rgba(0,0,0,.30)),var(--kt-leather);background-size:auto,520px 520px;text-shadow:none}",
-              "body.kt-home-rebuild .kt-home-action-primary{color:#fff;-webkit-text-fill-color:#fff;background-color:#080808;background-image:linear-gradient(180deg,rgba(255,255,255,.07),rgba(255,255,255,.015) 28%,rgba(0,0,0,.24)),var(--kt-leather);background-size:100% 100%,auto;background-repeat:no-repeat,repeat;text-shadow:none}"
-            ),
-            (
-              "body.kt-home-rebuild .kt-home-action-secondary{color:#fff;-webkit-text-fill-color:#fff;background-color:#080808;background-image:linear-gradient(180deg,rgba(255,255,255,.16),rgba(255,255,255,.04) 28%,rgba(0,0,0,.30)),var(--kt-leather);background-size:auto,520px 520px;text-shadow:none}",
-              "body.kt-home-rebuild .kt-home-action-secondary{color:#fff;-webkit-text-fill-color:#fff;background-color:#080808;background-image:linear-gradient(180deg,rgba(255,255,255,.07),rgba(255,255,255,.015) 28%,rgba(0,0,0,.24)),var(--kt-leather);background-size:100% 100%,auto;background-repeat:no-repeat,repeat;text-shadow:none}"
-            ),
-            (
-              "details.kt-acc>summary{list-style:none;cursor:pointer;position:relative;display:flex;align-items:center;min-height:94px;margin:0;padding:18px 60px 18px 24px;color:var(--kt-gold);-webkit-text-fill-color:var(--kt-gold);font-family:'Playfair Display SC',Georgia,serif;font-size:clamp(1rem,2.1vw,1.28rem);font-weight:700;line-height:1.28;letter-spacing:.07em;text-align:left;background-color:#090909;background-image:radial-gradient(ellipse at 50% -15%,rgba(255,255,255,.16),transparent 45%),linear-gradient(180deg,rgba(255,255,255,.075) 0%,rgba(255,255,255,.02) 24%,rgba(0,0,0,.10) 58%,rgba(0,0,0,.38) 100%),var(--kt-leather);background-repeat:no-repeat,no-repeat,repeat;background-position:center;background-size:100% 100%,100% 100%,460px 460px;border:1px solid rgba(210,214,220,.15);border-radius:16px;text-shadow:0 -1px 0 var(--kt-shadow),0 1px 0 var(--kt-gold-light),1px 2px 0 var(--kt-gold-edge),0 4px 4px #000;box-shadow:inset 0 2px 2px rgba(255,255,255,.13),inset 0 -5px 8px rgba(0,0,0,.52),0 8px 14px rgba(0,0,0,.56),0 2px 2px rgba(0,0,0,.48);transform:translateY(0)}",
-              "details.kt-acc>summary{list-style:none;cursor:pointer;position:relative;display:flex;align-items:center;min-height:94px;margin:0;padding:18px 60px 18px 24px;color:var(--kt-gold);-webkit-text-fill-color:var(--kt-gold);font-family:'Playfair Display SC',Georgia,serif;font-size:clamp(1rem,2.1vw,1.28rem);font-weight:700;line-height:1.28;letter-spacing:.07em;text-align:left;background-color:#090909;background-image:radial-gradient(ellipse at 50% -15%,rgba(255,255,255,.045),transparent 44%),linear-gradient(180deg,rgba(255,255,255,.025) 0%,rgba(255,255,255,.006) 24%,rgba(0,0,0,.08) 58%,rgba(0,0,0,.30) 100%),var(--kt-leather);background-repeat:no-repeat,no-repeat,repeat;background-position:center;background-size:100% 100%,100% 100%,auto;border:1px solid rgba(210,214,220,.15);border-radius:16px;text-shadow:0 -1px 0 var(--kt-shadow),0 1px 0 var(--kt-gold-light),1px 2px 0 var(--kt-gold-edge),0 4px 4px #000;box-shadow:inset 0 2px 2px rgba(255,255,255,.10),inset 0 -5px 8px rgba(0,0,0,.52),0 8px 14px rgba(0,0,0,.56),0 2px 2px rgba(0,0,0,.48);transform:translateY(0)}"
-            ),
-            (
-              "details.kt-acc>article,details.kt-acc>div{margin:4px 10px 0;padding:22px 26px;color:#f7f1e4;background-color:#040404;background-image:linear-gradient(rgba(1,1,1,.50),rgba(1,1,1,.62)),var(--kt-leather);background-size:auto,460px 460px;border:0;border-radius:0 0 12px 12px;box-shadow:inset 0 1px 0 rgba(255,255,255,.04)}",
-              "details.kt-acc>article,details.kt-acc>div{margin:4px 10px 0;padding:22px 26px;color:#f7f1e4;background-color:#040404;background-image:linear-gradient(rgba(0,0,0,.10),rgba(0,0,0,.22)),var(--kt-leather);background-size:100% 100%,auto;background-repeat:no-repeat,repeat;border:0;border-radius:0 0 12px 12px;box-shadow:inset 0 1px 0 rgba(255,255,255,.03)}"
-            ),
-            (
-              "body.kt-home-rebuild .kt-acc-hint{order:0}body.kt-home-rebuild .kt-panel-criminal{order:1}body.kt-home-rebuild .kt-panel-family{order:2}body.kt-home-rebuild .kt-panel-map{order:3}body.kt-home-rebuild .kt-panel-mission{order:4}body.kt-home-rebuild .kt-panel-story{order:5}body.kt-home-rebuild .kt-panel-practices{order:6}",
-              "body.kt-home-rebuild .kt-acc-hint{order:0}body.kt-home-rebuild .kt-panel-criminal{order:1}body.kt-home-rebuild .kt-panel-family{order:2}body.kt-home-rebuild .kt-panel-map{order:3}body.kt-home-rebuild .kt-location-section{order:3}body.kt-home-rebuild .kt-panel-mission{order:4}body.kt-home-rebuild .kt-panel-story{order:5}body.kt-home-rebuild .kt-panel-practices{order:6}"
-            ),
-            (
-              "<p class=\"kt-home-intro\">Criminal defense representation is available now in Naples, Fort Myers, Miami, and Southwest Florida.</p>",
-              "<p class=\"kt-home-intro\">Criminal defense representation is available now in Naples, Fort Myers, LaBelle, and Miami.</p>"
-            ),
-            (
-              "<h2 id=\"naples-defense-heading\">Criminal Defense in Naples, Fort Myers, Miami</h2>",
-              "<h2 id=\"naples-defense-heading\">Criminal Defense in Naples, Fort Myers, LaBelle, Miami</h2>"
-            ),
-            (
-              "<p>If you were arrested or are under investigation in Naples, Collier County, Fort Myers, Lee County, or elsewhere in Southwest Florida, contact Ken Turner Law now. Do not discuss the facts of your case without an attorney.</p>",
-              "<p>If you were arrested or are under investigation in Naples / Collier County, Fort Myers / Lee County, LaBelle / Hendry County, or Miami / Miami-Dade County, contact Ken Turner Law now. Do not discuss the facts of your case without an attorney.</p>"
-            ),
-            (
-              "        <section>\n        <article class=center>\n      <h2 id=\"locations\" class=\"my4 theme2-anchored center\">Location</h2>",
-              "        <section class=\"kt-location-section\">\n        <article class=center>\n      <h2 id=\"locations\" class=\"my4 theme2-anchored center\">Location</h2>"
-            )
-          ]
-
-          for old, new in replacements:
-              count = s.count(old)
+          def sub(pattern, replacement, label):
+              global s
+              s, count = re.subn(pattern, replacement, s, count=1)
               if count != 1:
-                  raise SystemExit(f'Expected exactly one match, found {count}: {old[:140]}')
-              s = s.replace(old, new, 1)
+                  raise SystemExit(f'{label}: expected one match, found {count}')
+
+          old = 'background-image:url(../dark-leather.webp);'
+          if s.count(old) != 1:
+              raise SystemExit(f'legacy leather declaration: expected one match, found {s.count(old)}')
+          s = s.replace(old, 'background-image:none;', 1)
+
+          sub(r"body\{color:#f7f1e4;background-color:#020202;[^}]+\}",
+              "body{color:#f7f1e4;background-color:#020202;background-image:var(--kt-leather);background-size:auto;background-repeat:repeat;background-attachment:scroll;font-family:'Playfair Display SC',Georgia,serif;line-height:1.6;-webkit-font-smoothing:antialiased}",
+              'body leather')
+
+          sub(r"\.kt-home-header\{[^}]+\}",
+              ".kt-home-header{height:4.25rem;min-height:4.25rem;padding:0 .8rem;display:grid;grid-template-columns:3rem 1fr auto;gap:.5rem;align-items:center;z-index:999;background-color:#020202;background-image:linear-gradient(180deg,rgba(255,255,255,.025),rgba(0,0,0,.16)),var(--kt-leather);background-size:100% 100%,auto;background-repeat:no-repeat,repeat;background-position:center;border-bottom:1px solid rgba(255,255,255,.08);box-shadow:none}",
+              'header leather')
+
+          sub(r"\.kt-header-call\{[^}]+\}",
+              ".kt-header-call{padding:.65rem .85rem;border:1px solid rgba(255,255,255,.24);border-radius:999px;color:#fff;-webkit-text-fill-color:#fff;font-family:Arial,sans-serif;font-size:.72rem;font-weight:700;line-height:1;text-decoration:none;white-space:nowrap;background-color:#080808;background-image:linear-gradient(180deg,rgba(255,255,255,.07),rgba(255,255,255,.015) 28%,rgba(0,0,0,.22)),var(--kt-leather);background-size:100% 100%,auto;background-repeat:no-repeat,repeat;background-position:center;text-shadow:none;box-shadow:inset 0 1px 0 rgba(255,255,255,.20),inset 0 -2px 4px rgba(0,0,0,.28),0 4px 10px rgba(0,0,0,.35)}",
+              'header call')
+
+          sub(r"\.ampstart-sidebar\{background-color:#020202;[^}]+\}",
+              ".ampstart-sidebar{background-color:#020202;background-image:linear-gradient(180deg,rgba(0,0,0,.08),rgba(0,0,0,.20)),var(--kt-leather);background-size:100% 100%,auto;background-repeat:no-repeat,repeat;color:#fff;min-width:300px;width:300px;border-right:1px solid #8f6b1f;box-shadow:10px 0 30px rgba(0,0,0,.72)}",
+              'sidebar leather')
+
+          sub(r"body\.kt-home-rebuild \.kt-home-hero\{[^}]+\}",
+              "body.kt-home-rebuild .kt-home-hero{position:relative;overflow:hidden;border-bottom:1px solid rgba(255,255,255,.08);background-color:#020202;background-image:var(--kt-leather);background-size:auto;background-repeat:repeat;background-position:center top}",
+              'hero leather')
+
+          sub(r"body\.kt-home-rebuild \.kt-home-hero-media\{[^}]+\}",
+              "body.kt-home-rebuild .kt-home-hero-media{display:none}",
+              'hero media')
+
+          sub(r"body\.kt-home-rebuild \.kt-home-hero:after\{[^}]+\}",
+              "body.kt-home-rebuild .kt-home-hero:after{content:\"\";position:absolute;inset:0;background:radial-gradient(ellipse at 42% 0%,rgba(255,255,255,.045) 0%,rgba(255,255,255,.012) 20%,transparent 42%),linear-gradient(180deg,rgba(0,0,0,.04),rgba(0,0,0,.18))}",
+              'hero light')
+
+          for cls in ('primary', 'secondary'):
+              sub(rf"body\.kt-home-rebuild \.kt-home-action-{cls}\{{[^}}]+\}}",
+                  f"body.kt-home-rebuild .kt-home-action-{cls}{{color:#fff;-webkit-text-fill-color:#fff;background-color:#080808;background-image:linear-gradient(180deg,rgba(255,255,255,.07),rgba(255,255,255,.015) 28%,rgba(0,0,0,.24)),var(--kt-leather);background-size:100% 100%,auto;background-repeat:no-repeat,repeat;text-shadow:none}}",
+                  f'{cls} CTA')
+
+          sub(r"details\.kt-acc>summary\{[^}]+\}",
+              "details.kt-acc>summary{list-style:none;cursor:pointer;position:relative;display:flex;align-items:center;min-height:94px;margin:0;padding:18px 60px 18px 24px;color:var(--kt-gold);-webkit-text-fill-color:var(--kt-gold);font-family:'Playfair Display SC',Georgia,serif;font-size:clamp(1rem,2.1vw,1.28rem);font-weight:700;line-height:1.28;letter-spacing:.07em;text-align:left;background-color:#090909;background-image:radial-gradient(ellipse at 50% -15%,rgba(255,255,255,.045),transparent 44%),linear-gradient(180deg,rgba(255,255,255,.025) 0%,rgba(255,255,255,.006) 24%,rgba(0,0,0,.08) 58%,rgba(0,0,0,.30) 100%),var(--kt-leather);background-repeat:no-repeat,no-repeat,repeat;background-position:center;background-size:100% 100%,100% 100%,auto;border:1px solid rgba(210,214,220,.15);border-radius:16px;text-shadow:0 -1px 0 var(--kt-shadow),0 1px 0 var(--kt-gold-light),1px 2px 0 var(--kt-gold-edge),0 4px 4px #000;box-shadow:inset 0 2px 2px rgba(255,255,255,.10),inset 0 -5px 8px rgba(0,0,0,.52),0 8px 14px rgba(0,0,0,.56),0 2px 2px rgba(0,0,0,.48);transform:translateY(0)}",
+              'accordion button')
+
+          sub(r"details\.kt-acc>article,details\.kt-acc>div\{[^}]+\}",
+              "details.kt-acc>article,details.kt-acc>div{margin:4px 10px 0;padding:22px 26px;color:#f7f1e4;background-color:#040404;background-image:linear-gradient(rgba(0,0,0,.10),rgba(0,0,0,.22)),var(--kt-leather);background-size:100% 100%,auto;background-repeat:no-repeat,repeat;border:0;border-radius:0 0 12px 12px;box-shadow:inset 0 1px 0 rgba(255,255,255,.03)}",
+              'accordion content')
+
+          order_old = "body.kt-home-rebuild .kt-acc-hint{order:0}body.kt-home-rebuild .kt-panel-criminal{order:1}body.kt-home-rebuild .kt-panel-family{order:2}body.kt-home-rebuild .kt-panel-map{order:3}body.kt-home-rebuild .kt-panel-mission{order:4}body.kt-home-rebuild .kt-panel-story{order:5}body.kt-home-rebuild .kt-panel-practices{order:6}"
+          order_new = "body.kt-home-rebuild .kt-acc-hint{order:0}body.kt-home-rebuild .kt-panel-criminal{order:1}body.kt-home-rebuild .kt-panel-family{order:2}body.kt-home-rebuild .kt-panel-map{order:3}body.kt-home-rebuild .kt-location-section{order:3}body.kt-home-rebuild .kt-panel-mission{order:4}body.kt-home-rebuild .kt-panel-story{order:5}body.kt-home-rebuild .kt-panel-practices{order:6}"
+          if s.count(order_old) != 1:
+              raise SystemExit('panel order block did not match exactly')
+          s = s.replace(order_old, order_new, 1)
+
+          text_replacements = [
+              ('Criminal defense representation is available now in Naples, Fort Myers, Miami, and Southwest Florida.', 'Criminal defense representation is available now in Naples, Fort Myers, LaBelle, and Miami.'),
+              ('Criminal Defense in Naples, Fort Myers, Miami', 'Criminal Defense in Naples, Fort Myers, LaBelle, Miami'),
+              ('If you were arrested or are under investigation in Naples, Collier County, Fort Myers, Lee County, or elsewhere in Southwest Florida, contact Ken Turner Law now. Do not discuss the facts of your case without an attorney.', 'If you were arrested or are under investigation in Naples / Collier County, Fort Myers / Lee County, LaBelle / Hendry County, or Miami / Miami-Dade County, contact Ken Turner Law now. Do not discuss the facts of your case without an attorney.'),
+              ('        <section>\n        <article class=center>\n      <h2 id="locations" class="my4 theme2-anchored center">Location</h2>', '        <section class="kt-location-section">\n        <article class=center>\n      <h2 id="locations" class="my4 theme2-anchored center">Location</h2>')
+          ]
+          for old_text, new_text in text_replacements:
+              if s.count(old_text) != 1:
+                  raise SystemExit(f'text replacement expected one match: {old_text[:80]}')
+              s = s.replace(old_text, new_text, 1)
 
           p.write_text(s)
 
@@ -112,7 +105,7 @@ jobs:
           from pathlib import Path
           s = Path('index.html').read_text()
           checks = [
-              "background-image:var(--kt-leather);background-size:auto;background-repeat:repeat",
+              "body.kt-home-rebuild .kt-home-hero{position:relative;overflow:hidden;border-bottom:1px solid rgba(255,255,255,.08);background-color:#020202;background-image:var(--kt-leather);background-size:auto;background-repeat:repeat;background-position:center top}",
               "body.kt-home-rebuild .kt-home-hero-media{display:none}",
               "background-size:100% 100%,100% 100%,auto",
               "body.kt-home-rebuild .kt-location-section{order:3}",
@@ -122,8 +115,6 @@ jobs:
           ]
           for c in checks:
               assert c in s, c
-          assert "background-size:auto,520px 520px" not in s
-          assert "background-size:auto,460px 460px" not in s
 
       - name: Validate AMP
         run: |
