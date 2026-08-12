@@ -75,16 +75,19 @@ function ensureAmpSidebarExtension(source) {
 }
 
 function replaceHeaderAndSidebar(source, header, sidebar) {
-  source = source.replace(/<amp-sidebar\b[^>]*id="header-sidebar"[^>]*>[\s\S]*?<\/amp-sidebar>/i, '');
+  const existingSidebar = /<amp-sidebar\b[^>]*id="header-sidebar"[^>]*>[\s\S]*?<\/amp-sidebar>/i;
+  source = source.replace(existingSidebar, '');
 
-  const ampHeader = /<header\b[^>]*class="[^"]*ampstart-headerbar[^"]*"[^>]*>[\s\S]*?<\/header>/i;
+  // Consume all whitespace left around the old chrome and restore exactly one
+  // newline after the canonical header/sidebar. This makes repeated syncs stable.
+  const ampHeader = /<header\b[^>]*class="[^"]*ampstart-headerbar[^"]*"[^>]*>[\s\S]*?<\/header>\s*/i;
   if (ampHeader.test(source)) {
-    return source.replace(ampHeader, `${header}\n${sidebar}`);
+    return source.replace(ampHeader, `${header}\n${sidebar}\n`);
   }
 
-  const simpleTopHeader = /<header\b[^>]*class=["']top["'][^>]*>[\s\S]*?<\/header>/i;
+  const simpleTopHeader = /<header\b[^>]*class=["']top["'][^>]*>[\s\S]*?<\/header>\s*/i;
   if (simpleTopHeader.test(source)) {
-    return source.replace(simpleTopHeader, `${header}\n${sidebar}`);
+    return source.replace(simpleTopHeader, `${header}\n${sidebar}\n`);
   }
 
   throw new Error('Expected public-site header not found');
