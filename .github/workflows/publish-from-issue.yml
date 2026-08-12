@@ -48,6 +48,11 @@ jobs:
       - name: Apply current homepage design to every public AMP page
         run: node scripts/sync-home-template.mjs
 
+      - name: Normalize and audit public-page SEO
+        run: |
+          npm run normalize:seo
+          npm run audit:seo
+
       - name: Validate every AMP page sitewide
         run: npm run validate:amp
 

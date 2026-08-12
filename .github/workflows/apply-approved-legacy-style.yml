@@ -24,6 +24,10 @@ jobs:
           fetch-depth: 0
       - name: Sync current homepage design to every public AMP page in sitemap
         run: node scripts/sync-home-template.mjs
+      - name: Normalize and audit public-page SEO
+        run: |
+          npm run normalize:seo
+          npm run audit:seo
       - name: Install AMP validator
         run: npm ci --ignore-scripts --no-audit --no-fund
       - name: Validate AMP integrity
