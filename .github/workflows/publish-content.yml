@@ -7,7 +7,6 @@ on:
       - '**/*.html'
       - 'content/posts/**'
       - 'tools/publish/**'
-      - 'scripts/sync-home-template.mjs'
       - 'package.json'
       - '.github/workflows/publish-content.yml'
   workflow_dispatch:
