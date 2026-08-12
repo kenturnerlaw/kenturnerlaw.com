@@ -1,8 +1,8 @@
 name: Publish from issue
 
 # /publish opens a GitHub issue with a <!-- ktl-publish --> payload.
-# This workflow writes content/posts/{slug}.json using the Actions token.
-# No personal GitHub token / Cloudflare secret required.
+# This workflow writes content/posts/{slug}.json, builds the public AMP page,
+# applies the current managed homepage theme, validates AMP, and commits it.
 
 on:
   issues:
@@ -19,11 +19,16 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
       - name: Setup Node
         uses: actions/setup-node@v4
         with:
           node-version: '20'
+
+      - name: Install publisher dependencies
+        run: npm ci --no-audit --no-fund
 
       - name: Write post JSON from issue
         env:
@@ -31,12 +36,27 @@ jobs:
           ISSUE_NUMBER: ${{ github.event.issue.number }}
         run: node tools/publish/from-issue.js
 
-      - name: Commit post
+      - name: Build published AMP pages and automatic SEO
+        run: npm run build:content
+
+      - name: Update article hub menus
+        run: node tools/publish/update-answer-menus.js
+
+      - name: Repair AMP markup sitewide
+        run: npm run repair:amp
+
+      - name: Apply current homepage design to every public AMP page
+        run: node scripts/sync-home-template.mjs
+
+      - name: Validate every AMP page sitewide
+        run: npm run validate:amp
+
+      - name: Commit post and generated site
         id: commit
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add content/posts
+          git add -A -- content/posts ':(glob)**/index.html' sitemap.xml sitemap.txt search/published.json package-lock.json || true
           if git diff --cached --quiet; then
             echo "changed=false" >> "$GITHUB_OUTPUT"
             echo "No content changes."
@@ -54,7 +74,7 @@ jobs:
           if [ -f publish-issue-result.json ]; then
             URL=$(node -e "console.log(require('./publish-issue-result.json').url)")
             PATH_URL=$(node -e "console.log(require('./publish-issue-result.json').path)")
-            gh issue close "${{ github.event.issue.number }}" --comment "Published. Page will appear at ${URL} after the content build finishes (usually 1–2 minutes). Path: \`${PATH_URL}\`"
+            gh issue close "${{ github.event.issue.number }}" --comment "Published, themed, and AMP-validated at ${URL}. Path: \`${PATH_URL}\`"
           else
             gh issue close "${{ github.event.issue.number }}" --comment "Publish failed: no result file."
             exit 1
