@@ -7,6 +7,7 @@ on:
       - '**/*.html'
       - 'content/posts/**'
       - 'tools/publish/**'
+      - 'scripts/sync-home-template.mjs'
       - 'package.json'
       - '.github/workflows/publish-content.yml'
   workflow_dispatch:
@@ -43,6 +44,7 @@ jobs:
           node --check tools/publish/update-answer-menus.js
           node --check tools/publish/repair-sitewide-amp.js
           node --check tools/publish/validate-amp.js
+          node --check scripts/sync-home-template.mjs
           node --check functions/api/publish.js
 
       - name: Build published AMP pages and automatic SEO
@@ -54,17 +56,20 @@ jobs:
       - name: Repair AMP markup sitewide
         run: npm run repair:amp
 
+      - name: Apply current homepage design to every public AMP page
+        run: node scripts/sync-home-template.mjs
+
       - name: Validate every AMP page sitewide
         run: npm run validate:amp
 
-      - name: Commit repaired and generated site files
+      - name: Commit generated themed and validated site files
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add -A -- ':(glob)**/index.html' sitemap.xml sitemap.txt search/published.json content/posts package-lock.json || true
           if git diff --cached --quiet; then
-            echo "No generated or repaired changes to commit."
+            echo "No generated, themed, or repaired changes to commit."
           else
-            git commit -m "Repair and validate AMP pages sitewide"
+            git commit -m "Publish content with managed site theme"
             git push
           fi
