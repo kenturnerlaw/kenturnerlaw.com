@@ -97,16 +97,6 @@ home = home.replace('<h1 id="kt-home-title">Arrested?</h1>', '<h1 id="kt-home-ti
 home = home.replace('Call immediately. Criminal defense representation available now.', 'Criminal defense representation is available now in Naples, Fort Myers, Miami, and Southwest Florida.');
 await writeFile("index.html", home);
 
-for (const file of ["florida-criminal-defense-answers/hello/index.html", "florida-criminal-defense-answers/hell/index.html"]) {
-  let html = await readFile(file, "utf8");
-  if (/name=["']robots["']/i.test(html)) {
-    html = html.replace(/<meta\s+name=["']robots["']\s+content=["'][^"']*["']\s*\/?\s*>/i, '<meta name="robots" content="noindex,follow">');
-  } else {
-    html = html.replace(/<head>/i, '<head><meta name="robots" content="noindex,follow">');
-  }
-  await writeFile(file, html);
-}
-
 const schemas = {
   "blog/index.html": { "@context": "https://schema.org", "@type": "CollectionPage", name: "Florida Criminal Defense and Legal Updates", description: pages["blog/index.html"][1], url: "https://www.kenturnerlaw.com/blog/", isPartOf: { "@type": "WebSite", name: "Ken Turner Law", url: "https://www.kenturnerlaw.com/" } },
   "practice-areas/index.html": { "@context": "https://schema.org", "@type": "CollectionPage", name: "Legal Services at Ken Turner Law", description: pages["practice-areas/index.html"][1], url: "https://www.kenturnerlaw.com/practice-areas/", isPartOf: { "@type": "WebSite", name: "Ken Turner Law", url: "https://www.kenturnerlaw.com/" } },
