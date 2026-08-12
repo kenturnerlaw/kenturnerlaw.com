@@ -38,8 +38,10 @@ jobs:
                "body.kt-home-rebuild .kt-home-action-primary{color:#fff;-webkit-text-fill-color:#fff;background-color:#080808;background-image:linear-gradient(180deg,rgba(255,255,255,.16),rgba(255,255,255,.04) 28%,rgba(0,0,0,.30)),var(--kt-leather);background-size:auto,520px 520px;text-shadow:none}"),
               ("body.kt-home-rebuild .kt-home-action-secondary{color:#efd77e;background-color:#040404;background-image:linear-gradient(rgba(0,0,0,.18),rgba(0,0,0,.3)),var(--kt-leather);background-size:auto,360px 360px;box-shadow:inset 0 0 0 1px rgba(255,224,125,.13),0 7px 15px rgba(0,0,0,.58)}",
                "body.kt-home-rebuild .kt-home-action-secondary{color:#fff;-webkit-text-fill-color:#fff;background-color:#080808;background-image:linear-gradient(180deg,rgba(255,255,255,.16),rgba(255,255,255,.04) 28%,rgba(0,0,0,.30)),var(--kt-leather);background-size:auto,520px 520px;text-shadow:none}"),
-              (">Call (239) 400-FREE</a>", ">Call Now (239)400-FREE</a>"),
-              (">Schedule a Call</a>", ">Schedule a Call Here</a>"),
+              ("<a class=\"kt-home-action kt-home-action-primary\" href=\"tel:+12394003733\">Call (239) 400-FREE</a>",
+               "<a class=\"kt-home-action kt-home-action-primary\" href=\"tel:+12394003733\">Call Now (239)400-FREE</a>"),
+              ("<a class=\"kt-home-action kt-home-action-secondary\" href=\"https://kenturnerlaw.as.me/\" target=\"_blank\" rel=\"noopener\">Schedule a Call</a>",
+               "<a class=\"kt-home-action kt-home-action-secondary\" href=\"https://kenturnerlaw.as.me/\" target=\"_blank\" rel=\"noopener\">Schedule a Call Here</a>"),
               ("      <li><a href=\"/criminal-defense-miami/\">Miami / Miami-Dade County</a></li>\n      <li><a href=\"/criminal-defense-naples/\">Naples / Collier County</a></li>\n      <li><a href=\"/criminal-defense-fort-myers/\">Fort Myers / Lee County</a></li>\n      <li><a href=\"/criminal-defense-labelle/\">LaBelle / Hendry County</a></li>",
                "      <li><a href=\"/criminal-defense-naples/\">Naples / Collier County</a></li>\n      <li><a href=\"/criminal-defense-fort-myers/\">Fort Myers / Lee County</a></li>\n      <li><a href=\"/criminal-defense-labelle/\">LaBelle / Hendry County</a></li>\n      <li><a href=\"/criminal-defense-miami/\">Miami / Miami-Dade County</a></li>")
           ]
@@ -47,7 +49,7 @@ jobs:
           for old, new in replacements:
               count = s.count(old)
               if count != 1:
-                  raise SystemExit(f'Expected exactly one match, found {count}: {old[:90]}')
+                  raise SystemExit(f'Expected exactly one match, found {count}: {old[:110]}')
               s = s.replace(old, new, 1)
 
           p.write_text(s)
