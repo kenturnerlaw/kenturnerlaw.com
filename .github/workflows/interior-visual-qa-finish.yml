@@ -19,13 +19,10 @@ jobs:
           ref: main
           fetch-depth: 0
 
-      - name: Apply interior QA source fixes
-        run: python3 .github/scripts/interior_visual_qa.py
+      - name: Remove obsolete public test answers
+        run: rm -rf florida-criminal-defense-answers/hello florida-criminal-defense-answers/hell
 
-      - name: Check publisher syntax
-        run: node --check tools/publish/build-v2.js
-
-      - name: Rebuild Answer Center hubs
+      - name: Rebuild Answer Center hubs and sitemap
         run: node tools/publish/build-v2.js
 
       - name: Update Answer Center navigation
@@ -43,31 +40,23 @@ jobs:
       - name: Validate all AMP pages
         run: npm run validate:amp -- --amp-only
 
-      - name: Verify representative page types
+      - name: Verify test answers are gone
         shell: python
         run: |
           from pathlib import Path
-          home = Path('index.html').read_text()
-          traffic = Path('traffic-tickets/index.html').read_text()
           hub = Path('florida-criminal-defense-answers/index.html').read_text()
-          for f in ['criminal-defense/index.html','child-custody/index.html','criminal-defense-naples/index.html']:
-              x = Path(f).read_text()
-              assert 'body:not(.kt-home-rebuild) .ampstart-image-fullpage-hero>amp-img{display:none}' in x, f
-          assert '<body class="kt-traffic-hub">' in traffic
-          assert 'body.kt-traffic-hub .btn-primary' in traffic
-          assert 'No articles published yet.' not in hub
+          sitemap = Path('sitemap.xml').read_text()
+          assert '/florida-criminal-defense-answers/hello/' not in hub
+          assert '/florida-criminal-defense-answers/hell/' not in hub
+          assert '/florida-criminal-defense-answers/hello/' not in sitemap
+          assert '/florida-criminal-defense-answers/hell/' not in sitemap
           assert '/florida-criminal-defense-answers/should-i-talk-to-police/' in hub
-          assert '/* Interior page compatibility */' in home
 
-      - name: Commit validated interior QA fixes
+      - name: Commit validated Answer Center cleanup
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add index.html traffic-tickets/index.html tools/publish/build-v2.js sitemap.xml sitemap.txt search/published.json florida-criminal-defense-answers florida-family-law-answers florida-traffic-ticket-answers florida-legal-answers updates '*.html' ':(glob)**/*.html'
+          git add -A
           git diff --cached --check
-          if git diff --cached --quiet; then
-            echo "No interior QA changes were necessary"
-            exit 0
-          fi
-          git commit -m "Align interior pages with homepage design and repair Answer Center hub"
+          git commit -m "Remove obsolete public Answer Center test pages"
           git push origin main
