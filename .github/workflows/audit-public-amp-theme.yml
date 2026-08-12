@@ -1,0 +1,42 @@
+name: Audit public AMP theme coverage
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/audit-public-amp-theme.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Audit sitemap AMP page structures
+        shell: python
+        run: |
+          from pathlib import Path
+          import re
+          from urllib.parse import urlparse
+
+          xml = Path('sitemap.xml').read_text()
+          urls = re.findall(r'<loc>(.*?)</loc>', xml)
+          print(f'PUBLIC_URL_COUNT={len(urls)}')
+          for url in urls:
+              p = urlparse(url).path.strip('/')
+              rel = 'index.html' if not p else f'{p}/index.html'
+              f = Path(rel)
+              if not f.exists():
+                  print(f'MISSING | {rel}')
+                  continue
+              s = f.read_text(errors='replace')
+              is_amp = bool(re.search(r'<html\s+amp(?:\s|>)', s, re.I))
+              has_style = bool(re.search(r'<style\s+amp-custom', s, re.I))
+              has_managed = '/* KT-HOME-TEMPLATE-START */' in s and '/* KT-HOME-TEMPLATE-END */' in s
+              has_amp_header = bool(re.search(r'<header\b[^>]*class="[^"]*ampstart-headerbar', s, re.I))
+              has_top_header = bool(re.search(r'<header\b[^>]*class="[^"]*\btop\b', s, re.I))
+              has_sidebar = bool(re.search(r'<amp-sidebar\b[^>]*id="header-sidebar"', s, re.I))
+              has_sidebar_script = 'custom-element="amp-sidebar"' in s or "custom-element='amp-sidebar'" in s
+              print(f'{rel} | amp={is_amp} style={has_style} managed={has_managed} amp_header={has_amp_header} top_header={has_top_header} sidebar={has_sidebar} sidebar_script={has_sidebar_script}')
