@@ -4,7 +4,11 @@ on:
   push:
     branches: [main]
     paths:
+      - 'index.html'
+      - 'sitemap.xml'
+      - 'scripts/sync-home-template.mjs'
       - '.github/apply-approved-legacy-style-trigger'
+      - '.github/workflows/apply-approved-legacy-style.yml'
 
 permissions:
   contents: write
@@ -18,7 +22,7 @@ jobs:
         with:
           ref: main
           fetch-depth: 0
-      - name: Sync managed homepage theme header and menu
+      - name: Sync current homepage design to every public AMP page in sitemap
         run: node scripts/sync-home-template.mjs
       - name: Install AMP validator
         run: npm ci --ignore-scripts --no-audit --no-fund
@@ -33,5 +37,5 @@ jobs:
             echo "No managed-theme sync changes were necessary"
             exit 0
           fi
-          git commit -m "Sync managed site theme from homepage"
+          git commit -m "Sync managed site theme to all public AMP pages"
           git push origin main
