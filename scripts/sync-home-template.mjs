@@ -24,16 +24,32 @@ const targets = [
   'violation-of-probation/index.html',
 ];
 
-function extractAmpCustom(source) {
-  const match = source.match(/<style\s+amp-custom(?:=["'][^"']*["'])?\s*>([\s\S]*?)<\/style>/i);
-  if (!match) throw new Error('Homepage amp-custom CSS not found');
-  return match[1];
+const TEMPLATE_START = '/* KT-HOME-TEMPLATE-START */';
+const TEMPLATE_END = '/* KT-HOME-TEMPLATE-END */';
+
+function extractManagedTemplate(home) {
+  const start = home.indexOf(TEMPLATE_START);
+  const end = home.indexOf(TEMPLATE_END);
+  if (start === -1 || end === -1 || end < start) {
+    throw new Error('Managed homepage template block not found');
+  }
+  return home.slice(start, end + TEMPLATE_END.length);
 }
 
-function replaceAmpCustom(source, css) {
-  const re = /(<style\s+amp-custom(?:=["'][^"']*["'])?\s*>)[\s\S]*?(<\/style>)/i;
-  if (!re.test(source)) throw new Error('Target amp-custom CSS not found');
-  return source.replace(re, `$1\n${css}\n$2`);
+function replaceOrAppendManagedTemplate(source, template) {
+  const start = source.indexOf(TEMPLATE_START);
+  const end = source.indexOf(TEMPLATE_END);
+
+  if (start !== -1 || end !== -1) {
+    if (start === -1 || end === -1 || end < start) {
+      throw new Error('Target has an incomplete managed template block');
+    }
+    return source.slice(0, start) + template + source.slice(end + TEMPLATE_END.length);
+  }
+
+  const closeStyle = source.search(/<\/style>/i);
+  if (closeStyle === -1) throw new Error('Target amp-custom closing style tag not found');
+  return source.slice(0, closeStyle) + `\n\n${template}\n` + source.slice(closeStyle);
 }
 
 function extractHomeMarkup(home) {
@@ -50,22 +66,15 @@ function replaceHeaderAndSidebar(source, header, sidebar) {
   return source.replace(currentHeader, `${header}\n${sidebar}`);
 }
 
-function removeSummaryImages(source) {
-  return source.replace(/<summary\b[\s\S]*?<\/summary>/gi, (summary) => summary
-    .replace(/\s*<amp-img\b[\s\S]*?<\/amp-img>\s*(?:&nbsp;\s*)*/gi, '')
-    .replace(/>\s*(?:&nbsp;\s*)+/i, '>'));
-}
-
 const home = fs.readFileSync(homePath, 'utf8');
-const homeCss = extractAmpCustom(home);
+const template = extractManagedTemplate(home);
 const { header, sidebar } = extractHomeMarkup(home);
 
 for (const relative of targets) {
   const file = path.join(root, relative);
   let html = fs.readFileSync(file, 'utf8');
-  html = replaceAmpCustom(html, homeCss);
+  html = replaceOrAppendManagedTemplate(html, template);
   html = replaceHeaderAndSidebar(html, header, sidebar);
-  html = removeSummaryImages(html);
   fs.writeFileSync(file, html);
-  console.log(`Synced exact homepage CSS/header/menu to ${relative}`);
+  console.log(`Synced managed homepage theme/header/menu to ${relative} without replacing page-specific CSS`);
 }
