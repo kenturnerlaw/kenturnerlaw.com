@@ -27,4 +27,26 @@ assert.equal(guidelineNeed(7000, 1), 1212);
 assert.equal(guidelineNeed(10000, 6), 3666);
 assert.equal(guidelineNeed(12000, 2), 2378);
 assert.equal(guidelineNeed(799, 1), null);
+
+const ids = ["minimumIncomeLabel","grossA","grossB","typeA","typeB","statusA","statusB","dependentsA","dependentsB",
+  "unionA","unionB","retirementA","retirementB","insuranceA","insuranceB","otherSupportA","otherSupportB","alimonyA","alimonyB",
+  "overnightsA","overnightsB","children","childcareA","childcareB","healthA","healthB","medicalA","medicalB",
+  "calculator","result","amount","direction","combined","netA","netB","basic","additions","method","explanation","print"];
+const elements = Object.fromEntries(ids.map((id) => [id,{value:"0",textContent:"",hidden:true,min:"",listeners:{},
+  addEventListener(type,fn){this.listeners[type]=fn;},focus(){}}]));
+Object.assign(elements.grossA,{value:"4000"});
+Object.assign(elements.grossB,{value:"3000"});
+Object.assign(elements.typeA,{value:"w2"});Object.assign(elements.typeB,{value:"w2"});
+Object.assign(elements.statusA,{value:"Single"});Object.assign(elements.statusB,{value:"Single"});
+Object.assign(elements.overnightsA,{value:"100"});Object.assign(elements.children,{value:"1"});
+const browserContext = {
+  GUIDELINE_ROWS: context.GUIDELINE_ROWS,OVER_10000_RATES:context.OVER_10000_RATES,
+  document:{getElementById:(id)=>elements[id]},window:{confirm:()=>true,print:()=>{}},
+  Intl,Date,setTimeout:(fn)=>fn()
+};
+vm.runInNewContext(fs.readFileSync(__dirname+"/calculator.js","utf8"),browserContext);
+elements.calculator.listeners.submit({preventDefault(){}});
+assert.equal(elements.netA.textContent,"$3,396");
+assert.equal(elements.netB.textContent,"$2,592");
+assert.equal(elements.method.textContent,"Substantial time-sharing");
 console.log("Calculator guideline tests passed.");
