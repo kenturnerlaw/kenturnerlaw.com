@@ -1,0 +1,118 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="robots" content="index,follow">
+  <link rel="canonical" href="https://www.kenturnerlaw.com/child-support-calculator/">
+  <link rel="icon" href="/favicon.ico?v=6" sizes="any">
+  <title>Florida Child Support Calculator | Ken Turner Law</title>
+  <meta name="description" content="Estimate Florida child support using monthly net income, child expenses, and overnights. No financial affidavit or account is required.">
+  <meta property="og:title" content="Florida Child Support Calculator | Ken Turner Law">
+  <meta property="og:description" content="A private, on-screen estimate using Florida's statutory child support guidelines.">
+  <meta property="og:url" content="https://www.kenturnerlaw.com/child-support-calculator/">
+  <meta property="og:type" content="website">
+  <link rel="stylesheet" href="/child-support-calculator/calculator.css">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"WebApplication","name":"Florida Child Support Calculator","url":"https://www.kenturnerlaw.com/child-support-calculator/","applicationCategory":"LegalApplication","operatingSystem":"Any","description":"Estimate Florida child support from on-screen inputs using Florida Statutes section 61.30."}</script>
+</head>
+<body>
+<header class="site-header">
+  <a href="/" class="brand"><strong>Ken Turner Law</strong><span>Criminal Defense &amp; Family Law</span></a>
+  <nav aria-label="Primary"><a href="/florida-family-law-answers/">Family Law</a><a href="tel:+12397443434">Call (239) 744-3434</a></nav>
+</header>
+<main>
+  <div class="intro">
+    <p class="eyebrow">Florida family law tool</p>
+    <h1>Florida Child Support Calculator</h1>
+    <p>Enter the information below for a guideline estimate. The calculation runs only in your browser. It does not use a financial affidavit, connect to the client portal, or save what you enter.</p>
+  </div>
+
+  <div class="notice" role="note">
+    <strong>Estimate only.</strong> This tool is not legal advice and does not predict what a judge will order. Income classification, allowable deductions, low-income rules, Social Security credits, deviations, and other facts may change the result.
+  </div>
+
+  <form id="calculator">
+    <section class="card">
+      <h2>1. Children and monthly net income</h2>
+      <p class="help">Use monthly <strong>net income after the deductions allowed by Florida law</strong>, not take-home pay from a single paycheck.</p>
+      <div class="grid three">
+        <label>Number of children
+          <select id="children">
+            <option value="1">1 child</option><option value="2">2 children</option><option value="3">3 children</option>
+            <option value="4">4 children</option><option value="5">5 children</option><option value="6">6 children</option>
+          </select>
+        </label>
+        <label>Parent A monthly net income
+          <span class="money"><span>$</span><input id="incomeA" inputmode="decimal" type="number" min="0" step="1" required></span>
+        </label>
+        <label>Parent B monthly net income
+          <span class="money"><span>$</span><input id="incomeB" inputmode="decimal" type="number" min="0" step="1" required></span>
+        </label>
+      </div>
+    </section>
+
+    <section class="card">
+      <h2>2. Annual overnights</h2>
+      <p class="help">Enter Parent A's overnights. Parent B updates automatically so the total is 365.</p>
+      <div class="grid two">
+        <label>Parent A overnights
+          <input id="overnightsA" inputmode="numeric" type="number" min="0" max="365" step="1" value="182">
+        </label>
+        <label>Parent B overnights
+          <input id="overnightsB" type="number" value="183" readonly aria-readonly="true">
+        </label>
+      </div>
+    </section>
+
+    <section class="card">
+      <h2>3. Monthly child expenses</h2>
+      <p class="help">Enter only expenses for the children in this calculation. Choose which parent actually prepays each expense.</p>
+      <div class="expense-head" aria-hidden="true"><span>Expense</span><span>Monthly amount</span><span>Paid by</span></div>
+      <div class="expense-row">
+        <label for="childcare">Employment-related child care</label>
+        <span class="money"><span>$</span><input id="childcare" inputmode="decimal" type="number" min="0" step="1" value="0"></span>
+        <select id="childcarePayer" aria-label="Child care paid by"><option value="none">Neither / not prepaid</option><option value="a">Parent A</option><option value="b">Parent B</option><option value="both">Both equally</option></select>
+      </div>
+      <div class="expense-row">
+        <label for="health">Children's health insurance</label>
+        <span class="money"><span>$</span><input id="health" inputmode="decimal" type="number" min="0" step="1" value="0"></span>
+        <select id="healthPayer" aria-label="Health insurance paid by"><option value="none">Neither / not prepaid</option><option value="a">Parent A</option><option value="b">Parent B</option><option value="both">Both equally</option></select>
+      </div>
+      <div class="expense-row">
+        <label for="medical">Noncovered medical, dental, and prescriptions</label>
+        <span class="money"><span>$</span><input id="medical" inputmode="decimal" type="number" min="0" step="1" value="0"></span>
+        <select id="medicalPayer" aria-label="Medical expenses paid by"><option value="none">Neither / not prepaid</option><option value="a">Parent A</option><option value="b">Parent B</option><option value="both">Both equally</option></select>
+      </div>
+    </section>
+
+    <button class="calculate" type="submit">Calculate estimated support</button>
+    <button class="reset" type="reset">Clear calculator</button>
+  </form>
+
+  <section id="result" class="result" tabindex="-1" aria-live="polite" hidden>
+    <p class="eyebrow">Estimated monthly guideline transfer</p>
+    <p id="amount" class="amount">$0</p>
+    <h2 id="direction">—</h2>
+    <div class="summary">
+      <div><span>Combined monthly net income</span><strong id="combined">$0</strong></div>
+      <div><span>Basic statutory need</span><strong id="basic">$0</strong></div>
+      <div><span>Child expenses added</span><strong id="additions">$0</strong></div>
+      <div><span>Time-sharing method</span><strong id="method">—</strong></div>
+    </div>
+    <p id="explanation"></p>
+    <p class="result-actions"><button type="button" id="print">Print estimate</button> <a href="https://client.kenturnerlaw.com/schedule">Discuss your calculation</a></p>
+  </section>
+
+  <section class="details">
+    <h2>What this calculator includes</h2>
+    <p>It applies the guideline schedule in Florida Statutes § 61.30, each parent's income percentage, qualifying child-care and health-related expenses, credits for the parent who prepays those expenses, and the substantial time-sharing formula when each parent has at least 20% of the overnights.</p>
+    <h2>What it does not decide</h2>
+    <p>The calculator expects you to supply each parent's legally determined monthly net income. It does not determine gross income, taxes, allowable deductions, imputed income, low-income limits, retroactive support, arrears, deviations, Social Security credits, split custody, or more than six children.</p>
+    <p>Guideline source checked August 13, 2026: <a href="https://www.leg.state.fl.us/statutes/index.cfm?App_mode=Display_Statute&amp;URL=0000-0099/0061/Sections/0061.30.html" rel="noopener">Florida Statutes § 61.30</a>.</p>
+  </section>
+</main>
+<footer><p>Ken Turner Law · Naples, Florida · <a href="tel:+12397443434">(239) 744-3434</a></p><p>Using this calculator does not create an attorney-client relationship.</p></footer>
+<script src="/child-support-calculator/guidelines.js"></script>
+<script src="/child-support-calculator/calculator.js"></script>
+</body>
+</html>
