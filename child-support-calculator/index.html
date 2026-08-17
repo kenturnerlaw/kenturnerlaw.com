@@ -70,7 +70,9 @@
     @media(max-width:720px){body{background-image:none}.header{grid-template-columns:46px 1fr auto}.brand strong{font-size:15px}.call{font-size:10px;padding:10px 9px}main{padding:28px 12px 55px}.card{padding:20px 14px}.parents,.grid.two,.summary,.math-grid{grid-template-columns:1fr}.expense-head{display:none}.expense-row{grid-template-columns:1fr;gap:9px}.mobile-label{display:block;color:#d8cfae;-webkit-text-fill-color:#d8cfae;font-size:12px;text-transform:uppercase}.actions button{width:100%}}
     @media print{.header,.sidebar,form,.details,footer,.result-actions,.notice{display:none}.result{background:#fff;color:#000;border:2px solid #000;box-shadow:none}.result .amount,.result h2,.summary strong,.math-card strong{color:#000}.summary div,.math-card{background:#fff}.summary span,.math-row span{color:#333}.formula{background:#fff;color:#000;border:1px solid #777}}
   </style>
-  <style amp-boilerplate>body{-webkit-animation:-amp-start 8s steps(1,end) 0s 1 normal both;-moz-animation:-amp-start 8s steps(1,end) 0s 1 normal both;-ms-animation:-amp-start 8s steps(1,end) 0s 1 normal both;animation:-amp-start 8s steps(1,end) 0s 1 normal both}@-webkit-keyframes -amp-start{from{visibility:hidden}to{visibility:visible}}@-moz-keyframes -amp-start{from{visibility:hidden}to{visibility:visible}}@-ms-keyframes -amp-start{from{visibility:hidden}to{visibility:visible}}@-o-keyframes -amp-start{from{visibility:hidden}to{visibility:visible}}@keyframes -amp-start{from{visibility:hidden}to{visibility:visible}}</style><noscript><style amp-boilerplate>body{-webkit-animation:none;-moz-animation:none;-ms-animation:none;animation:none}</style></noscript>
+  
+  <script async custom-element="amp-form" src="https://cdn.ampproject.org/v0/amp-form-0.1.js"></script>
+<style amp-boilerplate>body{-webkit-animation:-amp-start 8s steps(1,end) 0s 1 normal both;-moz-animation:-amp-start 8s steps(1,end) 0s 1 normal both;-ms-animation:-amp-start 8s steps(1,end) 0s 1 normal both;animation:-amp-start 8s steps(1,end) 0s 1 normal both}@-webkit-keyframes -amp-start{from{visibility:hidden}to{visibility:visible}}@-moz-keyframes -amp-start{from{visibility:hidden}to{visibility:visible}}@-ms-keyframes -amp-start{from{visibility:hidden}to{visibility:visible}}@-o-keyframes -amp-start{from{visibility:hidden}to{visibility:visible}}@keyframes -amp-start{from{visibility:hidden}to{visibility:visible}}</style><noscript><style amp-boilerplate>body{-webkit-animation:none;-moz-animation:none;-ms-animation:none;animation:none}</style></noscript>
 </head>
 <body>
 <header class="header">
@@ -99,7 +101,7 @@
   <div class="notice" role="note"><strong>Estimate only.</strong> This tool does not predict what a judge will order. It uses a simplified 2026 federal tax estimate and Florida's statutory child-support guideline schedule. Unusual income, additional tax deductions or credits, low-income rules, Social Security benefit credits, deviations, and other facts can change the result.</div>
 
   <amp-script layout="container" sandbox="allow-forms" src="https://www.kenturnerlaw.com/child-support-calculator/calculator-amp.js">
-    <form id="calculator">
+    <form id="calculator" method="get" action="/child-support-calculator/" target="_top">
       <section class="card">
         <h2>1. Children and income</h2>
         <p class="help">Enter gross monthly earned income before taxes. The calculator checks the applicable Florida full-time minimum-wage floor when you calculate.</p>
