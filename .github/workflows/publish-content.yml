@@ -5,8 +5,14 @@ on:
     branches: [main]
     paths:
       - '**/*.html'
+      - '**/*.shtml'
       - 'content/posts/**'
       - 'tools/publish/**'
+      - 'tools/seo/**'
+      - 'scripts/**'
+      - 'sitemap.xml'
+      - 'robots.txt'
+      - '_redirects'
       - 'package.json'
       - '.github/workflows/publish-content.yml'
   workflow_dispatch:
