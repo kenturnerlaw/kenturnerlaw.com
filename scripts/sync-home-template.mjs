@@ -4,6 +4,7 @@ import path from 'node:path';
 const root = process.cwd();
 const homePath = path.join(root, 'index.html');
 const sitemapPath = path.join(root, 'sitemap.xml');
+const calculatorPagePath = path.join(root, 'child-support-calculator', 'index.html');
 
 const TEMPLATE_START = '/* KT-HOME-TEMPLATE-START */';
 const TEMPLATE_END = '/* KT-HOME-TEMPLATE-END */';
@@ -19,6 +20,22 @@ const OBSOLETE_THEME_BLOCKS = [
 const THEME_SYNC_EXCLUSIONS = new Set([
   'child-support-calculator/index.html',
 ]);
+
+function ensureCalculatorMenuItem(source, variant = 'site') {
+  if (variant === 'standalone') {
+    const item = '    <li><a class="side-parent" href="/child-support-calculator/">Child Support Calculator</a></li>';
+    if (source.includes(item)) return source;
+    const anchor = '    <li><a class="side-parent" href="/reviews/">Reviews</a></li>';
+    if (!source.includes(anchor)) throw new Error('Standalone calculator Reviews menu item not found');
+    return source.replace(anchor, `${item}\n${anchor}`);
+  }
+
+  const item = '      <li class="kt-sidebar-section"><a href="/child-support-calculator/" class="ampstart-nav-link kt-sidebar-parent">Child Support Calculator</a></li>';
+  if (source.includes(item)) return source;
+  const anchor = '      <li class="kt-sidebar-section"><a href="/reviews/" class="ampstart-nav-link kt-sidebar-parent">Reviews</a></li>';
+  if (!source.includes(anchor)) throw new Error('Homepage Reviews menu item not found');
+  return source.replace(anchor, `${item}\n${anchor}`);
+}
 
 function extractManagedTemplate(home) {
   const start = home.indexOf(TEMPLATE_START);
@@ -122,7 +139,23 @@ function publicTargetsFromSitemap() {
   return [...new Set(targets)];
 }
 
-const home = fs.readFileSync(homePath, 'utf8');
+let home = fs.readFileSync(homePath, 'utf8');
+const homeWithCalculatorMenu = ensureCalculatorMenuItem(home);
+if (homeWithCalculatorMenu !== home) {
+  fs.writeFileSync(homePath, homeWithCalculatorMenu);
+  home = homeWithCalculatorMenu;
+  console.log('Added Child Support Calculator as a top-level homepage menu item.');
+}
+
+if (fs.existsSync(calculatorPagePath)) {
+  const calculator = fs.readFileSync(calculatorPagePath, 'utf8');
+  const calculatorWithMenu = ensureCalculatorMenuItem(calculator, 'standalone');
+  if (calculatorWithMenu !== calculator) {
+    fs.writeFileSync(calculatorPagePath, calculatorWithMenu);
+    console.log('Added Child Support Calculator as a top-level item in the standalone calculator menu.');
+  }
+}
+
 const template = extractManagedTemplate(home);
 const { header, sidebar } = extractHomeMarkup(home);
 const targets = publicTargetsFromSitemap();
