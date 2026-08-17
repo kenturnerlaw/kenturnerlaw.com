@@ -41,8 +41,8 @@ if (!html.includes('amp-boilerplate')) {
   html = html.replace(/<\/head>/i, `  ${boilerplate}\n  <style amp-custom>${css}</style>\n</head>`);
 }
 
-html = html.replace('<form id="calculator">', '<amp-script layout="container" src="https://www.kenturnerlaw.com/child-support-calculator/calculator-amp.js">\n  <form id="calculator">');
-html = html.replace('<form id="calculator" onsubmit="return false">', '<form id="calculator">');
+html = html.replace('<form id="calculator">', '<amp-script layout="container" src="https://www.kenturnerlaw.com/child-support-calculator/calculator-amp.js">\n  <form id="calculator" method="get" action="/child-support-calculator/" target="_top">');
+html = html.replace('<form id="calculator" onsubmit="return false">', '<form id="calculator" method="get" action="/child-support-calculator/" target="_top">');
 html = html.replace('<button class="calculate" type="submit">Calculate estimated support</button>', '<button class="calculate" id="calculateSupport" type="button">Calculate estimated support</button>');
 html = html.replace('<button class="reset" type="reset">Clear calculator</button>', '<button class="reset" id="resetCalculator" type="button">Clear calculator</button>');
 html = html.replace(/<p class="result-actions"><button type="button" id="print">Print estimate<\/button> <a /, '<p class="result-actions"><a ');
