@@ -52,6 +52,8 @@ jobs:
           node --check tools/publish/validate-amp.js
           node --check scripts/sync-home-template.mjs
           node --check scripts/build-child-support-amp.mjs
+          node --check scripts/test-child-support-calculator.mjs
+          node --check child-support-calculator/calculator.js
           node --check functions/api/publish.js
 
       - name: Build published AMP pages and automatic SEO
@@ -59,6 +61,9 @@ jobs:
 
       - name: Build child support calculator as AMP
         run: node scripts/build-child-support-amp.mjs
+
+      - name: Functionally test child support calculator
+        run: node scripts/test-child-support-calculator.mjs
 
       - name: Update article hub menus
         run: node tools/publish/update-answer-menus.js
