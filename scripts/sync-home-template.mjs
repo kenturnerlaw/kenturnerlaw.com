@@ -90,6 +90,11 @@ function replaceHeaderAndSidebar(source, header, sidebar) {
     return source.replace(simpleTopHeader, `${header}\n${sidebar}\n`);
   }
 
+  const siteHeader = /<header\b[^>]*class=["'][^"']*\bsite-header\b[^"']*["'][^>]*>[\s\S]*?<\/header>\s*/i;
+  if (siteHeader.test(source)) {
+    return source.replace(siteHeader, `${header}\n${sidebar}\n`);
+  }
+
   throw new Error('Expected public-site header not found');
 }
 
