@@ -116,12 +116,17 @@ const { header, sidebar } = extractHomeMarkup(home);
 const targets = publicTargetsFromSitemap();
 
 let synced = 0;
+let skippedNonAmp = 0;
 for (const relative of targets) {
   const file = path.join(root, relative);
   let html = fs.readFileSync(file, 'utf8');
 
+  // The sitemap can legitimately contain public non-AMP tools/pages. Theme sync
+  // applies only to AMP pages; non-AMP pages must not abort the publishing job.
   if (!/<html\s+amp(?:\s|>)/i.test(html)) {
-    throw new Error(`Public sitemap target is not AMP: ${relative}`);
+    skippedNonAmp += 1;
+    console.log(`Skipped non-AMP public page during AMP theme sync: ${relative}`);
+    continue;
   }
 
   html = removeObsoleteThemeBlocks(html);
@@ -133,4 +138,4 @@ for (const relative of targets) {
   console.log(`Synced managed homepage theme/header/menu to ${relative} without replacing page-specific CSS`);
 }
 
-console.log(`Managed theme coverage complete: ${synced} public AMP pages plus homepage source.`);
+console.log(`Managed theme coverage complete: ${synced} public AMP pages plus homepage source; skipped ${skippedNonAmp} non-AMP public page(s).`);
