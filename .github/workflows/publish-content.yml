@@ -51,6 +51,7 @@ jobs:
           node --check tools/publish/repair-sitewide-amp.js
           node --check tools/publish/validate-amp.js
           node --check scripts/sync-home-template.mjs
+          node --check scripts/build-author-profile.mjs
           node --check scripts/build-child-support-amp.mjs
           node --check scripts/test-child-support-calculator.mjs
           node --check child-support-calculator/calculator.js
@@ -58,6 +59,9 @@ jobs:
 
       - name: Build published AMP pages and automatic SEO
         run: npm run build:content
+
+      - name: Build canonical Ken Turner author profile
+        run: node scripts/build-author-profile.mjs
 
       - name: Build child support calculator as AMP
         run: node scripts/build-child-support-amp.mjs
