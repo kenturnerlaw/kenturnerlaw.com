@@ -118,6 +118,14 @@
             <label>Parent's health insurance (not the children) <span class="money"><span>$</span><input id="insuranceA" type="number" min="0" step="1" value="0"></span></label>
             <label>Court-ordered support for other children actually paid <span class="money"><span>$</span><input id="otherSupportA" type="number" min="0" step="1" value="0"></span></label>
             <label>Court-ordered alimony actually paid <span class="money"><span>$</span><input id="alimonyA" type="number" min="0" step="1" value="0"></span></label>
+            <div class="math-card live-tax-card" aria-live="polite">
+              <h3>Live tax and net-income estimate</h3>
+              <div class="math-row"><span>Federal tax / month</span><strong id="liveFederalA">$0</strong></div>
+              <div class="math-row"><span>Social Security / month</span><strong id="liveSSA">$0</strong></div>
+              <div class="math-row"><span>Medicare / month</span><strong id="liveMedicareA">$0</strong></div>
+              <div class="math-row total"><span>Total estimated taxes / month</span><strong id="liveTaxesA">$0</strong></div>
+              <div class="math-row total"><span>Estimated net income / month</span><strong id="liveNetA">$0</strong></div>
+            </div>
           </fieldset>
           <fieldset class="parent"><legend>Parent B</legend>
             <label>Gross earned income per month <span class="money"><span>$</span><input id="grossB" inputmode="decimal" type="number" min="0" step="1"></span></label>
@@ -130,11 +138,19 @@
             <label>Parent's health insurance (not the children) <span class="money"><span>$</span><input id="insuranceB" type="number" min="0" step="1" value="0"></span></label>
             <label>Court-ordered support for other children actually paid <span class="money"><span>$</span><input id="otherSupportB" type="number" min="0" step="1" value="0"></span></label>
             <label>Court-ordered alimony actually paid <span class="money"><span>$</span><input id="alimonyB" type="number" min="0" step="1" value="0"></span></label>
+            <div class="math-card live-tax-card" aria-live="polite">
+              <h3>Live tax and net-income estimate</h3>
+              <div class="math-row"><span>Federal tax / month</span><strong id="liveFederalB">$0</strong></div>
+              <div class="math-row"><span>Social Security / month</span><strong id="liveSSB">$0</strong></div>
+              <div class="math-row"><span>Medicare / month</span><strong id="liveMedicareB">$0</strong></div>
+              <div class="math-row total"><span>Total estimated taxes / month</span><strong id="liveTaxesB">$0</strong></div>
+              <div class="math-row total"><span>Estimated net income / month</span><strong id="liveNetB">$0</strong></div>
+            </div>
           </fieldset>
         </div>
       </section>
 
-      <section class="card"><h2>2. Annual overnights</h2><p class="help">Enter Parent A's overnights. Parent B updates automatically so the total is 365.</p><div class="grid two"><label>Parent A overnights<input id="overnightsA" inputmode="numeric" type="number" min="0" max="365" step="1" value="182"></label><label>Parent B overnights<input id="overnightsB" type="number" value="183" readonly aria-readonly="true"></label></div></section>
+      <section class="card"><h2>2. Annual overnights</h2><p class="help">Enter either parent's overnights. The other parent updates automatically so the total is always 365.</p><div class="grid two"><label>Parent A overnights<input id="overnightsA" inputmode="numeric" type="number" min="0" max="365" step="1" value="182"></label><label>Parent B overnights<input id="overnightsB" inputmode="numeric" type="number" min="0" max="365" step="1" value="183"></label></div></section>
 
       <section class="card">
         <h2>3. Monthly child expenses</h2><p class="help">Enter the monthly amount each parent actually pays for the children in this calculation.</p>
