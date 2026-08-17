@@ -144,6 +144,30 @@ function ensureExplicitArticleSchema(html, pathname) {
   return html.replace('</head>', `<script type="application/ld+json">${JSON.stringify(schema)}</script>\n</head>`);
 }
 
+function normalizeHomepageConversion(html) {
+  html = html.replace(
+    /<p class=["']kt-free-consultation["']>\s*Free Consultation\s*<\/p>/i,
+    '<p class="kt-free-consultation">Stress Free Consultation</p>',
+  );
+
+  html = html.replace(
+    /<p class=ampstart-dropcap>Everyone should be able to afford an attorney\.[\s\S]*?Even in the most basic matters, having legal representation can make sure that your case gets handled correctly and mistakes are avoided\.<\/p>/i,
+    '<p class=ampstart-dropcap>Legal problems can be stressful, expensive, and disruptive. My goal is to make experienced legal representation accessible and practical while giving clients clear information about what is happening, what comes next, and what choices are available. Florida court cases are governed by statutes, rules, evidence, deadlines, and procedures that can affect liberty, family relationships, finances, and future opportunities. Preparation and timely legal advice can prevent avoidable mistakes and help protect your options.</p>',
+  );
+
+  html = html.replace(
+    /I am prepared to settle because I am prepared to go to trial\. I'll be the first to admit that I am not easy to get on the phone \(that is why I have implemented the client phone scheduler so that you can see my availability\)\. I am not out playing golf or sitting at happy hour slapping other attorneys on the back; I am preparing, thinking, drafting, researching, and getting ready\./i,
+    'I am prepared to settle because I am prepared to go to trial. I use a phone scheduler so you can see my availability and choose a time that works for you while I continue preparing, researching, drafting, and working on client matters.',
+  );
+
+  html = html.replace(
+    /\s*<p>The Public Defenders in the Twentieth Circuit are some of the best lawyers you will ever meet\.[\s\S]*?they represent people who are indigent and may have many cases\.<\/p>/i,
+    '',
+  );
+
+  return html;
+}
+
 for (const value of urls) {
   const url = new URL(value);
   const relative = url.pathname === '/' ? 'index.html' : `${url.pathname.slice(1)}index.html`;
@@ -179,8 +203,9 @@ for (const value of urls) {
   // Turn visible authorship into a crawlable author relationship without nesting links on repeat runs.
   html = html.replace(/By Ken Turner(?!<\/a>)/g, '<a class="kt-author-link" href="/ken-turner/">By Ken Turner</a>');
 
-  // Give Google direct contextual links from the homepage to the two Naples landing pages.
+  // Keep the homepage focused on getting a prospective client to call or schedule.
   if (url.pathname === '/') {
+    html = normalizeHomepageConversion(html);
     html = html.replace(/<section class=["']kt-defense-lead["'][\s\S]*?<\/section>/i, (section) => {
       if (section.includes('/criminal-defense-naples/') && section.includes('/divorce/')) return section;
       return section.replace(
