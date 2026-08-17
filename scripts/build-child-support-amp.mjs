@@ -11,16 +11,10 @@ const bundlePath = path.join(dir, 'calculator-amp.js');
 
 const css = fs.readFileSync(cssPath, 'utf8');
 const guidelines = fs.readFileSync(guidelinesPath, 'utf8');
-let calculator = fs.readFileSync(calculatorPath, 'utf8');
+const calculator = fs.readFileSync(calculatorPath, 'utf8');
 
-// amp-script runs in WorkerDOM, so avoid window-only APIs while preserving the calculation.
-calculator = calculator
-  .replace('if(combined>10000&&!window.confirm("Combined estimated monthly net income is more than $10,000. The statutory calculation continues above the guideline table, but higher-income cases should be reviewed by an attorney. Continue with the estimate?"))return;\n', '')
-  .replace('$("calculator").addEventListener("reset",()=>setTimeout(()=>{$("result").hidden=true;updateOvernights();},0));', '$("resetCalculator").addEventListener("click",()=>{$("calculator").reset();$("result").hidden=true;$("overnightsB").value=183;});')
-  .replace('$("calculator").addEventListener("submit",(event)=>{\n  event.preventDefault();', '$("calculateSupport").addEventListener("click",()=>{')
-  .replace('$("print").addEventListener("click",()=>window.print());\n', '')
-  .replace('$("result").focus();', '');
-
+// The calculator source itself is AMP/WorkerDOM-safe. Keep the generated bundle
+// identical to the maintained source instead of rewriting behavior during build.
 fs.writeFileSync(bundlePath, `${guidelines}\n${calculator}`);
 
 let html = fs.readFileSync(htmlPath, 'utf8');
@@ -53,30 +47,59 @@ const calculatorScriptPattern = /<amp-script\b[^>]*\bsrc=["']https:\/\/www\.kent
 const alreadyWrapped = calculatorScriptPattern.test(html);
 
 if (alreadyWrapped) {
-  // Normalize the existing wrapper instead of creating a nested amp-script.
   html = html.replace(calculatorScriptPattern, calculatorScriptOpen);
 } else {
-  // Older/non-AMP source: begin the WorkerDOM scope immediately before the calculator form.
   html = html.replace(/(?=<form\b[^>]*\bid=["']calculator["'][^>]*>)/i, `${calculatorScriptOpen}\n  `);
 }
 
-// Keep the calculator form AMP-valid on every rebuild. The button is type=button,
-// so this action is a standards/AMP fallback rather than the calculation trigger.
 html = html.replace(
   /<form\b[^>]*\bid=["']calculator["'][^>]*>/i,
   '<form id="calculator" method="get" action="/child-support-calculator/" target="_top">',
 );
 
-html = html.replace(/<button class="calculate"(?:\s+id="calculateSupport")?\s+type="submit">Calculate estimated support<\/button>/i, '<button class="calculate" id="calculateSupport" type="button">Calculate estimated support</button>');
-html = html.replace(/<button class="calculate"\s+type="button">Calculate estimated support<\/button>/i, '<button class="calculate" id="calculateSupport" type="button">Calculate estimated support</button>');
-html = html.replace(/<button class="reset"(?:\s+id="resetCalculator")?\s+type="reset">Clear calculator<\/button>/i, '<button class="reset" id="resetCalculator" type="button">Clear calculator</button>');
-html = html.replace(/<button class="reset"\s+type="button">Clear calculator<\/button>/i, '<button class="reset" id="resetCalculator" type="button">Clear calculator</button>');
+function liveTaxCard(side) {
+  return `<div class="math-card live-tax-card" aria-live="polite">
+              <h3>Live tax and net-income estimate</h3>
+              <div class="math-row"><span>Federal tax / month</span><strong id="liveFederal${side}">$0</strong></div>
+              <div class="math-row"><span>Social Security / month</span><strong id="liveSS${side}">$0</strong></div>
+              <div class="math-row"><span>Medicare / month</span><strong id="liveMedicare${side}">$0</strong></div>
+              <div class="math-row total"><span>Total estimated taxes / month</span><strong id="liveTaxes${side}">$0</strong></div>
+              <div class="math-row total"><span>Estimated net income / month</span><strong id="liveNet${side}">$0</strong></div>
+            </div>`;
+}
+
+for (const side of ['A', 'B']) {
+  if (!html.includes(`id="liveTaxes${side}"`)) {
+    const alimonyLabel = new RegExp(`(<label>Court-ordered alimony actually paid[\\s\\S]*?<input id="alimony${side}"[\\s\\S]*?<\\/label>)`, 'i');
+    if (!alimonyLabel.test(html)) {
+      throw new Error(`Could not locate Parent ${side} alimony field for live tax card`);
+    }
+    html = html.replace(alimonyLabel, `$1\n            ${liveTaxCard(side)}`);
+  }
+}
+
+html = html.replace(
+  /<p class="help">Enter Parent A's overnights\. Parent B updates automatically so the total is 365\.<\/p>/i,
+  "<p class=\"help\">Enter either parent's overnights. The other parent updates automatically so the total is always 365.</p>",
+);
+html = html.replace(
+  /<input id="overnightsB"[^>]*>/i,
+  '<input id="overnightsB" inputmode="numeric" type="number" min="0" max="365" step="1" value="183">',
+);
+
+html = html.replace(
+  /<button class="calculate"(?:\s+id="calculateSupport")?\s+type="(?:submit|button)">(?:Calculate estimated support|Calculate &amp; show the math)<\/button>/i,
+  '<button class="calculate" id="calculateSupport" type="button">Calculate &amp; show the math</button>',
+);
+html = html.replace(
+  /<button class="reset"(?:\s+id="resetCalculator")?\s+type="(?:reset|button)">Clear calculator<\/button>/i,
+  '<button class="reset" id="resetCalculator" type="button">Clear calculator</button>',
+);
 html = html.replace(/<p class="result-actions"><button type="button" id="print">Print estimate<\/button> <a /, '<p class="result-actions"><a ');
 
 if (!alreadyWrapped) {
-  // Close only the wrapper this build inserted; existing AMP source already has its own close.
   html = html.replace('</section>\n\n  <section class="details">', '</section>\n  </amp-script>\n\n  <section class="details">');
 }
 
 fs.writeFileSync(htmlPath, html);
-console.log('Built AMP child support calculator and amp-script bundle.');
+console.log('Built AMP child support calculator with live tax estimates and two-way overnight syncing.');
