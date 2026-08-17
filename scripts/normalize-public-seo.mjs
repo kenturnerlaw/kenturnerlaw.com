@@ -3,6 +3,10 @@ import path from 'node:path';
 
 const root = process.cwd();
 const site = 'https://www.kenturnerlaw.com';
+const authorPath = '/ken-turner/';
+const authorUrl = `${site}${authorPath}`;
+const authorId = `${authorUrl}#person`;
+const firmId = `${site}/#law-firm`;
 const sitemap = fs.readFileSync(path.join(root, 'sitemap.xml'), 'utf8');
 const urls = [...sitemap.matchAll(/<loc>(.*?)<\/loc>/g)].map((match) => match[1].trim());
 const descriptionOverrides = new Map([
@@ -16,6 +20,13 @@ const areaServedOverrides = new Map([
   ['/', ['Naples', 'Collier County', 'Fort Myers', 'Lee County', 'LaBelle', 'Hendry County', 'Miami', 'Miami-Dade County']],
   ['/criminal-defense-naples/', ['Naples', 'Collier County']],
   ['/divorce/', ['Naples', 'Collier County', 'Fort Myers', 'Lee County']],
+]);
+
+const explicitlyAuthored = new Set([
+  '/what-do-i-do-when-i-get-a-traffic-ticket/',
+  '/dont-pay-your-traffic-ticket-yet/',
+  '/negative-consequences-of-paying-a-traffic-ticket/',
+  '/why-do-i-need-an-attorney-for-a-traffic-ticket/',
 ]);
 
 function replaceAttribute(tag, name, value) {
@@ -39,6 +50,13 @@ function normalizeSchemaNode(node, pathname) {
 
   if (hasType(node, 'WebSite')) delete node.potentialAction;
 
+  if (hasType(node, 'Person') && String(node.name || '').trim().toLowerCase() === 'ken turner') {
+    node['@id'] = authorId;
+    node.url = authorUrl;
+    node.jobTitle = node.jobTitle || 'Attorney';
+    node.worksFor = { '@id': firmId };
+  }
+
   if (hasType(node, 'Attorney') || hasType(node, 'LegalService')) {
     delete node.openingHours;
     if (pathname !== '/reviews/') {
@@ -47,6 +65,7 @@ function normalizeSchemaNode(node, pathname) {
     }
 
     // Keep one consistent business identity everywhere Google crawls the site.
+    node['@id'] = firmId;
     node.name = 'The Ken Turner Law Firm, LLC';
     node.alternateName = 'Ken Turner Law';
     node.url = site;
@@ -69,10 +88,70 @@ function normalizeSchemaNode(node, pathname) {
   }
 }
 
+function plainText(value = '') {
+  return String(value)
+    .replace(/<[^>]+>/g, ' ')
+    .replace(/&amp;/g, '&')
+    .replace(/&quot;/g, '"')
+    .replace(/&#39;/g, "'")
+    .replace(/&nbsp;/g, ' ')
+    .replace(/\s+/g, ' ')
+    .trim();
+}
+
+function pageTitle(html) {
+  const h1 = html.match(/<h1\b[^>]*>([\s\S]*?)<\/h1>/i);
+  if (h1) return plainText(h1[1]);
+  const title = html.match(/<title\b[^>]*>([\s\S]*?)<\/title>/i);
+  return title ? plainText(title[1]).replace(/\s+\|\s+Ken Turner Law.*$/i, '') : 'Florida Legal Information';
+}
+
+function pageDescription(html) {
+  const match = html.match(/<meta\b[^>]*\bname=["']description["'][^>]*\bcontent=["']([^"']*)["'][^>]*>/i)
+    || html.match(/<meta\b[^>]*\bcontent=["']([^"']*)["'][^>]*\bname=["']description["'][^>]*>/i);
+  return match ? plainText(match[1]) : '';
+}
+
+function hasArticleSchema(html) {
+  return /<script\s+type=["']application\/ld\+json["'][^>]*>[\s\S]*?["']@type["']\s*:\s*["'](?:Article|BlogPosting)["'][\s\S]*?<\/script>/i.test(html);
+}
+
+function ensureAuthorMeta(html) {
+  if (/<meta\b[^>]*\bname=["']author["'][^>]*>/i.test(html)) {
+    return html.replace(/<meta\b[^>]*\bname=["']author["'][^>]*>/i, (tag) => replaceAttribute(tag, 'content', 'Ken Turner'));
+  }
+  return html.replace(/<meta\s+charset=[^>]+>/i, (tag) => `${tag}\n<meta name="author" content="Ken Turner">`);
+}
+
+function ensureExplicitArticleSchema(html, pathname) {
+  if (!explicitlyAuthored.has(pathname) || hasArticleSchema(html)) return html;
+  const schema = {
+    '@context': 'https://schema.org',
+    '@type': 'Article',
+    headline: pageTitle(html),
+    description: pageDescription(html),
+    author: {
+      '@type': 'Person',
+      '@id': authorId,
+      name: 'Ken Turner',
+      url: authorUrl,
+      jobTitle: 'Attorney',
+      worksFor: { '@id': firmId },
+    },
+    publisher: { '@id': firmId },
+    mainEntityOfPage: `${site}${pathname}`,
+  };
+  return html.replace('</head>', `<script type="application/ld+json">${JSON.stringify(schema)}</script>\n</head>`);
+}
+
 for (const value of urls) {
   const url = new URL(value);
   const relative = url.pathname === '/' ? 'index.html' : `${url.pathname.slice(1)}index.html`;
   const file = path.join(root, relative);
+  if (!fs.existsSync(file)) {
+    console.log(`Skipped missing sitemap target during SEO normalization: ${relative}`);
+    continue;
+  }
   let html = fs.readFileSync(file, 'utf8');
 
   html = html.replace(/<link\b[^>]*\brel=["']canonical["'][^>]*>/i, (tag) => replaceAttribute(tag, 'href', `${site}${url.pathname}`));
@@ -83,6 +162,8 @@ for (const value of urls) {
     html = html.replace(/<meta\b[^>]*\bproperty=["']og:description["'][^>]*>/i, (tag) => replaceAttribute(tag, 'content', descriptionOverride));
   }
 
+  if (explicitlyAuthored.has(url.pathname)) html = ensureAuthorMeta(html);
+
   html = html.replace(/<script\s+type=["']application\/ld\+json["'][^>]*>([\s\S]*?)<\/script>/gi, (script, json) => {
     try {
       const data = JSON.parse(json);
@@ -92,6 +173,11 @@ for (const value of urls) {
       return script;
     }
   });
+
+  html = ensureExplicitArticleSchema(html, url.pathname);
+
+  // Turn visible authorship into a crawlable author relationship without nesting links on repeat runs.
+  html = html.replace(/By Ken Turner(?!<\/a>)/g, '<a class="kt-author-link" href="/ken-turner/">By Ken Turner</a>');
 
   // Give Google direct contextual links from the homepage to the two Naples landing pages.
   if (url.pathname === '/') {
