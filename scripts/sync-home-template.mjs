@@ -13,6 +13,13 @@ const OBSOLETE_THEME_BLOCKS = [
   ['/* KT-CANONICAL-SITE-CHROME-START */', '/* KT-CANONICAL-SITE-CHROME-END */'],
 ];
 
+// Standalone tools can be valid AMP without using the public article/header shell.
+// They are intentionally excluded so their purpose-built UI is not overwritten
+// and so they cannot block publishing of the rest of the site.
+const THEME_SYNC_EXCLUSIONS = new Set([
+  'child-support-calculator/index.html',
+]);
+
 function extractManagedTemplate(home) {
   const start = home.indexOf(TEMPLATE_START);
   const end = home.indexOf(TEMPLATE_END);
@@ -122,9 +129,16 @@ const targets = publicTargetsFromSitemap();
 
 let synced = 0;
 let skippedNonAmp = 0;
+let skippedStandalone = 0;
 for (const relative of targets) {
   const file = path.join(root, relative);
   let html = fs.readFileSync(file, 'utf8');
+
+  if (THEME_SYNC_EXCLUSIONS.has(relative)) {
+    skippedStandalone += 1;
+    console.log(`Skipped standalone public tool during homepage theme sync: ${relative}`);
+    continue;
+  }
 
   // The sitemap can legitimately contain public non-AMP tools/pages. Theme sync
   // applies only to AMP pages; non-AMP pages must not abort the publishing job.
@@ -143,4 +157,4 @@ for (const relative of targets) {
   console.log(`Synced managed homepage theme/header/menu to ${relative} without replacing page-specific CSS`);
 }
 
-console.log(`Managed theme coverage complete: ${synced} public AMP pages plus homepage source; skipped ${skippedNonAmp} non-AMP public page(s).`);
+console.log(`Managed theme coverage complete: ${synced} public AMP pages plus homepage source; skipped ${skippedNonAmp} non-AMP public page(s) and ${skippedStandalone} standalone tool(s).`);
