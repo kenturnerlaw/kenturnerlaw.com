@@ -51,6 +51,8 @@ Every site menu must provide access to:
 - Divorce
 - Time-Sharing and Parenting Plans
 - Best Interests of the Child
+- Child Support Calculator
+- About Ken Turner
 - Reviews
 - Blog
 - Call (239) 400-FREE
