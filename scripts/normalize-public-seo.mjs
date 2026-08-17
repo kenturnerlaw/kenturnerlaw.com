@@ -8,6 +8,14 @@ const urls = [...sitemap.matchAll(/<loc>(.*?)<\/loc>/g)].map((match) => match[1]
 const descriptionOverrides = new Map([
   ['/florida-legal-answers/', 'Browse plain-English Florida legal answers covering criminal defense, family law, traffic tickets, court procedures, and client resources.'],
   ['/updates/', 'Read recent Florida legal updates and practical information from Ken Turner Law, with links to related criminal defense and family law resources.'],
+  ['/criminal-defense-naples/', 'Naples criminal defense attorney Ken Turner represents clients in Collier County DUI, drug, felony, misdemeanor, traffic, and probation cases.'],
+  ['/divorce/', 'Naples divorce attorney Ken Turner represents clients in Collier and Lee Counties in divorce, parenting, support, property, alimony, and enforcement matters.'],
+]);
+
+const areaServedOverrides = new Map([
+  ['/', ['Naples', 'Collier County', 'Fort Myers', 'Lee County', 'LaBelle', 'Hendry County', 'Miami', 'Miami-Dade County']],
+  ['/criminal-defense-naples/', ['Naples', 'Collier County']],
+  ['/divorce/', ['Naples', 'Collier County', 'Fort Myers', 'Lee County']],
 ]);
 
 function replaceAttribute(tag, name, value) {
@@ -15,6 +23,50 @@ function replaceAttribute(tag, name, value) {
     return tag.replace(new RegExp(`\\b${name}=(["']).*?\\1`, 'i'), `${name}="${value}"`);
   }
   return tag.replace(/\s*\/?\s*>$/, (ending) => ` ${name}="${value}"${ending.includes('/') ? ' />' : '>'}`);
+}
+
+function hasType(node, type) {
+  const value = node?.['@type'];
+  return value === type || (Array.isArray(value) && value.includes(type));
+}
+
+function normalizeSchemaNode(node, pathname) {
+  if (Array.isArray(node)) {
+    for (const child of node) normalizeSchemaNode(child, pathname);
+    return;
+  }
+  if (!node || typeof node !== 'object') return;
+
+  if (hasType(node, 'WebSite')) delete node.potentialAction;
+
+  if (hasType(node, 'Attorney') || hasType(node, 'LegalService')) {
+    delete node.openingHours;
+    if (pathname !== '/reviews/') {
+      delete node.aggregateRating;
+      delete node.review;
+    }
+
+    // Keep one consistent business identity everywhere Google crawls the site.
+    node.name = 'The Ken Turner Law Firm, LLC';
+    node.alternateName = 'Ken Turner Law';
+    node.url = site;
+    node.telephone = '+1-239-400-3733';
+    node.address = {
+      '@type': 'PostalAddress',
+      streetAddress: '3080 Tamiami Trl E, Ste 301',
+      addressLocality: 'Naples',
+      addressRegion: 'FL',
+      postalCode: '34112',
+      addressCountry: 'US',
+    };
+
+    const served = areaServedOverrides.get(pathname);
+    if (served) node.areaServed = served;
+  }
+
+  for (const value of Object.values(node)) {
+    if (value && typeof value === 'object') normalizeSchemaNode(value, pathname);
+  }
 }
 
 for (const value of urls) {
@@ -34,19 +86,31 @@ for (const value of urls) {
   html = html.replace(/<script\s+type=["']application\/ld\+json["'][^>]*>([\s\S]*?)<\/script>/gi, (script, json) => {
     try {
       const data = JSON.parse(json);
-      if (data['@type'] === 'WebSite') delete data.potentialAction;
-      if (data['@type'] === 'Attorney' || data['@type'] === 'LegalService') {
-        delete data.openingHours;
-        if (url.pathname !== '/reviews/') {
-          delete data.aggregateRating;
-          delete data.review;
-        }
-      }
+      normalizeSchemaNode(data, url.pathname);
       return `<script type="application/ld+json">${JSON.stringify(data)}</script>`;
     } catch {
       return script;
     }
   });
+
+  // Give Google direct contextual links from the homepage to the two Naples landing pages.
+  if (url.pathname === '/') {
+    html = html.replace(/<section class=["']kt-defense-lead["'][\s\S]*?<\/section>/i, (section) => {
+      if (section.includes('/criminal-defense-naples/') && section.includes('/divorce/')) return section;
+      return section.replace(
+        /(<p\b[^>]*>[\s\S]*?<\/p>)/i,
+        `$1\n<p class="kt-local-service-links">Naples legal services: <a href="/criminal-defense-naples/">Naples Criminal Defense Attorney</a> · <a href="/divorce/">Naples Divorce Attorney</a></p>`,
+      );
+    });
+  }
+
+  // Add concise Naples/Collier context near the primary heading on the Naples criminal page.
+  if (url.pathname === '/criminal-defense-naples/' && !html.includes('kt-naples-local-context')) {
+    html = html.replace(
+      /(<h1\b[^>]*>[\s\S]*?Naples[\s\S]*?<\/h1>)/i,
+      `$1\n<p class="kt-naples-local-context">Ken Turner represents people facing criminal charges in Naples and throughout Collier County. The Naples criminal defense practice includes <a href="/dui/">DUI</a>, <a href="/drug-charges/">drug charges</a>, <a href="/felony-charges/">felony charges</a>, <a href="/misdemeanor-charges/">misdemeanor charges</a>, <a href="/traffic-offenses/">traffic offenses</a>, and <a href="/violation-of-probation/">violations of probation</a>.</p>`,
+    );
+  }
 
   const robots = /<meta\b[^>]*\bname=["']robots["'][^>]*>/i;
   if (robots.test(html)) {
