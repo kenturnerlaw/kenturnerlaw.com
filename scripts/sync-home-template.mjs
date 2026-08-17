@@ -37,6 +37,22 @@ function ensureCalculatorMenuItem(source, variant = 'site') {
   return source.replace(anchor, `${item}\n${anchor}`);
 }
 
+function ensureAuthorMenuItem(source, variant = 'site') {
+  if (variant === 'standalone') {
+    const item = '    <li><a class="side-parent" href="/ken-turner/">About Ken Turner</a></li>';
+    if (source.includes(item)) return source;
+    const anchor = '    <li><a class="side-parent" href="/reviews/">Reviews</a></li>';
+    if (!source.includes(anchor)) throw new Error('Standalone calculator Reviews menu item not found for author link');
+    return source.replace(anchor, `${item}\n${anchor}`);
+  }
+
+  const item = '      <li class="kt-sidebar-section"><a href="/ken-turner/" class="ampstart-nav-link kt-sidebar-parent">About Ken Turner</a></li>';
+  if (source.includes(item)) return source;
+  const anchor = '      <li class="kt-sidebar-section"><a href="/reviews/" class="ampstart-nav-link kt-sidebar-parent">Reviews</a></li>';
+  if (!source.includes(anchor)) throw new Error('Homepage Reviews menu item not found for author link');
+  return source.replace(anchor, `${item}\n${anchor}`);
+}
+
 function extractManagedTemplate(home) {
   const start = home.indexOf(TEMPLATE_START);
   const end = home.indexOf(TEMPLATE_END);
@@ -146,13 +162,25 @@ if (homeWithCalculatorMenu !== home) {
   home = homeWithCalculatorMenu;
   console.log('Added Child Support Calculator as a top-level homepage menu item.');
 }
+const homeWithAuthorMenu = ensureAuthorMenuItem(home);
+if (homeWithAuthorMenu !== home) {
+  fs.writeFileSync(homePath, homeWithAuthorMenu);
+  home = homeWithAuthorMenu;
+  console.log('Added About Ken Turner as a top-level homepage menu item.');
+}
 
 if (fs.existsSync(calculatorPagePath)) {
-  const calculator = fs.readFileSync(calculatorPagePath, 'utf8');
+  let calculator = fs.readFileSync(calculatorPagePath, 'utf8');
   const calculatorWithMenu = ensureCalculatorMenuItem(calculator, 'standalone');
   if (calculatorWithMenu !== calculator) {
     fs.writeFileSync(calculatorPagePath, calculatorWithMenu);
+    calculator = calculatorWithMenu;
     console.log('Added Child Support Calculator as a top-level item in the standalone calculator menu.');
+  }
+  const calculatorWithAuthorMenu = ensureAuthorMenuItem(calculator, 'standalone');
+  if (calculatorWithAuthorMenu !== calculator) {
+    fs.writeFileSync(calculatorPagePath, calculatorWithAuthorMenu);
+    console.log('Added About Ken Turner to the standalone calculator menu.');
   }
 }
 
