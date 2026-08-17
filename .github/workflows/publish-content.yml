@@ -10,6 +10,7 @@ on:
       - 'tools/publish/**'
       - 'tools/seo/**'
       - 'scripts/**'
+      - 'child-support-calculator/**'
       - 'sitemap.xml'
       - 'robots.txt'
       - '_redirects'
@@ -50,10 +51,14 @@ jobs:
           node --check tools/publish/repair-sitewide-amp.js
           node --check tools/publish/validate-amp.js
           node --check scripts/sync-home-template.mjs
+          node --check scripts/build-child-support-amp.mjs
           node --check functions/api/publish.js
 
       - name: Build published AMP pages and automatic SEO
         run: npm run build:content
+
+      - name: Build child support calculator as AMP
+        run: node scripts/build-child-support-amp.mjs
 
       - name: Update article hub menus
         run: node tools/publish/update-answer-menus.js
@@ -76,7 +81,7 @@ jobs:
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add -A -- ':(glob)**/index.html' sitemap.xml sitemap.txt search/published.json content/posts package-lock.json || true
+          git add -A -- ':(glob)**/index.html' child-support-calculator/calculator-amp.js sitemap.xml sitemap.txt search/published.json content/posts package-lock.json || true
           if git diff --cached --quiet; then
             echo "No generated, themed, or repaired changes to commit."
           else
