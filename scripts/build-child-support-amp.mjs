@@ -18,8 +18,8 @@ const calculator = fs.readFileSync(calculatorPath, 'utf8');
 const bundle = `${guidelines}\n${calculator}`;
 fs.writeFileSync(bundlePath, bundle);
 
-// A hash makes the external amp-script valid even when the public page is reached
-// through a host variant that makes the canonical www script URL cross-origin.
+// Hash the exact generated bundle for AMP authorization and also put a short
+// content version in the URL so browsers/CDNs cannot pair new HTML with stale JS.
 const ampScriptHash = 'sha384-' + crypto
   .createHash('sha384')
   .update(bundle, 'utf8')
@@ -27,6 +27,8 @@ const ampScriptHash = 'sha384-' + crypto
   .replace(/=/g, '')
   .replace(/\+/g, '-')
   .replace(/\//g, '_');
+const bundleVersion = crypto.createHash('sha256').update(bundle, 'utf8').digest('hex').slice(0, 12);
+const calculatorScriptUrl = `https://www.kenturnerlaw.com/child-support-calculator/calculator-amp.js?v=${bundleVersion}`;
 
 let html = fs.readFileSync(htmlPath, 'utf8');
 html = html.replace(/<html(?:\s+amp)?\s+lang="en">/i, '<html amp lang="en">');
@@ -60,8 +62,8 @@ if (!html.includes('amp-boilerplate')) {
   html = html.replace(/<\/head>/i, `  ${boilerplate}\n  <style amp-custom>${css}</style>\n</head>`);
 }
 
-const calculatorScriptOpen = '<amp-script layout="container" sandbox="allow-forms" src="https://www.kenturnerlaw.com/child-support-calculator/calculator-amp.js">';
-const calculatorScriptPattern = /<amp-script\b[^>]*\bsrc=["']https:\/\/www\.kenturnerlaw\.com\/child-support-calculator\/calculator-amp\.js["'][^>]*>/i;
+const calculatorScriptOpen = `<amp-script layout="container" sandbox="allow-forms" src="${calculatorScriptUrl}">`;
+const calculatorScriptPattern = /<amp-script\b[^>]*\bsrc=["']https:\/\/www\.kenturnerlaw\.com\/child-support-calculator\/calculator-amp\.js(?:\?v=[^"']+)?["'][^>]*>/i;
 const alreadyWrapped = calculatorScriptPattern.test(html);
 
 if (alreadyWrapped) {
@@ -120,4 +122,4 @@ if (!alreadyWrapped) {
 }
 
 fs.writeFileSync(htmlPath, html);
-console.log(`Built AMP child support calculator with WorkerDOM input state and script hash ${ampScriptHash}.`);
+console.log(`Built AMP child support calculator with WorkerDOM input state, script hash, and bundle version ${bundleVersion}.`);
