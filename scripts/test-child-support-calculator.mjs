@@ -22,7 +22,9 @@ const expectedHash = 'sha384-' + crypto
   .replace(/=/g, '')
   .replace(/\+/g, '-')
   .replace(/\//g, '_');
+const expectedVersion = crypto.createHash('sha256').update(bundle, 'utf8').digest('hex').slice(0, 12);
 assert(html.includes(`<meta name="amp-script-src" content="${expectedHash}">`), 'AMP script hash is missing or stale');
+assert(html.includes(`calculator-amp.js?v=${expectedVersion}`), 'Calculator script URL is not versioned to the current bundle');
 
 const ids = new Set([...html.matchAll(/\bid="([^"]+)"/g)].map((match) => match[1]));
 const elements = new Map();
@@ -120,4 +122,4 @@ assert(get('shareA').textContent.includes('%'), 'Parent A income share was not p
 assert(get('overnightPctA').textContent.includes('%'), 'Parent A overnight percentage was not populated');
 assert(get('supportMath').textContent.includes('Estimated transfer'), 'Support formula explanation was not populated');
 
-console.log(`Calculator WorkerDOM-state test passed: ${get('amount').textContent}, A taxes ${get('liveTaxesA').textContent}, overnights ${get('overnightsA').value}/${get('overnightsB').value}.`);
+console.log(`Calculator WorkerDOM-state test passed: ${get('amount').textContent}, A taxes ${get('liveTaxesA').textContent}, overnights ${get('overnightsA').value}/${get('overnightsB').value}, bundle ${expectedVersion}.`);
