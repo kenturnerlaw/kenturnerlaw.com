@@ -1,5 +1,6 @@
 import fs from 'node:fs';
 import path from 'node:path';
+import crypto from 'node:crypto';
 
 const root = process.cwd();
 const dir = path.join(root, 'child-support-calculator');
@@ -13,9 +14,19 @@ const css = fs.readFileSync(cssPath, 'utf8');
 const guidelines = fs.readFileSync(guidelinesPath, 'utf8');
 const calculator = fs.readFileSync(calculatorPath, 'utf8');
 
-// The calculator source itself is AMP/WorkerDOM-safe. Keep the generated bundle
-// identical to the maintained source instead of rewriting behavior during build.
-fs.writeFileSync(bundlePath, `${guidelines}\n${calculator}`);
+// Keep one maintained calculator source and generate the AMP worker bundle from it.
+const bundle = `${guidelines}\n${calculator}`;
+fs.writeFileSync(bundlePath, bundle);
+
+// A hash makes the external amp-script valid even when the public page is reached
+// through a host variant that makes the canonical www script URL cross-origin.
+const ampScriptHash = 'sha384-' + crypto
+  .createHash('sha384')
+  .update(bundle, 'utf8')
+  .digest('base64')
+  .replace(/=/g, '')
+  .replace(/\+/g, '-')
+  .replace(/\//g, '_');
 
 let html = fs.readFileSync(htmlPath, 'utf8');
 html = html.replace(/<html(?:\s+amp)?\s+lang="en">/i, '<html amp lang="en">');
@@ -35,6 +46,13 @@ if (!/custom-element=["']amp-script["']/i.test(html)) {
 }
 if (!/custom-element=["']amp-form["']/i.test(html)) {
   html = html.replace(/<\/head>/i, `  ${ampFormExtension}\n</head>`);
+}
+
+const ampScriptMeta = `<meta name="amp-script-src" content="${ampScriptHash}">`;
+if (/<meta\s+name=["']amp-script-src["'][^>]*>/i.test(html)) {
+  html = html.replace(/<meta\s+name=["']amp-script-src["'][^>]*>/i, ampScriptMeta);
+} else {
+  html = html.replace(/(<meta\s+name=["']robots["'][^>]*>)/i, `$1\n  ${ampScriptMeta}`);
 }
 
 const boilerplate = '<style amp-boilerplate>body{-webkit-animation:-amp-start 8s steps(1,end) 0s 1 normal both;-moz-animation:-amp-start 8s steps(1,end) 0s 1 normal both;-ms-animation:-amp-start 8s steps(1,end) 0s 1 normal both;animation:-amp-start 8s steps(1,end) 0s 1 normal both}@-webkit-keyframes -amp-start{from{visibility:hidden}to{visibility:visible}}@-moz-keyframes -amp-start{from{visibility:hidden}to{visibility:visible}}@-ms-keyframes -amp-start{from{visibility:hidden}to{visibility:visible}}@-o-keyframes -amp-start{from{visibility:hidden}to{visibility:visible}}@keyframes -amp-start{from{visibility:hidden}to{visibility:visible}}</style><noscript><style amp-boilerplate>body{-webkit-animation:none;-moz-animation:none;-ms-animation:none;animation:none}</style></noscript>';
@@ -102,4 +120,4 @@ if (!alreadyWrapped) {
 }
 
 fs.writeFileSync(htmlPath, html);
-console.log('Built AMP child support calculator with live tax estimates and two-way overnight syncing.');
+console.log(`Built AMP child support calculator with WorkerDOM input state and script hash ${ampScriptHash}.`);
