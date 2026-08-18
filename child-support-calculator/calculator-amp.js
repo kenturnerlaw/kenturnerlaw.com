@@ -196,10 +196,21 @@ const OVER_10000_RATES = [0.05, 0.075, 0.095, 0.11, 0.12, 0.125];
 const $ = (id) => document.getElementById(id);
 const money = new Intl.NumberFormat("en-US", {style:"currency", currency:"USD", maximumFractionDigits:0});
 const pct = (value) => `${(value * 100).toFixed(1)}%`;
-const n = (id) => {
+const state = Object.create(null);
+
+const readDomValue = (id) => {
   const el = $(id);
-  return el ? Math.max(0, Number(el.value) || 0) : 0;
+  return el ? el.value : "";
 };
+const getValue = (id) => Object.prototype.hasOwnProperty.call(state, id) ? state[id] : readDomValue(id);
+const remember = (id, value) => {
+  state[id] = value == null ? "" : String(value);
+};
+const rememberEvent = (id, event) => {
+  if (event && event.target && typeof event.target.value !== "undefined") remember(id, event.target.value);
+  else remember(id, readDomValue(id));
+};
+const n = (id) => Math.max(0, Number(getValue(id)) || 0);
 const setText = (id, value) => {
   const el = $(id);
   if (el) el.textContent = value;
@@ -231,10 +242,8 @@ function bracketTax(taxable, status) {
 function parentIncome(side) {
   const grossMonthly = n("gross" + side);
   const grossAnnual = grossMonthly * 12;
-  const statusEl = $("status" + side);
-  const typeEl = $("type" + side);
-  const status = statusEl ? statusEl.value : "Single";
-  const type = typeEl ? typeEl.value : "w2";
+  const status = getValue("status" + side) || "Single";
+  const type = getValue("type" + side) || "w2";
   const deps = n("dependents" + side);
   const isSE = type === "se";
   const seTaxable = isSE ? grossAnnual * .9235 : 0;
@@ -304,14 +313,19 @@ function renderDetailed(side, data) {
   setText("mathNet" + side, money.format(data.net));
 }
 
-function syncOvernights(sourceSide) {
+function syncOvernights(sourceSide, event) {
   const otherSide = sourceSide === "A" ? "B" : "A";
-  const source = $("overnights" + sourceSide);
-  const other = $("overnights" + otherSide);
-  if (!source || !other) return;
-  const value = Math.min(365, Math.max(0, Math.round(Number(source.value) || 0)));
-  source.value = value;
-  other.value = 365 - value;
+  const sourceId = "overnights" + sourceSide;
+  const otherId = "overnights" + otherSide;
+  rememberEvent(sourceId, event);
+  const value = Math.min(365, Math.max(0, Math.round(Number(getValue(sourceId)) || 0)));
+  const otherValue = 365 - value;
+  remember(sourceId, value);
+  remember(otherId, otherValue);
+  const source = $(sourceId);
+  const other = $(otherId);
+  if (source) source.value = value;
+  if (other) other.value = otherValue;
 }
 
 function showMessage(amount, direction, combined, netA, netB, basic, additions, method, explanation) {
@@ -349,8 +363,7 @@ function calculateSupport() {
   }
 
   const combined = a.net + b.net;
-  const childrenEl = $("children");
-  const children = childrenEl ? Number(childrenEl.value) : 1;
+  const children = Number(getValue("children") || 1);
   const basic = guidelineNeed(combined, children);
 
   if (combined < 800) {
@@ -442,6 +455,10 @@ function calculateSupport() {
 function resetCalculator() {
   const form = $("calculator");
   if (form && typeof form.reset === "function") form.reset();
+  Object.keys(state).forEach((key) => delete state[key]);
+  initializeState();
+  remember("overnightsA", 182);
+  remember("overnightsB", 183);
   const overA = $("overnightsA");
   const overB = $("overnightsB");
   if (overA) overA.value = 182;
@@ -458,17 +475,70 @@ function resetCalculator() {
   setText("calcStatus", "");
 }
 
+const trackedIds = [
+  "children","overnightsA","overnightsB",
+  ...["A","B"].flatMap((side) => [
+    "gross" + side,"type" + side,"status" + side,"dependents" + side,
+    "union" + side,"retirement" + side,"insurance" + side,"otherSupport" + side,"alimony" + side,
+    "childcare" + side,"health" + side,"medical" + side,
+  ]),
+];
+
+function initializeState() {
+  trackedIds.forEach((id) => {
+    const el = $(id);
+    if (el) remember(id, el.value);
+  });
+}
+
+function trackAndRender(id, side) {
+  const handler = (event) => {
+    rememberEvent(id, event);
+    renderLive(side);
+  };
+  on(id, "input", handler);
+  on(id, "keyup", handler);
+  on(id, "change", handler);
+}
+
+initializeState();
+
 ["A","B"].forEach((side) => {
   ["gross","dependents","union","retirement","insurance","otherSupport","alimony"].forEach((name) => {
-    on(name + side, "input", () => renderLive(side));
+    trackAndRender(name + side, side);
   });
   ["type","status"].forEach((name) => {
-    on(name + side, "change", () => renderLive(side));
+    trackAndRender(name + side, side);
+  });
+  ["childcare","health","medical"].forEach((name) => {
+    const id = name + side;
+    const handler = (event) => rememberEvent(id, event);
+    on(id, "input", handler);
+    on(id, "keyup", handler);
+    on(id, "change", handler);
   });
 });
 
-on("overnightsA", "input", () => syncOvernights("A"));
-on("overnightsB", "input", () => syncOvernights("B"));
-on("calculateSupport", "click", calculateSupport);
-on("resetCalculator", "click", resetCalculator);
+const childrenHandler = (event) => rememberEvent("children", event);
+on("children", "change", childrenHandler);
+
+const overnightAHandler = (event) => syncOvernights("A", event);
+const overnightBHandler = (event) => syncOvernights("B", event);
+["input","keyup","change"].forEach((eventName) => {
+  on("overnightsA", eventName, overnightAHandler);
+  on("overnightsB", eventName, overnightBHandler);
+});
+
+on("calculateSupport", "click", (event) => {
+  if (event && typeof event.preventDefault === "function") event.preventDefault();
+  calculateSupport();
+});
+on("calculator", "submit", (event) => {
+  if (event && typeof event.preventDefault === "function") event.preventDefault();
+  calculateSupport();
+});
+on("resetCalculator", "click", (event) => {
+  if (event && typeof event.preventDefault === "function") event.preventDefault();
+  resetCalculator();
+});
 })();
