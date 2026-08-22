@@ -115,6 +115,15 @@ function ensureAmpSidebarExtension(source) {
   return source.slice(0, insertAt) + extension + source.slice(insertAt);
 }
 
+function ensurePrivacyEnhancedAmpYoutube(source) {
+  return source.replace(/<amp-youtube\b[^>]*>/gi, (tag) => {
+    if (/\bcredentials\s*=\s*["'][^"']*["']/i.test(tag)) {
+      return tag.replace(/\scredentials\s*=\s*(["'])[^"']*\1/i, ' credentials="omit"');
+    }
+    return tag.replace(/<amp-youtube\b/i, '<amp-youtube credentials="omit"');
+  });
+}
+
 function replaceHeaderAndSidebar(source, header, sidebar, floatingText) {
   const existingSidebar = /<amp-sidebar\b[^>]*id="header-sidebar"[^>]*>[\s\S]*?<\/amp-sidebar>/i;
   source = source.replace(existingSidebar, '');
@@ -170,6 +179,12 @@ if (homeWithAuthorMenu !== home) {
   home = homeWithAuthorMenu;
   console.log('Added About Ken Turner as a top-level homepage menu item.');
 }
+const homeWithPrivateYoutube = ensurePrivacyEnhancedAmpYoutube(home);
+if (homeWithPrivateYoutube !== home) {
+  fs.writeFileSync(homePath, homeWithPrivateYoutube);
+  home = homeWithPrivateYoutube;
+  console.log('Enabled AMP YouTube privacy-enhanced mode on the homepage.');
+}
 
 if (fs.existsSync(calculatorPagePath)) {
   let calculator = fs.readFileSync(calculatorPagePath, 'utf8');
@@ -214,6 +229,7 @@ for (const relative of targets) {
   html = removeObsoleteThemeBlocks(html);
   html = replaceOrAppendManagedTemplate(html, template);
   html = ensureAmpSidebarExtension(html);
+  html = ensurePrivacyEnhancedAmpYoutube(html);
   html = replaceHeaderAndSidebar(html, header, sidebar, floatingText);
   fs.writeFileSync(file, html);
   synced += 1;
