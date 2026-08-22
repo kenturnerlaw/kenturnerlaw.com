@@ -100,8 +100,9 @@ function replaceOrAppendManagedTemplate(source, template) {
 function extractHomeMarkup(home) {
   const header = home.match(/<header class="ampstart-headerbar kt-home-header fixed left-0 right-0 top-0">[\s\S]*?<\/header>/i);
   const sidebar = home.match(/<amp-sidebar\b[^>]*id="header-sidebar"[^>]*>[\s\S]*?<\/amp-sidebar>/i);
-  if (!header || !sidebar) throw new Error('Homepage header/sidebar not found');
-  return { header: header[0], sidebar: sidebar[0] };
+  const floatingText = home.match(/<a\b[^>]*class="[^"]*\bkt-floating-text\b[^"]*"[^>]*>[\s\S]*?<\/a>/i);
+  if (!header || !sidebar || !floatingText) throw new Error('Homepage header/sidebar/floating text link not found');
+  return { header: header[0], sidebar: sidebar[0], floatingText: floatingText[0] };
 }
 
 function ensureAmpSidebarExtension(source) {
@@ -114,25 +115,26 @@ function ensureAmpSidebarExtension(source) {
   return source.slice(0, insertAt) + extension + source.slice(insertAt);
 }
 
-function replaceHeaderAndSidebar(source, header, sidebar) {
+function replaceHeaderAndSidebar(source, header, sidebar, floatingText) {
   const existingSidebar = /<amp-sidebar\b[^>]*id="header-sidebar"[^>]*>[\s\S]*?<\/amp-sidebar>/i;
   source = source.replace(existingSidebar, '');
+  source = source.replace(/<a\b[^>]*class="[^"]*\bkt-floating-text\b[^"]*"[^>]*>[\s\S]*?<\/a>\s*/i, '');
 
   // Consume all whitespace left around the old chrome and restore exactly one
   // newline after the canonical header/sidebar. This makes repeated syncs stable.
   const ampHeader = /<header\b[^>]*class="[^"]*ampstart-headerbar[^"]*"[^>]*>[\s\S]*?<\/header>\s*/i;
   if (ampHeader.test(source)) {
-    return source.replace(ampHeader, `${header}\n${sidebar}\n`);
+    return source.replace(ampHeader, `${header}\n${sidebar}\n${floatingText}\n`);
   }
 
   const simpleTopHeader = /<header\b[^>]*class=["']top["'][^>]*>[\s\S]*?<\/header>\s*/i;
   if (simpleTopHeader.test(source)) {
-    return source.replace(simpleTopHeader, `${header}\n${sidebar}\n`);
+    return source.replace(simpleTopHeader, `${header}\n${sidebar}\n${floatingText}\n`);
   }
 
   const siteHeader = /<header\b[^>]*class=["'][^"']*\bsite-header\b[^"']*["'][^>]*>[\s\S]*?<\/header>\s*/i;
   if (siteHeader.test(source)) {
-    return source.replace(siteHeader, `${header}\n${sidebar}\n`);
+    return source.replace(siteHeader, `${header}\n${sidebar}\n${floatingText}\n`);
   }
 
   throw new Error('Expected public-site header not found');
@@ -185,7 +187,7 @@ if (fs.existsSync(calculatorPagePath)) {
 }
 
 const template = extractManagedTemplate(home);
-const { header, sidebar } = extractHomeMarkup(home);
+const { header, sidebar, floatingText } = extractHomeMarkup(home);
 const targets = publicTargetsFromSitemap();
 
 let synced = 0;
@@ -212,7 +214,7 @@ for (const relative of targets) {
   html = removeObsoleteThemeBlocks(html);
   html = replaceOrAppendManagedTemplate(html, template);
   html = ensureAmpSidebarExtension(html);
-  html = replaceHeaderAndSidebar(html, header, sidebar);
+  html = replaceHeaderAndSidebar(html, header, sidebar, floatingText);
   fs.writeFileSync(file, html);
   synced += 1;
   console.log(`Synced managed homepage theme/header/menu to ${relative} without replacing page-specific CSS`);

@@ -166,7 +166,7 @@ const html = `<!doctype html>
   <meta name="robots" content="index,follow">
   <link rel="canonical" href="${authorUrl}">
   <title>Ken Turner | Florida Criminal Defense & Family Law Attorney</title>
-  <meta name="description" content="Read Florida legal information written by attorney Ken Turner, including criminal defense, traffic ticket, divorce, child custody, child support, and court-procedure resources.">
+  <meta name="description" content="Meet Florida attorney Ken Turner and read his practical resources on criminal defense, traffic tickets, divorce, child custody, and court procedure.">
   <meta property="og:type" content="profile">
   <meta property="og:title" content="Ken Turner | Florida Attorney">
   <meta property="og:description" content="Florida legal information and articles written by attorney Ken Turner.">
