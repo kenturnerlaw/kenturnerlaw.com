@@ -6,7 +6,6 @@ const site = 'https://www.kenturnerlaw.com';
 const authorPath = '/ken-turner/';
 const authorUrl = `${site}${authorPath}`;
 const sitemapPath = path.join(root, 'sitemap.xml');
-const sitemapTextPath = path.join(root, 'sitemap.txt');
 const output = path.join(root, 'ken-turner', 'index.html');
 
 const explicitlyAuthored = new Set([
@@ -75,7 +74,6 @@ function ensureSitemap(urls) {
       all.map((url) => `  <url><loc>${url}</loc></url>`).join('\n') +
       '\n</urlset>\n',
   );
-  fs.writeFileSync(sitemapTextPath, `${all.join('\n')}\n`);
 }
 
 const sitemap = fs.readFileSync(sitemapPath, 'utf8');

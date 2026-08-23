@@ -21,7 +21,6 @@ const { renderPostPage, renderUpdatesIndex } = require('./templates');
 const ANSWERS_INDEX = path.join(ROOT, 'florida-criminal-defense-answers', 'index.html');
 const BLOG_INDEX = path.join(ROOT, 'blog', 'index.html');
 const SITEMAP = path.join(ROOT, 'sitemap.xml');
-const SITEMAP_TXT = path.join(ROOT, 'sitemap.txt');
 const SEARCH_INDEX = path.join(ROOT, 'search', 'index.json');
 const LLMS = path.join(ROOT, 'llms.txt');
 const UPDATES_INDEX = path.join(ROOT, 'updates', 'index.html');
@@ -213,7 +212,6 @@ function updateSitemap(posts) {
   ].join('\n');
 
   writeFile(SITEMAP, xml);
-  writeFile(SITEMAP_TXT, `${urls.join('\n')}\n`);
   console.log(`Updated sitemap.xml (${urls.length} URLs)`);
 }
 
