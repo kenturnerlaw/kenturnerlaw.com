@@ -9,3 +9,6 @@
 /what-to-do-with-a-florida-traffic-citation/index.html /what-do-i-do-when-i-get-a-traffic-ticket/ 301
 /.env.prod / 301
 /.env.prod/ / 301
+/contact /#locations 301
+/contact/ /#locations 301
+/contact/index.html /#locations 301
