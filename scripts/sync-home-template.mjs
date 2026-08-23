@@ -14,11 +14,12 @@ const OBSOLETE_THEME_BLOCKS = [
   ['/* KT-CANONICAL-SITE-CHROME-START */', '/* KT-CANONICAL-SITE-CHROME-END */'],
 ];
 
-// Standalone tools can be valid AMP without using the public article/header shell.
+// Standalone pages can be valid AMP without using the public article/header shell.
 // They are intentionally excluded so their purpose-built UI is not overwritten
 // and so they cannot block publishing of the rest of the site.
 const THEME_SYNC_EXCLUSIONS = new Set([
   'child-support-calculator/index.html',
+  'cv/index.html',
 ]);
 
 function ensureCalculatorMenuItem(source, variant = 'site') {
