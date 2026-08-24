@@ -8,6 +8,7 @@ const calculatorPagePath = path.join(root, 'child-support-calculator', 'index.ht
 
 const TEMPLATE_START = '/* KT-HOME-TEMPLATE-START */';
 const TEMPLATE_END = '/* KT-HOME-TEMPLATE-END */';
+const SITE_URL = 'https://www.kenturnerlaw.com';
 
 const OBSOLETE_THEME_BLOCKS = [
   ['/* KT-LEATHER-STAMPED-THEME-V2-START */', '/* KT-LEATHER-STAMPED-THEME-V2-END */'],
@@ -125,6 +126,92 @@ function ensurePrivacyEnhancedAmpYoutube(source) {
   });
 }
 
+function plainText(value = '') {
+  return String(value)
+    .replace(/<[^>]+>/g, ' ')
+    .replace(/&amp;/g, '&')
+    .replace(/&quot;/g, '"')
+    .replace(/&#(?:39|x27);/gi, "'")
+    .replace(/&nbsp;/g, ' ')
+    .replace(/\s+/g, ' ')
+    .trim();
+}
+
+function pageName(source, pathname) {
+  const h1 = source.match(/<h1\b[^>]*>([\s\S]*?)<\/h1>/i);
+  if (h1) return plainText(h1[1]);
+  const title = source.match(/<title\b[^>]*>([\s\S]*?)<\/title>/i);
+  if (title) return plainText(title[1]).replace(/\s+[|–—-]\s+Ken Turner Law.*$/i, '');
+  return pathname.split('/').filter(Boolean).pop().replace(/-/g, ' ');
+}
+
+function breadcrumbParent(pathname) {
+  const nestedSections = [
+    ['/florida-criminal-defense-answers/', 'Florida Criminal Defense Answers'],
+    ['/florida-family-law-answers/', 'Florida Family Law Answers'],
+    ['/florida-traffic-ticket-answers/', 'Florida Traffic Ticket Answers'],
+  ];
+  for (const [path, name] of nestedSections) {
+    if (pathname.startsWith(path) && pathname !== path) return { path, name };
+  }
+
+  const criminalPages = new Set([
+    '/arrested/', '/criminal-defense-fort-myers/', '/criminal-defense-labelle/',
+    '/criminal-defense-miami/', '/criminal-defense-naples/', '/drug-charges/',
+    '/dui/', '/felony-charges/', '/misdemeanor-charges/', '/suspended-license/',
+    '/traffic-offenses/', '/violation-of-probation/',
+  ]);
+  if (criminalPages.has(pathname)) return { path: '/criminal-defense/', name: 'Criminal Defense' };
+
+  const familyPages = new Set([
+    '/best-interests-of-the-child-florida/', '/child-custody/',
+    '/child-support-calculator/', '/divorce/', '/domestic-violence/',
+    '/unbundled-legal-services-florida/',
+  ]);
+  if (familyPages.has(pathname)) return { path: '/florida-family-law-answers/', name: 'Florida Family Law' };
+
+  const trafficPages = new Set([
+    '/dont-pay-your-traffic-ticket-yet/', '/negative-consequences-of-paying-a-traffic-ticket/',
+    '/traffic-tickets/', '/what-do-i-do-when-i-get-a-traffic-ticket/',
+    '/why-do-i-need-an-attorney-for-a-traffic-ticket/',
+  ]);
+  if (trafficPages.has(pathname)) return { path: '/florida-traffic-ticket-answers/', name: 'Florida Traffic Tickets' };
+
+  return null;
+}
+
+function ensureBreadcrumbSchema(source, relative) {
+  const pathname = `/${relative.replace(/index\.html$/, '')}`.replace(/\/+/g, '/');
+  const currentUrl = `${SITE_URL}${pathname}`;
+  const items = [{ name: 'Home', item: `${SITE_URL}/` }];
+  const parent = breadcrumbParent(pathname);
+  if (parent) items.push({ name: parent.name, item: `${SITE_URL}${parent.path}` });
+  items.push({ name: pageName(source, pathname), item: currentUrl });
+
+  const schema = {
+    '@context': 'https://schema.org',
+    '@type': 'BreadcrumbList',
+    '@id': `${currentUrl}#breadcrumb`,
+    itemListElement: items.map((item, index) => ({
+      '@type': 'ListItem',
+      position: index + 1,
+      name: item.name,
+      item: item.item,
+    })),
+  };
+  const script = `<script type="application/ld+json">${JSON.stringify(schema)}</script>`;
+  const jsonLdScripts = /<script\b[^>]*type=["']application\/ld\+json["'][^>]*>[\s\S]*?<\/script>/gi;
+  let replaced = false;
+  source = source.replace(jsonLdScripts, (existing) => {
+    if (!/"@type"\s*:\s*"BreadcrumbList"/.test(existing)) return existing;
+    replaced = true;
+    return script;
+  });
+  if (replaced) return source;
+  if (!/<\/head>/i.test(source)) throw new Error(`Closing head tag not found for breadcrumb schema: ${relative}`);
+  return source.replace(/<\/head>/i, `  ${script}\n</head>`);
+}
+
 function replaceHeaderAndSidebar(source, header, sidebar, floatingText) {
   const existingSidebar = /<amp-sidebar\b[^>]*id="header-sidebar"[^>]*>[\s\S]*?<\/amp-sidebar>/i;
   source = source.replace(existingSidebar, '');
@@ -212,10 +299,12 @@ let skippedStandalone = 0;
 for (const relative of targets) {
   const file = path.join(root, relative);
   let html = fs.readFileSync(file, 'utf8');
+  html = ensureBreadcrumbSchema(html, relative);
 
   if (THEME_SYNC_EXCLUSIONS.has(relative)) {
+    fs.writeFileSync(file, html);
     skippedStandalone += 1;
-    console.log(`Skipped standalone public tool during homepage theme sync: ${relative}`);
+    console.log(`Added breadcrumb schema while preserving standalone public page theme: ${relative}`);
     continue;
   }
 
