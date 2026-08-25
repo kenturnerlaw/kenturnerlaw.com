@@ -120,7 +120,8 @@ const person = {
   mainEntity: {
     '@type': 'Person',
     '@id': `${authorUrl}#person`,
-    name: 'Ken Turner',
+    name: 'Kenneth R. Turner, Jr.',
+    alternateName: 'Ken Turner',
     url: authorUrl,
     jobTitle: 'Attorney',
     image: `${site}/img/kenturner.jpg`,

@@ -65,7 +65,14 @@ function schema(post) {
     datePublished: published,
     dateModified: modified,
     mainEntityOfPage: { '@type': 'WebPage', '@id': url },
-    author: { '@type': 'Person', name: 'Ken Turner', url: `${SITE}/` },
+    author: {
+      '@type': 'Person',
+      '@id': `${SITE}/ken-turner/#person`,
+      name: 'Kenneth R. Turner, Jr.',
+      alternateName: 'Ken Turner',
+      jobTitle: 'Florida Attorney',
+      url: `${SITE}/ken-turner/`,
+    },
     publisher: {
       '@type': 'LegalService',
       name: 'Ken Turner Law',

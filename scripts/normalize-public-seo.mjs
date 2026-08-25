@@ -118,9 +118,9 @@ function hasArticleSchema(html) {
 
 function ensureAuthorMeta(html) {
   if (/<meta\b[^>]*\bname=["']author["'][^>]*>/i.test(html)) {
-    return html.replace(/<meta\b[^>]*\bname=["']author["'][^>]*>/i, (tag) => replaceAttribute(tag, 'content', 'Ken Turner'));
+    return html.replace(/<meta\b[^>]*\bname=["']author["'][^>]*>/i, (tag) => replaceAttribute(tag, 'content', 'Kenneth R. Turner, Jr.'));
   }
-  return html.replace(/<meta\s+charset=[^>]+>/i, (tag) => `${tag}\n<meta name="author" content="Ken Turner">`);
+  return html.replace(/<meta\s+charset=[^>]+>/i, (tag) => `${tag}\n<meta name="author" content="Kenneth R. Turner, Jr.">`);
 }
 
 function ensureExplicitArticleSchema(html, pathname) {
@@ -133,7 +133,8 @@ function ensureExplicitArticleSchema(html, pathname) {
     author: {
       '@type': 'Person',
       '@id': authorId,
-      name: 'Ken Turner',
+      name: 'Kenneth R. Turner, Jr.',
+      alternateName: 'Ken Turner',
       url: authorUrl,
       jobTitle: 'Attorney',
       worksFor: { '@id': firmId },
@@ -201,6 +202,7 @@ for (const value of urls) {
   html = ensureExplicitArticleSchema(html, url.pathname);
 
   // Turn visible authorship into a crawlable author relationship without nesting links on repeat runs.
+  html = html.replace(/By Kenneth R\. Turner, Jr\., Florida Attorney(?!<\/a>)/g, '<a class="kt-author-link" href="/ken-turner/">By Kenneth R. Turner, Jr., Florida Attorney</a>');
   html = html.replace(/By Ken Turner(?!<\/a>)/g, '<a class="kt-author-link" href="/ken-turner/">By Ken Turner</a>');
 
   // Keep the homepage focused on getting a prospective client to call or schedule.
