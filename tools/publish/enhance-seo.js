@@ -44,7 +44,7 @@ function firstAnswer(body) {
 }
 
 function description(post) {
-  let value = firstAnswer(post.body) || post.title;
+  let value = post.seoDescription || firstAnswer(post.body) || post.title;
   if (post.county && !value.toLowerCase().includes(post.county.toLowerCase())) {
     value = `${value} ${post.county} County, Florida.`;
   }
