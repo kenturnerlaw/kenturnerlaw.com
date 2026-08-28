@@ -41,6 +41,21 @@ function repair(file) {
 
   html = html.replace(/\s*!important\b/gi, '');
 
+  // AMP permits each extension loader only once. Keep the first loader for a
+  // custom element and remove later copies that older page templates added.
+  const loadedExtensions = new Set();
+  html = html.replace(
+    /<script\b[^>]*\bcustom-element\s*=\s*(?:["']([^"']+)["']|([^\s>]+))[^>]*>\s*<\/script>/gi,
+    (script, quotedName, bareName) => {
+      const extension = (quotedName || bareName || '').toLowerCase();
+      if (!extension || !loadedExtensions.has(extension)) {
+        loadedExtensions.add(extension);
+        return script;
+      }
+      return '';
+    },
+  );
+
   html = html.replace(/<noscript>\s*<style\b[^>]*amp-boilerplate[^>]*>[\s\S]*?<\/style>\s*<\/noscript>/gi, '');
   html = html.replace(/<style\b[^>]*amp-boilerplate[^>]*>[\s\S]*?<\/style>/gi, '');
 
