@@ -183,7 +183,7 @@ const html = `<!doctype html>
 <main>
   <p class="eyebrow">Attorney & Author</p>
   <h1>Ken Turner</h1>
-  <p class="lead">Ken Turner is a Florida attorney who represents clients in criminal defense matters and family-law cases. This page collects legal information written by Ken Turner so readers and search engines can identify the author behind the firm's educational material.</p>
+  <p class="lead">Ken Turner is a Florida attorney who represents clients in criminal defense matters and family-law cases.</p>
   <section class="profile-card">
     <h2>Practice and experience</h2>
     <p>Ken Turner handles criminal defense matters including DUI, drug charges, felonies, misdemeanors, traffic offenses, and violations of probation. He also represents clients in divorce, parenting, child-support, and related family-law matters.</p>
