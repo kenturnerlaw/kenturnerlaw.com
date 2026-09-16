@@ -127,7 +127,7 @@ function updateBlog(posts) {
     ? updates
         .map((p) => `<p><a href="${escapeAttr(postPath(p))}">${escapeHtml(p.title)}</a></p>`)
         .join('')
-    : '<p class="small">No updates published yet.</p>';
+    : '<p class="small">No legal updates are available yet.</p>';
   const answerLinks = answers.length
     ? answers
         .map((p) => `<p><a href="${escapeAttr(postPath(p))}">${escapeHtml(p.title)}</a></p>`)

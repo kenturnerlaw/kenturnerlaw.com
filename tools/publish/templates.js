@@ -234,7 +234,7 @@ function renderUpdatesIndex(posts) {
             `<div class="card"><h2><a href="${escapeAttr(postPath(p))}">${escapeHtml(p.title)}</a></h2><p class="small">${escapeHtml(formatDisplayDate(p.datePublished))}${p.county ? ` • ${escapeHtml(p.county)} County` : ''}${p.category ? ` • ${escapeHtml(p.category)}` : ''}</p><p>${escapeHtml((require('./lib').plainParagraphs(p.body)[0] || '').slice(0, 220))}</p></div>`,
         )
         .join('\n')
-    : '<div class="card"><p>Short legal updates will appear here after they are published from the mobile publish page.</p></div>';
+    : '<div class="card"><p>No legal updates are available yet.</p></div>';
 
   const url = `${SITE}/updates/`;
   return `<!doctype html>
